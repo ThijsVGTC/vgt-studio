@@ -146,3 +146,25 @@ LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "recording_list"
 LOGOUT_REDIRECT_URL = "login"
 WHITENOISE_STATIC_PREFIX = "/static/"
+
+# Login/session 30 dagen bewaren
+
+SESSION_COOKIE_AGE = 60 * 60 * 24 * 30
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = False
+
+# Alleen via HTTPS
+
+SESSION_COOKIE_SECURE = True
+
+CSRF_COOKIE_SECURE = True
+
+# Nodig voor normale navigatie binnen de site
+
+SESSION_COOKIE_SAMESITE = "Lax"
+
+CSRF_COOKIE_SAMESITE = "Lax"
+
+SESSION_COOKIE_PATH = "/vgt-studio/"
+
+CSRF_COOKIE_PATH = "/vgt-studio/"
