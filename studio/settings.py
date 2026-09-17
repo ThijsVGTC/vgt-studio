@@ -45,6 +45,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -144,3 +145,4 @@ WEBOPNAME_BASE_URL = "http://127.0.0.1:8000/"
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "recording_list"
 LOGOUT_REDIRECT_URL = "login"
+WHITENOISE_STATIC_PREFIX = "/static/"
