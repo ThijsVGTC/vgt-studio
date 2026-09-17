@@ -1,0 +1,18 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+OPNAME voltooid
+
+{% endblock %}
+
+{% block content %}
+
+<div style=" text-align: center; margin-top: 100px;">
+    <h1>OPNAME VOLTOOID</h1>
+    <p>Alle items uit deze opnamereeks zijn verwerkt.</p>
+    <a href="{% url 'recording_list' %}?status={{ filters.status|urlencode }}&recording_by={{ filters.recording_by|urlencode }}&recording_date={{ filters.recording_date|urlencode }}&review_status={{ filters.review_status|urlencode }}">
+        KEER TERUG NAAR HOMEPAGINA
+    </a>
+</div>
+
+{% endblock %}

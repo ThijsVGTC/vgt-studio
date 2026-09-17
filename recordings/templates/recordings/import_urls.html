@@ -1,0 +1,37 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+URL's importeren
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Signbank-video's importeren</h1>
+<p>
+    Kopieer een kolom met video-URL's uit Excel en plak ze hieronder.
+</p>
+
+<form method="post">
+    {% csrf_token %}
+    <textarea
+        name="urls"
+        rows="20"
+        cols="120"
+        placeholder="https://vlaamsegebarentaal.be/.../MAROKKO-D-7270.mp4"
+    ></textarea>
+    <br><br>
+    <button type="submit">
+        Importeren
+    </button>
+</form>
+
+{% if message %}
+    <p><strong>{{ message }}</strong></p>
+{% endif %}
+
+<p>
+    <a href="/">Terug naar lijst</a>
+</p>
+
+{% endblock %}

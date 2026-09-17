@@ -1,0 +1,206 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+Opnames | VGT Studio
+
+{% endblock %}
+
+{% block content %}
+    <h1>VGT Studio</h1>
+    <p>
+        <a href="/import/">URL-lijst importeren</a>
+        <a href="/import-google-sheet/">Google Spreadsheet koppelen</a>
+        <a href="/sync-google-sheet/">Synchroniseer Google Sheet</a>
+    </p>
+
+    <form method="get" style="margin-bottom: 20px;">
+        <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end;">
+            <div>
+                <label for="review_status"><strong>Opnamestatus</strong></label><br>
+                <select name="review_status" id="review_status">
+                    <option value="">Alle opnamestatussen</option>
+                    <option value="OPGENOMEN" {% if selected_review_status == "OPGENOMEN" %}selected{% endif %}>
+                        Opgenomen        
+                    </option>
+                    <option value="OVER-OPM" {% if selected_review_status == "OVER-OPM" %}selected{% endif %}>
+                        Overgeslagen met opm
+                    </option>
+                    <option value="OVER-AL_VIDEO" {% if selected_review_status == "OVER-AL_VIDEO" %}selected{% endif %}>
+                        Overgeslagen, al video
+                    </option>
+                </select>
+            </div>
+
+            <div>
+                <label for="status"><strong>Status</strong></label><br>
+                <select name="status" id="status">
+                    <option value="">Alle statussen</option>
+                    {% for status in statuses %}
+                        <option
+                            value="{{ status }}"
+                            {% if status == selected_status %}selected{% endif %}
+                        >
+                            {{ status }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <label for="recording_by"><strong>Wie opname?</strong></label><br>
+                <select name="recording_by" id="recording_by">
+                    <option value="">Iedereen</option>
+                    {% for person in recording_people %}
+                        <option
+                            value="{{ person }}"
+                            {% if person == selected_recording_by %}selected{% endif %}
+                        >
+                            {{ person }}
+                        </option>
+                    {% endfor %}
+                </select>
+
+            </div>
+
+            <div>
+                <label for="recording_date"><strong>Wanneer opname?</strong></label><br>
+                <select name="recording_date" id="recording_date">
+                    <option value="">Alle datums</option>
+                    {% for date in recording_dates %}
+                        <option
+                            value="{{ date }}"
+                            {% if date == selected_recording_date %}selected{% endif %}
+                        >
+                            {{ date }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div>
+                <button type="submit">Filteren</button>
+                <a href="{% url 'recording_list' %}">
+                    Filters wissen
+                </a>
+            </div>
+        </div>
+    </form>
+
+    {% if items %}
+    <form method="post" action="{% url 'start_recording_series' %}">
+        {% csrf_token %}
+        <input type="hidden" name="status" value="{{ selected_status }}">
+        <input type="hidden" name="recording_by" value="{{ selected_recording_by }}">
+        <input type="hidden" name="recording_date" value="{{ selected_recording_date }}">
+        <input type="hidden" name="review_status" value="{{ selected_review_status }}">
+        {% for item in items %}
+            <input
+                type="hidden"
+                name="signbank_ids"
+                value="{{ item.signbank_id }}"
+            >
+        {% endfor %}
+        <button type="submit">
+            START OPNAMEREEKS
+        </button>
+    </form>
+    {% endif %}
+
+    <table border="1" cellpadding="10">
+        <thead>
+            <tr>
+                <th>Gloss ID</th>
+                <th>Signbank ID</th>
+                <th>Oude video</th>
+                <th>Bestandsnaam</th>
+                <th>Status</th>
+                <th>Wie opname?</th>
+                <th>Wanneer opname?</th>
+                <th>Opmerkingen</th>
+                <th>Opnamestatus</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for item in items %}
+            <tr>
+                <td><a href="{{settings.WEBOPNAME_BASE_URL}}/opname/{{ item.signbank_id }}">{{ item.gloss_id }}</a></td>
+                <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
+                <td>
+                    {% if item.old_video_url %}
+                    <a href="{{ item.old_video_url }}" target="_blank">
+                        <canvas class="video-thumbnail" width="120" height="68" data-video-url="{{ item.old_video_url }}"></canvas>
+                    </a>
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>{{ item.filename }}</td>
+                <td>{{ item.status }}</td>
+                <td>{{ item.recording_by }}</td>
+                <td>{{ item.recording_date }}</td>
+                <td>{{ item.remarks }}</td>
+                <td>
+                    <form method="post" action="{% url 'update_review_status' item.id %}">
+                        {% csrf_token %}
+                        <select name="review_status" onchange="this.form.submit()">
+                            <option value="">-</option>
+                            <option value="OPGENOMEN" {% if item.review_status == "OPGENOMEN" %}selected{% endif %}>
+                                Opgenomen
+                            </option>
+                            <option value="OVER-OPM" {% if item.review_status == "OVER-OPM" %}selected{% endif %}>
+                                Overgeslagen met opm
+                            </option>
+                            <option value="OVER-AL_VIDEO" {% if item.review_status == "OVER-AL_VIDEO" %}selected{% endif %}>
+                                Overgeslagen, al video
+                            </option>
+                        </select>
+                    </form>
+                </td>
+
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5">
+                    Nog geen opnames in de lijst.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+<script>
+
+document.querySelectorAll(".video-thumbnail").forEach(function(canvas) {
+    const videoUrl = canvas.dataset.videoUrl;
+    if (!videoUrl) {
+        return;
+    }
+    const video = document.createElement("video");
+    video.src = videoUrl;
+    video.preload = "metadata";
+    video.muted = true;
+    video.playsInline = true;
+    video.addEventListener("loadedmetadata", function() {
+        if (!video.duration || !isFinite(video.duration)) {
+            return;
+        }
+       // Frame uit het midden van de video
+        video.currentTime = video.duration / 2;
+    });
+    video.addEventListener("seeked", function() {
+        const ctx = canvas.getContext("2d");
+        ctx.drawImage(
+            video,
+            0,
+            0,
+            canvas.width,
+            canvas.height
+        );
+        video.removeAttribute("src");
+        video.load();
+    });
+});
+
+</script>
+{% endblock %}

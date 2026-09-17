@@ -1,0 +1,48 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+Google Sheet synchroniseren
+
+{% endblock %}
+
+{% block content %}
+
+<h1>Google Spreadsheet synchroniseren</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>
+        Google Spreadsheet-link
+    </label>
+
+    <br><br>
+
+    <input
+        type="url"
+        name="sheet_url"
+        value="{{ settings.google_sheet_url }}"
+        style="width: 800px;"
+        placeholder="https://docs.google.com/spreadsheets/d/..."
+    >
+
+    <br><br>
+
+    <button type="submit">
+        Synchroniseer Google Sheet
+    </button>
+
+</form>
+{% if message %}
+
+<p>
+    <strong>{{ message }}</strong>
+</p>
+
+{% endif %}
+
+<p>
+    <a href="/">
+        Terug naar VGT Studio
+    </a>
+</p>
+
+{% endblock %}

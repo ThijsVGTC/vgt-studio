@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="nl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}VGT Studio{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'recordings/css/style.css' %}">
+</head>
+
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="{% url 'recording_list' %}" class="logo">
+                VGT STUDIO
+            </a>
+            {% if user.is_authenticated %}
+            <nav class="main-nav">
+                <a href="{% url 'recording_list' %}">
+                    Opnames
+                </a>
+                <span class="user-name">
+                    {{ user.username }}
+                </span>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="logout-button">
+                        Uitloggen
+                    </button>
+                </form>
+            </nav>
+            {% endif %}
+        </div>
+    </header>
+    <main class="site-main">
+        <div class="container">
+            {% block content %}
+            {% endblock %}
+        </div>
+    </main>
+    <footer class="site-footer">
+        <div class="container">
+            VGT Studio
+        </div>
+    </footer>
+</body>
+
+</html>

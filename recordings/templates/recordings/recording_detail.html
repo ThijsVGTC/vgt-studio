@@ -1,0 +1,130 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+detail-pagina {{ item.gloss_id }}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    <h1>{{ item.gloss_id }}</h1>
+    <p>
+        <strong>Signbank ID:</strong>
+        {{ item.signbank_id }}
+    </p>
+    {% if item.old_video_url %}
+        <video
+            controls
+            style="width: 100%; max-width: 700px;"
+        >
+            <source src="{{ item.old_video_url }}" type="video/mp4">
+            Je browser ondersteunt deze video niet.
+        </video>
+    {% else %}
+        <p>Geen video beschikbaar.</p>
+    {% endif %}
+    <hr>
+    <p>
+        <strong>Status:</strong>
+        {{ item.status }}
+    </p>
+    <p>
+        <strong>Wie opname:</strong>
+        {{ item.recording_by }}
+    </p>
+    <p>
+        <strong>Wanneer opname:</strong>
+        {{ item.recording_date }}
+    </p>
+    <p>
+        <strong>Opmerkingen:</strong>
+        {{ item.remarks }}
+    </p>
+    <hr>
+
+    <div id="recording-controls">
+        <div id="start-controls">
+            <button class="startbutton" type="button" id="start-recording">START OPNAME</button>
+            <button type="button" onclick="openRemarkModal()">OVERSLAAN MET OPMERKING</button>
+            <form method="post" action="{% url 'skip_recording_existing_video' item.signbank_id %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit">OVERSLAAN - AL VIDEO</button>
+            </form>
+        </div>
+        <div id="stop-controls" style="display: none;">
+            <button class="stopbutton" type="button" id="stop-recording">STOP OPNAME</button>
+        </div>
+        <div id="approval-controls" style="display: none;">
+            <form method="post" action="{% url 'approve_recording' item.signbank_id %}" style="display: inline;">
+                {% csrf_token %}
+                <button class="startbutton" type="submit">GOEDKEUREN</button>
+            </form>
+            <button class="stopbutton" type="button" id="retry-recording">OPNIEUW</button>
+        </div>
+    </div>
+
+    <div id="remark-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+        <div style=" background: white; max-width: 500px; margin: 100px auto; padding: 25px;">
+            <h2>Overslaan met opmerking</h2>
+            <form method="post" action="{% url 'skip_recording_with_remark' item.signbank_id %}">
+                {% csrf_token %}
+                <textarea name="remark" rows="6" style="width: 100%;" placeholder="Typ hier de opmerking..." required></textarea>
+                <br><br>
+                <button type="submit">
+                    OPSLAAN EN VOLGENDE
+                </button>
+                <button type="button" onclick="closeRemarkModal()">
+                    ANNULEREN
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <p>
+        <a href="{% url 'recording_list' %}">
+            ← Terug naar overzicht
+        </a>
+    </p>
+</div>
+
+<script>
+    const startControls = document.getElementById("start-controls");
+    const stopControls = document.getElementById("stop-controls");
+    const approvalControls = document.getElementById("approval-controls");
+    
+    document
+        .getElementById("start-recording")
+        .addEventListener("click", function() {
+            startControls.style.display = "none";
+            stopControls.style.display = "block";
+            approvalControls.style.display = "none";
+        });
+    
+    document
+        .getElementById("stop-recording")
+        .addEventListener("click", function() {
+            startControls.style.display = "none";
+            stopControls.style.display = "none";
+            approvalControls.style.display = "block";
+        });
+
+    document
+        .getElementById("retry-recording")
+        .addEventListener("click", function() {
+            startControls.style.display = "block";
+            stopControls.style.display = "none";
+            approvalControls.style.display = "none";
+        });
+
+    function openRemarkModal() {
+        document.getElementById("remark-modal").style.display = "block";
+    }
+
+    function closeRemarkModal() {
+    document.getElementById("remark-modal").style.display = "none";
+    }
+
+</script>
+
+{% endblock %}

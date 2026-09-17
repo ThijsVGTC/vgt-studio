@@ -1,0 +1,278 @@
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: Arial, Helvetica, sans-serif;
+    background: #f5f6f8;
+    color: #1f2937;
+    line-height: 1.5;
+}
+
+.container {
+    width: min(1400px, calc(100% - 48px));
+    margin: 0 auto;
+}
+
+/* HEADER */
+
+.site-header {
+    background: #184148;
+    color: white;
+}
+
+.header-inner {
+    min-height: 72px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 30px;
+}
+
+.logo {
+    color: white;
+    text-decoration: none;
+    font-size: 22px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+}
+
+.main-nav {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+}
+
+.main-nav a {
+    color: white;
+    text-decoration: none;
+}
+
+.main-nav a:hover {
+    text-decoration: underline;
+}
+
+.user-name {
+    opacity: 0.8;
+}
+
+/* MAIN */
+
+.site-main {
+    min-height: calc(100vh - 144px);
+    padding: 40px 0 60px;
+}
+
+/* FOOTER */
+
+.site-footer {
+    min-height: 72px;
+    display: flex;
+    align-items: center;
+    background: #ffffff;
+    border-top: 1px solid #e5e7eb;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* TYPOGRAPHY */
+
+h1 {
+    margin-top: 0;
+    font-size: 32px;
+}
+
+h2 {
+    font-size: 24px;
+}
+
+/* BUTTONS */
+
+button,
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 6px;
+    padding: 10px 18px;
+    background: #184148;
+    color: white;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+button:hover,
+.button:hover {
+    opacity: 0.9;
+}
+
+.logout-button {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+/* FORM ELEMENTS */
+
+input,
+select,
+textarea {
+    min-height: 40px;
+    padding: 8px 10px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background: white;
+    font: inherit;
+}
+
+textarea {
+    min-height: 120px;
+}
+
+/* TABLE */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+th,
+td {
+    padding: 12px 14px;
+    text-align: left;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+th {
+    background: #eef2f3;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+}
+
+tr:hover td {
+    background: #fafafa;
+}
+
+/* CARDS */
+
+.card {
+    background: white;
+    padding: 24px;
+    border-radius: 10px;
+    border: 1px solid #e5e7eb;
+}
+
+/* MOBILE */
+
+@media (max-width: 700px) {
+    .container {
+        width: min(100% - 28px, 1400px);
+    }
+
+    .header-inner {
+        align-items: flex-start;
+        flex-direction: column;
+        padding: 18px 0;
+    }
+
+    .main-nav {
+        flex-wrap: wrap;
+    }
+
+    table {
+        display: block;
+        overflow-x: auto;
+    }
+
+}
+
+.login-wrapper {
+    min-height: 65vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 40px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.login-card h1 {
+    margin-bottom: 8px;
+}
+
+.login-intro {
+    margin-top: 0;
+    margin-bottom: 28px;
+    color: #6b7280;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+}
+
+.form-group input {
+    width: 100%;
+}
+
+.login-submit {
+    width: 100%;
+    margin-top: 10px;
+    padding: 13px;
+}
+
+.form-error {
+    padding: 12px;
+    border-radius: 6px;
+    background: #fee2e2;
+}
+
+.old-video-cell {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.video-thumbnail {
+    display: block;
+    width: auto;
+    height: 68px;
+    border-radius: 6px;
+    background: #e5e7eb;
+    cursor: pointer;
+}
+
+.video-thumbnail:hover {
+    opacity: 0.85;
+}
+
+.startbutton {
+    background-color: green;
+}
+
+.stopbutton {
+    background-color: red;
+}

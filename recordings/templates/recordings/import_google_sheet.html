@@ -1,0 +1,35 @@
+{% extends "recordings/base.html" %}
+{% block title %}
+
+Google Spreadsheet koppelen
+
+{% endblock %}
+
+{% block content %}
+
+    <h1>Google Spreadsheet koppelen</h1>
+    <p>
+        Plak hieronder de volledige link naar je Google Spreadsheet.
+    </p>
+    <form method="post">
+        {% csrf_token %}
+        <input type="url" name="sheet_url" style="width: 700px;"
+            placeholder="https://docs.google.com/spreadsheets/d/..." required>
+        <button type="submit">
+            Spreadsheet importeren
+        </button>
+    </form>
+
+    {% if message %}
+
+    <p>
+        <strong>{{ message }}</strong>
+    </p>
+
+    {% endif %}
+
+    <p>
+        <a href="/">Terug naar VGT Studio</a>
+    </p>
+
+{% endblock %}
