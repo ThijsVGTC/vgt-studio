@@ -8,9 +8,9 @@ Opnames | VGT Studio
 {% block content %}
     <h1>VGT Studio</h1>
     <p>
-        <a href="/import/">URL-lijst importeren</a>
-        <a href="/import-google-sheet/">Google Spreadsheet koppelen</a>
-        <a href="/sync-google-sheet/">Synchroniseer Google Sheet</a>
+        <a href="{% url 'import_urls' %}">URL-lijst importeren</a>
+        <a href="{% url 'import_google_sheet' %}">Google Spreadsheet koppelen</a>
+        <a href="{% url 'sync_google_sheet' %}">Synchroniseer Google Sheet</a>
     </p>
 
     <form method="get" style="margin-bottom: 20px;">
@@ -124,7 +124,7 @@ Opnames | VGT Studio
         <tbody>
             {% for item in items %}
             <tr>
-                <td><a href="{{settings.WEBOPNAME_BASE_URL}}/opname/{{ item.signbank_id }}">{{ item.gloss_id }}</a></td>
+                <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
                 <td>
                     {% if item.old_video_url %}
