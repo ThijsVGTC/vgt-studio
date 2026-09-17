@@ -276,3 +276,16 @@ tr:hover td {
 .stopbutton {
     background-color: red;
 }
+
+.detail_wrapper {
+    display: inline-block;
+
+}
+
+.detail_video {
+    width: 50%;
+}
+
+.detail_inhoud {
+    width: 50%;
+}

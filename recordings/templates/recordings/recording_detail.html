@@ -13,35 +13,37 @@ detail-pagina {{ item.gloss_id }}
         <strong>Signbank ID:</strong>
         {{ item.signbank_id }}
     </p>
-    {% if item.old_video_url %}
-        <video
-            controls
-            style="width: 100%; max-width: 700px;"
-        >
-            <source src="{{ item.old_video_url }}" type="video/mp4">
-            Je browser ondersteunt deze video niet.
-        </video>
-    {% else %}
-        <p>Geen video beschikbaar.</p>
-    {% endif %}
-    <hr>
-    <p>
-        <strong>Status:</strong>
-        {{ item.status }}
-    </p>
-    <p>
-        <strong>Wie opname:</strong>
-        {{ item.recording_by }}
-    </p>
-    <p>
-        <strong>Wanneer opname:</strong>
-        {{ item.recording_date }}
-    </p>
-    <p>
-        <strong>Opmerkingen:</strong>
-        {{ item.remarks }}
-    </p>
-    <hr>
+    <div class="detail_wrapper">
+        <div class="detail_video">
+            {% if item.old_video_url %}
+            <video controls style="width: 100%; max-width: 700px;">
+                <source src="{{ item.old_video_url }}" type="video/mp4">
+                Je browser ondersteunt deze video niet.
+            </video>
+            {% else %}
+            <p>Geen video beschikbaar.</p>
+            {% endif %}
+            <hr>
+        </div>
+        <div class="detail_inhoud">
+            <p>
+                <strong>Status:</strong>
+                {{ item.status }}
+            </p>
+            <p>
+                <strong>Wie opname:</strong>
+                {{ item.recording_by }}
+            </p>
+            <p>
+                <strong>Wanneer opname:</strong>
+                {{ item.recording_date }}
+            </p>
+            <p>
+                <strong>Opmerkingen:</strong>
+                {{ item.remarks }}
+            </p>
+        </div>
+    </div>
 
     <div id="recording-controls">
         <div id="start-controls">
