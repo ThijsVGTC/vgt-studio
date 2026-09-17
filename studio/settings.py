@@ -124,7 +124,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/6.1/howto/static-files/
 
-STATIC_URL = 'static/'
+STATIC_URL = '/vgt-studio/static/'
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 
@@ -141,6 +141,7 @@ SIGNBANK_BASE_URL = "https://vlaamsegebarentaal.be/signbank/"
 
 WEBOPNAME_BASE_URL = "http://127.0.0.1:8000/"
 
-LOGIN_URL = "/vgt-studio/accounts/login/"
-LOGIN_REDIRECT_URL = "/vgt-studio/"
-LOGOUT_REDIRECT_URL = "/vgt-studio/accounts/login/"
+LOGIN_URL = "login"
+LOGIN_REDIRECT_URL = "recording_list"
+LOGOUT_REDIRECT_URL = "login"
+FORCE_SCRIPT_NAME = "/vgt-studio"
