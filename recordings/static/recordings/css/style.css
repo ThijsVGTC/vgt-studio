@@ -278,14 +278,17 @@ tr:hover td {
 }
 
 .detail_wrapper {
-    display: inline-block;
-
+    width: 100%;
 }
 
 .detail_video {
-    width: 50%;
+    width: 62%;
+    display: inline-block;
+    padding: 20px;
 }
 
 .detail_inhoud {
-    width: 50%;
+    width: 35%;
+    padding: 20px;
+    display: inline-block;
 }
