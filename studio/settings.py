@@ -23,9 +23,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-6*z-#eyw3o3k@h2xscfjy$_maznvfy(rd=rd7wrr6=rv#(c&zc'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    "vlaamsegebarentaal.be",
+    "www.vlaamsegebarentaal.be",
+]
 
 
 # Application definition
@@ -68,6 +71,12 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'studio.wsgi.application'
+
+CSRF_TRUSTED_ORIGINS = [
+
+    "https://vlaamsegebarentaal.be",
+
+]
 
 
 # Database
