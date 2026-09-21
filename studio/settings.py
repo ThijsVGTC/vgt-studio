@@ -26,8 +26,7 @@ SECRET_KEY = 'django-insecure-6*z-#eyw3o3k@h2xscfjy$_maznvfy(rd=rd7wrr6=rv#(c&zc
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "vlaamsegebarentaal.be",
-    "www.vlaamsegebarentaal.be",
+    "vgtstudio.vlaamsegebarentaal.be",
 ]
 
 
@@ -75,7 +74,7 @@ WSGI_APPLICATION = 'studio.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
 
-    "https://vlaamsegebarentaal.be",
+    "https://vgtstudio.vlaamsegebarentaal.be",
 
 ]
 
