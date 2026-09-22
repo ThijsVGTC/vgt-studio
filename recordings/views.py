@@ -12,6 +12,7 @@ from django.conf import settings
 from .models import RecordingItem, AppSettings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -37,8 +38,9 @@ def recording_list(request):
     filtered_ids = list(
         items.values_list("signbank_id", flat=True)
     )
-
-
+    paginator = Paginator(items, 25)
+    page_number = request.GET.get("page",1)
+    page_obj = paginator.get_page(page_number)
     # Beschikbare waarden voor dropdowns
 
     statuses = (
@@ -67,7 +69,8 @@ def recording_list(request):
         request,
         "recordings/recording_list.html",
         {
-            "items": items,
+            "items": page_obj,
+            "page_obj": page_obj,
             "statuses": statuses,
             "recording_people": recording_people,
             "recording_dates": recording_dates,

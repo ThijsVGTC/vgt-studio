@@ -93,11 +93,11 @@ Opnames | VGT Studio
         <input type="hidden" name="recording_by" value="{{ selected_recording_by }}">
         <input type="hidden" name="recording_date" value="{{ selected_recording_date }}">
         <input type="hidden" name="review_status" value="{{ selected_review_status }}">
-        {% for item in items %}
+        {% for signbank_id in filtered_ids %}
             <input
                 type="hidden"
                 name="signbank_ids"
-                value="{{ item.signbank_id }}"
+                value="{{ signbank_id }}"
             >
         {% endfor %}
         <button type="submit">
@@ -121,9 +121,9 @@ Opnames | VGT Studio
             </tr>
         </thead>
 
-        <tbody>
+        <tbody id="recording-table-body">
             {% for item in items %}
-            <tr>
+            <tr class="recording-row">
                 <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
                 <td>
@@ -168,6 +168,12 @@ Opnames | VGT Studio
             {% endfor %}
         </tbody>
     </table>
+
+    {% if page_obj.has_next %}
+    <div id="load-more" data-next-page="{{ page_obj.next_page_number }}" style="text-align: center; padding: 25px;">
+        Meer opnames laden...
+    </div>
+    {% endif %}
 <!--
 <script>
 
@@ -204,5 +210,67 @@ document.querySelectorAll(".video-thumbnail").forEach(function(canvas) {
 
 </script>
 -->
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const loadMore = document.getElementById("load-more");
+    const tableBody = document.getElementById("recording-table-body");
+    if (!loadMore || !tableBody) {
+        return;
+    }
+    let loading = false;
+    let nextPage = parseInt(loadMore.dataset.nextPage);
+    const observer = new IntersectionObserver(
+        async function (entries) {
+            if (!entries[0].isIntersecting || loading) {
+                return;
+            }
+            loading = true;
+            loadMore.textContent = "Laden...";
+            const url = new URL(window.location.href);
+            url.searchParams.set("page", nextPage);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) {
+                    throw new Error("Kon volgende pagina niet laden.");
+                }
+                const html = await response.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(
+                    html,
+                    "text/html"
+                );
+                const newRows = doc.querySelectorAll(
+                    "#recording-table-body .recording-row"
+                );
+                newRows.forEach(function (row) {
+                    tableBody.appendChild(row);
+                });
+                const newLoadMore = doc.getElementById("load-more");
+                if (newLoadMore) {
+                    nextPage = parseInt(
+                        newLoadMore.dataset.nextPage
+                    );
+                    loadMore.dataset.nextPage = nextPage;
+                    loadMore.textContent =
+                        "Meer opnames laden...";
+                } else {
+                    observer.disconnect();
+                    loadMore.remove();
+                }
+            } catch (error) {
+                console.error(error);
+                loadMore.textContent =
+                    "Laden mislukt. Scroll opnieuw om te proberen.";
+            }
+            loading = false;
+        },
+        {
+            rootMargin: "200px"
+        }
+    );
+    observer.observe(loadMore);
+});
+</script>
 
 {% endblock %}
