@@ -71,10 +71,20 @@ detail-pagina {{ item.gloss_id }}
                 <strong>Wanneer opname:</strong>
                 {{ item.recording_date }}
             </p>
-            <p>
-                <strong>Opmerkingen:</strong>
-                {{ item.remarks }}
-            </p>
+            <div class="remarks-edit">
+                <form method="post" action="{% url 'update_remarks' item.signbank_id %}">
+                    {% csrf_token %}
+                    <label for="remarks">
+                        <strong>Opmerkingen:</strong>
+                    </label>
+                    <textarea id="remarks" name="remarks" rows="6">
+                        {{ item.remarks }}
+                    </textarea>
+                    <button type="submit">
+                        OPMERKINGEN OPSLAAN
+                    </button>
+                </form>
+            </div>
         </div>
     </div>
 

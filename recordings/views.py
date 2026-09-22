@@ -391,6 +391,27 @@ def recording_detail(request, signbank_id):
     )
 
 @login_required
+def update_remarks(request, signbank_id):
+    item=get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method == "POST":
+        item.remarks = request.POST.get(
+            "remarks",
+            ""
+        ).strip()
+
+        item.save(
+            update_fields=["remarks"]
+        )
+    return redirect(
+        "recording_detail",
+        signbank_id=signbank_id,
+    )
+
+@login_required
 def stop_opnamereeks(request):
     request.session["opnamereeks_actief"] = False
     request.session.pop("recording_series", None)
@@ -437,7 +458,11 @@ def skip_recording_with_remark(request, signbank_id):
     if request.method == "POST":
         remark = request.POST.get("remark", "").strip()
         item.review_status = "OVER-OPM"
-        item.remarks = remark
+        if remark:
+            if item.remark.strip():
+                item.remarks = f"{item.remarks.rstrip()}\n{remark}"
+            else:
+                item.remarks = remark
         item.save(
             update_fields=[
                 "review_status",

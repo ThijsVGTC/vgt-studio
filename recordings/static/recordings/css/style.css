@@ -346,6 +346,27 @@ tr:hover td {
     text-align: right;
 }
 
+.remarks-edit {
+    margin-top: 20px;
+}
+
+.remarks-edit label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.remarks-edit textarea {
+    width: 100%;
+    box-sizing: border-box;
+    resize: vertical;
+    margin-bottom: 10px;
+}
+
+.remarks-edit button {
+    width: 100%;
+}
+
+
 @media (max-width: 700px) {
     .recording-stats {
         grid-template-columns: repeat(2, 1fr);
