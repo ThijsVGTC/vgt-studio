@@ -173,3 +173,7 @@ GOOGLE_SERVICE_ACCOUNT_FILE = (
     "/home/vlaamseg/private/google-service-account.json"
 
 )
+
+MEDIA_URL = "/media/"
+
+MEDIA_ROOT = BASE_DIR / "media"
