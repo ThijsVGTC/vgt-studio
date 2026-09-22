@@ -6,6 +6,8 @@ detail-pagina {{ item.gloss_id }}
 {% endblock %}
 
 {% block content %}
+
+{% if opnamereeks_actief %}
 <div class="recording-progress">
     <div class="recording-stats">
         <div class="recording-stat">
@@ -36,6 +38,8 @@ detail-pagina {{ item.gloss_id }}
     </div>
 
 </div>
+{% endif %}
+
 <div class="container">
     <h1>{{ item.gloss_id }}</h1>
     <p>
@@ -74,6 +78,8 @@ detail-pagina {{ item.gloss_id }}
         </div>
     </div>
 
+{% if opnamereeks_actief %}
+
     <div id="recording-controls">
         <div id="start-controls">
             <button class="startbutton" type="button" id="start-recording">START OPNAME</button>
@@ -111,13 +117,18 @@ detail-pagina {{ item.gloss_id }}
             </form>
         </div>
     </div>
-
-    <p>
-        <a href="{% url 'recording_list' %}">
-            ← Terug naar overzicht
-        </a>
-    </p>
+{% if opnamereeks_actief %}
+    <a href="{% url 'stop_opnamereeks' %}">
+        ← Opnamereeks beëindigen
+    </a>
+{% else %}
+    <a href="{% url 'recording_list' %}">
+        ← Terug naar overzicht
+    </a>
+{% endif %}
 </div>
+
+{% endif %}
 
 <script>
     const startControls = document.getElementById("start-controls");
@@ -157,5 +168,7 @@ detail-pagina {{ item.gloss_id }}
     }
 
 </script>
+
+
 
 {% endblock %}

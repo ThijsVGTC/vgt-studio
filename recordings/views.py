@@ -80,6 +80,7 @@ def recording_list(request):
 
 @login_required
 def start_recording_series(request):
+    request.session["opnamereeks_actief"] = True
     if request.method != "POST":
         return redirect("recording_list")
     signbank_ids = request.POST.getlist("signbank_ids")
@@ -327,6 +328,29 @@ def sync_google_sheet(request):
 
 @login_required
 def recording_detail(request, signbank_id):
+    opnamereeks_actief = request.session.get("opnamereeks_actief",False)
+    if opnamereeks_actief:
+        total_count = RecordingItem.objects.count()
+        approved_count = RecordingItem.objects.filter(
+            status="OPGENOMEN"
+        ).count()
+        skipped_count = RecordingItem.objects.filter(
+            status__in=[
+                "OVER-OPM",
+                "OVER-AL_VIDEO",
+            ]
+        ).count()
+        remaining_count = (
+            total_count
+            - approved_count
+            - skipped_count
+        )
+    else:
+        total_count = 0
+        approved_count = 0
+        skipped_count = 0
+        remaining_count = 0
+
     item=get_object_or_404(
         RecordingItem,
         signbank_id=signbank_id
@@ -357,6 +381,7 @@ def recording_detail(request, signbank_id):
         "recordings/recording_detail.html",
         {
             "item": item,
+            "opnamereeks_actief": opnamereeks_actief,
             "total_count": total_count,
             "approved_count": approved_count,
             "skipped_count": skipped_count,
@@ -364,6 +389,11 @@ def recording_detail(request, signbank_id):
             "progress_percentage": progress_percentage,
         }
     )
+
+@login_required
+def stop_opnamereeks(request):
+    request.session["opnamereeks_actief"] = False
+    return redirect("recording_list")
 
 @login_required
 def go_to_next_recording_item(request):
