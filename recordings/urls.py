@@ -7,6 +7,7 @@ urlpatterns = [
     path("import/", views.import_urls, name="import_urls"),
     path("import-google-sheet/", views.import_google_sheet, name="import_google_sheet"),
     path("sync-google-sheet/", views.sync_google_sheet,name="sync_google_sheet"),
+    path("sync-to-google-sheet/", views.sync_to_google_sheet,name="sync_to_google_sheet"),
     path("review-status/<int:item_id>/",views.update_review_status,name="update_review_status"),
     path("opnamereeks/start/",views.start_recording_series,name="start_recording_series"),
     path("opname/<int:signbank_id>/goedkeuren/",views.approve_recording,name="approve_recording"),

@@ -2,6 +2,7 @@ import csv
 import io
 import re
 import requests
+import gspread
 
 from pathlib import PurePosixPath
 from urllib.parse import urlparse
@@ -327,6 +328,111 @@ def sync_google_sheet(request):
             "settings": settings,
             "message": message,
         }
+    )
+
+@login_required
+def sync_to_google_sheet(request):
+    settings_obj, created = AppSettings.objects.get_or_create(pk=1)
+    if request.method != "POST":
+        return redirect("sync_google_sheet")
+    sheet_url = settings_obj.google_sheet_url
+    if not sheet_url:
+        return render(
+            request,
+            "recordings/sync_google_sheet.html",
+            {
+                "settings": settings_obj,
+                "message": "Er is geen Google Spreadsheet gekoppeld.",
+            },
+        )
+    try:
+        gc = gspread.service_account(
+            filename=settings.GOOGLE_SERVICE_ACCOUNT_FILE
+        )
+        spreadsheet = gc.open_by_url(sheet_url)
+        gid_match = re.search(r"gid=(\d+)", sheet_url)
+        gid = int(gid_match.group(1)) if gid_match else 0
+        worksheet = None
+        for ws in spreadsheet.worksheets():
+            if ws.id == gid:
+                worksheet = ws
+                break
+        if worksheet is None:
+            worksheet = spreadsheet.sheet1
+        rows = worksheet.get_all_values()
+        if not rows:
+            raise ValueError("De Google Sheet is leeg.")
+        headers = rows[0]
+        required_headers = [
+            "GLOS NR",
+            "Status",
+            "Wie Opname?",
+            "Wanneer Opname?",
+            "Opmerkingen",
+            "Opnamestatus",
+        ]
+        for header in required_headers:
+            if header not in headers:
+                headers.append(header)
+        worksheet.update(
+            range_name="A1",
+            values=[headers],
+        )
+        column_map = {
+            header: headers.index(header)
+            for header in required_headers
+        }
+        items = {
+            str(item.signbank_id): item
+            for item in RecordingItem.objects.all()
+        }
+        updated_count = 0
+        skipped_count = 0
+        output_rows = [headers]
+        for row in rows[1:]:
+            while len(row) < len(headers):
+                row.append("")
+            glos_nr = row[
+                column_map["GLOS NR"]
+            ].strip()
+            if not glos_nr:
+                output_rows.append(row)
+                skipped_count += 1
+                continue
+            item = items.get(glos_nr)
+            if not item:
+                output_rows.append(row)
+                skipped_count += 1
+                continue
+            row[column_map["Status"]] = item.status or ""
+            row[column_map["Wie Opname?"]] = item.recording_by or ""
+            row[column_map["Wanneer Opname?"]] = (
+                item.recording_date.isoformat()
+                if item.recording_date
+                else ""
+            )
+            row[column_map["Opmerkingen"]] = item.remarks or ""
+            row[column_map["Opnamestatus"]] = item.review_status or ""
+            output_rows.append(row)
+            updated_count += 1
+        worksheet.update(
+            range_name="A1",
+            values=output_rows,
+        )
+        message = (
+            f"{updated_count} rijen terug gesynchroniseerd "
+            f"naar Google Sheet. "
+            f"{skipped_count} rijen overgeslagen."
+        )
+    except Exception as e:
+        message = f"Fout bij terug synchroniseren: {e}"
+    return render(
+        request,
+        "recordings/sync_google_sheet.html",
+        {
+            "settings": settings_obj,
+            "message": message,
+        },
     )
 
 @login_required

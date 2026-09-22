@@ -31,6 +31,14 @@ Google Sheet synchroniseren
     </button>
 
 </form>
+
+<form method="post" action="{% url 'sync_to_google_sheet' %}" style="margin-top: 20px;">
+    {% csrf_token %}
+    <button type="submit">
+        VGT Studio → Google Sheet
+    </button>
+</form>
+
 {% if message %}
 
 <p>
