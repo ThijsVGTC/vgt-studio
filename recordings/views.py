@@ -340,6 +340,18 @@ def recording_detail(request, signbank_id):
         "opnamereeks_actief",
         False
     )
+    has_previous_recording = False
+    if opnamereeks_actief:
+        series = request.session.get(
+            "recording_series",
+            []
+        )
+        if signbank_id in series:
+            current_index = series.index(signbank_id)
+            request.session[
+                "recording_series_index"
+            ] = current_index
+            has_previous_recording = current_index > 0
 
     total_count = 0
     approved_count = 0
@@ -382,6 +394,7 @@ def recording_detail(request, signbank_id):
         {
             "item": item,
             "opnamereeks_actief": opnamereeks_actief,
+            "has_previous_recording": has_previous_recording,
             "total_count": total_count,
             "approved_count": approved_count,
             "skipped_count": skipped_count,
@@ -431,6 +444,22 @@ def go_to_next_recording_item(request):
     return redirect(
         "recording_detail",
         signbank_id=next_signbank_id,
+    )
+
+@login_required
+def go_to_previous_recording_item(request):
+    series = request.session.get("recording_series",[])
+    index = request.session.get("recording_series_index", 0)
+    if not series:
+        return redirect("recording_list")
+    previous_index = index - 1
+    if previous_index < 0:
+        previous_index = 0
+    request.session["recording_series_index"]= previous_index
+    previous_signbank_id = series[previous_index]
+    return redirect(
+        "recording_detail",
+        signbank_id=previous_signbank_id,
     )
 
 @login_required

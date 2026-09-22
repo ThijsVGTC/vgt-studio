@@ -13,6 +13,7 @@ urlpatterns = [
     path("opname/<int:signbank_id>/overslaan-opmerking/",views.skip_recording_with_remark,name="skip_recording_with_remark",),
     path("opname/<int:signbank_id>/overslaan-video/",views.skip_recording_existing_video,name="skip_recording_existing_video",),
     path("opname/<int:signbank_id>/opmerkingen/",views.update_remarks,name="update_remarks",),
+    path("opnamereeks/vorige/",views.go_to_previous_recording_item,name="previous_recording_item",),
     path("opnamereeks/voltooid/",views.recording_series_complete,name="recording_series_complete",),
     path("opnamereeks/stop/",views.stop_opnamereeks,name="stop_opnamereeks"),
 ]

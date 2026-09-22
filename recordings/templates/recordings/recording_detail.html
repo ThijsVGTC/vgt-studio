@@ -87,6 +87,13 @@ detail-pagina {{ item.gloss_id }}
     </div>
 
 {% if opnamereeks_actief %}
+ {% if has_previous_recording %}
+        <div class="series-navigation">
+            <a href="{% url 'previous_recording_item' %}" class="previous-recording-button">
+                ← VORIGE IN REEKS
+            </a>
+        </div>
+    {% endif %}
 
     <div id="recording-controls">
         <div id="start-controls">
