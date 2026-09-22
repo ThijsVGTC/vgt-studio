@@ -10,6 +10,8 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
 from .models import RecordingItem, AppSettings
 from django.contrib.auth.decorators import login_required
+from django.db.models import Count, Q
+
 # Create your views here.
 
 @login_required
@@ -329,11 +331,37 @@ def recording_detail(request, signbank_id):
         RecordingItem,
         signbank_id=signbank_id
     )
+    stats = RecordingItem.objects.aggregate(
+                total=Count("id"),
+                approved=Count(
+                    "id",
+                    filter=Q(status__iexact="OPGENOMEN")
+                ),
+                skipped=Count(
+                    "id",
+                    filter=Q(status__in=["OVER-OPM", "OVER-AL_VIDEO"])
+                ),
+            )
+    total_count = stats["total"]
+    approved_count = stats["approved"]
+    skipped_count = stats["skipped"]
+    remaining_count = total_count - approved_count - skipped_count
+    progress_percentage = (
+        round((approved_count / total_count) * 100)
+        if total_count > 0
+        else 0
+    )
+
     return render(
         request,
         "recordings/recording_detail.html",
         {
             "item": item,
+            "total_count": total_count,
+            "approved_count": approved_count,
+            "skipped_count": skipped_count,
+            "remaining_count": remaining_count,
+            "progress_percentage": progress_percentage,
         }
     )
 

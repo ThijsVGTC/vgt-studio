@@ -6,7 +6,36 @@ detail-pagina {{ item.gloss_id }}
 {% endblock %}
 
 {% block content %}
+<div class="recording-progress">
+    <div class="recording-stats">
+        <div class="recording-stat">
+            <strong>{{ total_count }}</strong>
+            <span>Totaal</span>
+        </div>
+        <div class="recording-stat">
+            <strong>{{ approved_count }}</strong>
+            <span>Goedgekeurd</span>
+        </div>
+        <div class="recording-stat">
+            <strong>{{ skipped_count }}</strong>
+            <span>Overgeslagen</span>
+        </div>
+        <div class="recording-stat">
+            <strong>{{ remaining_count }}</strong>
+            <span>Nog te doen</span>
+        </div>
+    </div>
 
+    <div class="progress-bar">
+        <div class="progress-bar-fill" style="width: {{ progress_percentage }}%;">
+        </div>
+    </div>
+
+    <div class="progress-percentage">
+        {{ progress_percentage }}% goedgekeurd
+    </div>
+
+</div>
 <div class="container">
     <h1>{{ item.gloss_id }}</h1>
     <p>
