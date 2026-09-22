@@ -23,6 +23,7 @@ def recording_list(request):
     selected_recording_by = request.GET.get("recording_by", "")
     selected_recording_date = request.GET.get("recording_date", "")
     selected_review_status = request.GET.get("review_status", "")
+    search_query = request.GET.get("q", "").strip()
 
     if selected_status:
         items=items.filter(status=selected_status)
@@ -32,6 +33,18 @@ def recording_list(request):
         items = items.filter(recording_date=selected_recording_date)
     if selected_review_status:
         items = items.filter(review_status=selected_review_status)
+    if search_query:
+        search_filter = (
+            Q(gloss_id__icontains=search_query)
+            | Q(status__icontains=search_query)
+            | Q(recording_by__icontains=search_query)
+            | Q(recording_date__icontains=search_query)
+            | Q(remarks__icontains=search_query)
+            | Q(review_status__icontains=search_query)
+        )
+        if search_query.isdigit():
+            search_filter |= Q(signbank_id=int(search_query))
+        items = items.filter(search_filter)
 
     items = items.order_by("signbank_id")
 
@@ -78,6 +91,7 @@ def recording_list(request):
             "selected_recording_by": selected_recording_by,
             "selected_recording_date": selected_recording_date,
             "selected_review_status": selected_review_status,
+            "search_query": search_query,
             "filtered_ids": filtered_ids,
         }
     )
@@ -100,6 +114,7 @@ def start_recording_series(request):
         "recording_by": request.POST.get("recording_by", ""),
         "recording_date": request.POST.get("recording_date", ""),
         "review_status": request.POST.get("review_status", ""),
+        "q": request.POST.get("q", ""),
     }
     request.session["opnamereeks_actief"] = True
     first_id = signbank_ids[0]

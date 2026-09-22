@@ -16,6 +16,12 @@ Opnames | VGT Studio
     <form method="get" style="margin-bottom: 20px;">
         <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end;">
             <div>
+                <label for="q">
+                    <strong>Zoeken</strong>
+                </label><br>
+                <input type="search" id="q" name="q" value="{{ search_query }}" placeholder="Gloss, ID, opmerking..." style="min-width: 260px;">
+            </div>
+            <div>
                 <label for="review_status"><strong>Opnamestatus</strong></label><br>
                 <select name="review_status" id="review_status">
                     <option value="">Alle opnamestatussen</option>
@@ -87,8 +93,9 @@ Opnames | VGT Studio
     </form>
 
     {% if items %}
-    <form method="post" action="{% url 'start_recording_series' %}">
+    <form method="post" action="{% url 'start_recording_series' %}" style="margin-bottom: 20px;">
         {% csrf_token %}
+        <input type="hidden" name="q" value="{{ search_query }}">
         <input type="hidden" name="status" value="{{ selected_status }}">
         <input type="hidden" name="recording_by" value="{{ selected_recording_by }}">
         <input type="hidden" name="recording_date" value="{{ selected_recording_date }}">
