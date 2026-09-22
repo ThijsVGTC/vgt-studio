@@ -80,12 +80,14 @@ def recording_list(request):
 
 @login_required
 def start_recording_series(request):
-    request.session["opnamereeks_actief"] = True
+
     if request.method != "POST":
         return redirect("recording_list")
     signbank_ids = request.POST.getlist("signbank_ids")
     if not signbank_ids:
+        request.session["opnamereeks_actief"] = False
         return redirect("recording_list")
+    
     signbank_ids = [int(signbank_id) for signbank_id in signbank_ids]
     request.session["recording_series"] = signbank_ids
     request.session["recording_series_index"] = 0
@@ -95,6 +97,7 @@ def start_recording_series(request):
         "recording_date": request.POST.get("recording_date", ""),
         "review_status": request.POST.get("review_status", ""),
     }
+    request.session["opnamereeks_actief"] = True
     first_id = signbank_ids[0]
     return redirect(
         "recording_detail",
@@ -328,14 +331,37 @@ def sync_google_sheet(request):
 
 @login_required
 def recording_detail(request, signbank_id):
-    opnamereeks_actief = request.session.get("opnamereeks_actief",False)
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id
+    )
+
+    opnamereeks_actief = request.session.get(
+        "opnamereeks_actief",
+        False
+    )
+
+    total_count = 0
+    approved_count = 0
+    skipped_count = 0
+    remaining_count = 0
+    progress_percentage = 0
+
     if opnamereeks_actief:
-        total_count = RecordingItem.objects.count()
-        approved_count = RecordingItem.objects.filter(
-            status="OPGENOMEN"
+        # Alleen de items van de huidige opnamereeks
+        series = request.session.get(
+            "recording_series",
+            []
+        )
+        reeks = RecordingItem.objects.filter(
+            signbank_id__in=series
+        )
+        total_count = reeks.count()
+        approved_count = reeks.filter(
+            review_status="OPGENOMEN"
         ).count()
-        skipped_count = RecordingItem.objects.filter(
-            status__in=[
+        skipped_count = reeks.filter(
+            review_status__in=[
                 "OVER-OPM",
                 "OVER-AL_VIDEO",
             ]
@@ -345,36 +371,10 @@ def recording_detail(request, signbank_id):
             - approved_count
             - skipped_count
         )
-    else:
-        total_count = 0
-        approved_count = 0
-        skipped_count = 0
-        remaining_count = 0
-
-    item=get_object_or_404(
-        RecordingItem,
-        signbank_id=signbank_id
-    )
-    stats = RecordingItem.objects.aggregate(
-                total=Count("id"),
-                approved=Count(
-                    "id",
-                    filter=Q(status__iexact="OPGENOMEN")
-                ),
-                skipped=Count(
-                    "id",
-                    filter=Q(status__in=["OVER-OPM", "OVER-AL_VIDEO"])
-                ),
+        if total_count > 0:
+            progress_percentage = round(
+                (approved_count / total_count) * 100
             )
-    total_count = stats["total"]
-    approved_count = stats["approved"]
-    skipped_count = stats["skipped"]
-    remaining_count = total_count - approved_count - skipped_count
-    progress_percentage = (
-        round((approved_count / total_count) * 100)
-        if total_count > 0
-        else 0
-    )
 
     return render(
         request,
@@ -393,6 +393,9 @@ def recording_detail(request, signbank_id):
 @login_required
 def stop_opnamereeks(request):
     request.session["opnamereeks_actief"] = False
+    request.session.pop("recording_series", None)
+    request.session.pop("recording_series_index", None)
+    request.session.pop("recording_series_filters", None)
     return redirect("recording_list")
 
 @login_required
@@ -465,22 +468,15 @@ def skip_recording_existing_video(request, signbank_id):
 
 @login_required
 def recording_series_complete(request):
-    request.session.pop("recording_series", None)
-    request.session.pop("recording_series_index", None)
-    return render(
-        request,
-        "recordings/recording_series_complete.html",
-    )
-
-@login_required
-def recording_series_complete(request):
     filters = request.session.get(
         "recording_series_filters",
         {}
     )
-
+    request.session["opnamereeks_actief"] = False
     request.session.pop("recording_series", None)
     request.session.pop("recording_series_index", None)
+    request.session.pop("recording_series_filters", None)
+
     return render(
         request,
         "recordings/recording_series_complete.html",
