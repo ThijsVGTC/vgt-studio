@@ -14,6 +14,8 @@ class RecordingItem(models.Model):
         max_length=1000,
         blank=True
     )
+    thumbnail_path = models.CharField(max_length=500, blank=True,)
+    video_hash = models.CharField(max_length=64,blank=True,)
 
     status = models.CharField(
         max_length=255,
