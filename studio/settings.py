@@ -167,3 +167,9 @@ CSRF_COOKIE_SAMESITE = "Lax"
 SESSION_COOKIE_PATH = "/"
 
 CSRF_COOKIE_PATH = "/"
+
+GOOGLE_SERVICE_ACCOUNT_FILE = (
+
+    "/home/vlaamseg/private/google-service-account.json"
+
+)
