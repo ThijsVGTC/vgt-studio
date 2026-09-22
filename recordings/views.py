@@ -407,7 +407,7 @@ def sync_to_google_sheet(request):
             row[column_map["Status"]] = item.status or ""
             row[column_map["Wie Opname?"]] = item.recording_by or ""
             row[column_map["Wanneer Opname?"]] = (
-                item.recording_date.isoformat()
+                str(item.recording_date)
                 if item.recording_date
                 else ""
             )
