@@ -134,10 +134,14 @@ Opnames | VGT Studio
                 <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
                 <td>
-                    {% if item.old_video_url %}
-                    <a href="{{ item.old_video_url }}" target="_blank">
-                        <canvas class="video-thumbnail" width="120" height="68" data-video-url="{{ item.old_video_url }}"></canvas>
-                    </a>
+                    {% if item.thumbnail_path %}
+                        <a href="{{ item.old_video_url }}" target="_blank" title="Oude video openen">
+                            <img src="{{ item.thumbnail_url }}" class="video-thumbnail" loading="lazy" alt="Thumbnail {{ item.gloss_id }}">
+                        </a>
+                    {% elif item.old_video_url %}
+                        <a href="{{ item.old_video_url }}" target="_blank">
+                            Video
+                        </a>
                     {% else %}
                         -
                     {% endif %}

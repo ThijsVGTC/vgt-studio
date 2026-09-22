@@ -52,6 +52,12 @@ class RecordingItem(models.Model):
             urlparse(self.old_video_url).path
         )
 
+    @property
+    def thumbnail_url(self):
+        if not self.thumbnail_path:
+            return ""
+        return f"/media/{self.thumbnail_path}"
+
     def __str__(self):
         return f"{self.gloss_id} ({self.signbank_id})"
 

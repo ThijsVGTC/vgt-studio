@@ -258,8 +258,9 @@ tr:hover td {
 
 .video-thumbnail {
     display: block;
-    width: auto;
+    width: 91;
     height: 68px;
+    object-fit: cover;
     border-radius: 6px;
     background: #e5e7eb;
     cursor: pointer;
