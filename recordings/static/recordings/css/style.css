@@ -374,6 +374,7 @@ tr:hover td {
     }
 }
 
-.t_center {
-    vertical-align: center;
+.t_center img {
+    margin-left: auto;
+    margin-right: auto;
 }
