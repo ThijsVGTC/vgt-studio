@@ -113,7 +113,7 @@ Opnames | VGT Studio
     </form>
     {% endif %}
 
-    <form id="bulk-update-form" method="post" action="{% url 'bulk_update_recordings' %}" class="bulk-update-form">
+    <form id="bulk-update-form" method="post" action="{% url 'bulk_update_recordings' %}" class="bulk-update-form"  style="margin-bottom: 20px;">
         {% csrf_token %}
         <div class="bulk-update-bar">
             <div class="bulk-selection-info">
@@ -122,90 +122,83 @@ Opnames | VGT Studio
                     geselecteerd
                 </strong>
             </div>
-            <div>
-                <label for="bulk_recording_by">
-                    Wie opname?
-                </label>
-                <select name="bulk_recording_by" id="bulk_recording_by">
-                    <option value="__KEEP__">
-                        Niet wijzigen
-                    </option>
-                    <option value="__EMPTY__">
-                        Leeg maken
-                    </option>
-                    {% for person in recording_people %}
-                        <option value="{{ person }}">
-                            {{ person }}
+            <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: end;">
+                <div>
+                    <label for="bulk_recording_by">
+                        Wie opname?
+                    </label>
+                    <select name="bulk_recording_by" id="bulk_recording_by">
+                        <option value="__KEEP__">
+                            Niet wijzigen
                         </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="bulk_recording_date">
-                    Wanneer opname?
-                </label>
-                <select name="bulk_recording_date" id="bulk_recording_date">
-                    <option value="__KEEP__">
-                        Niet wijzigen
-                    </option>
-                    <option value="__EMPTY__">
-                        Leeg maken
-                    </option>
-                    {% for date in recording_dates %}
-                        <option value="{{ date }}">
-                            {{ date }}
+                        {% for person in recording_people %}
+                            <option value="{{ person }}">
+                                {{ person }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="bulk_recording_date">
+                        Wanneer opname?
+                    </label>
+                    <select name="bulk_recording_date" id="bulk_recording_date">
+                        <option value="__KEEP__">
+                            Niet wijzigen
                         </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="bulk_status">
-                    Status
-                </label>
-                <select name="bulk_status"  id="bulk_status">
-                    <option value="__KEEP__">
-                        Niet wijzigen
-                    </option>
-                    <option value="__EMPTY__">
-                        Leeg maken
-                    </option>
-                    {% for status in statuses %}
-                        <option value="{{ status }}">
-                            {{ status }}
+                        {% for date in recording_dates %}
+                            <option value="{{ date }}">
+                                {{ date }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="bulk_status">
+                        Status
+                    </label>
+                    <select name="bulk_status"  id="bulk_status">
+                        <option value="__KEEP__">
+                            Niet wijzigen
                         </option>
-                    {% endfor %}
-                </select>
-            </div>
-            <div>
-                <label for="bulk_review_status">
-                    Opnamestatus
-                </label>
-                <select name="bulk_review_status"  id="bulk_review_status">
-                    <option value="__KEEP__">
-                        Niet wijzigen
-                    </option>
-                    <option value="__EMPTY__">
-                        Leeg maken
-                    </option>
-                    <option value="OPGENOMEN">
-                        Opgenomen
-                    </option>
-                    <option value="OVER-OPM">
-                        Overgeslagen met opm
-                    </option>
-                    <option value="OVER-AL_VIDEO">
-                        Overgeslagen, al video
-                    </option>
-                </select>
-            </div>
-            <div class="bulk-update-button">
-                <button
-                    type="submit"
-                    id="bulk-submit"
-                    disabled
-                >
-                    TOEPASSEN OP SELECTIE
-                </button>
+                        {% for status in statuses %}
+                            <option value="{{ status }}">
+                                {{ status }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div>
+                    <label for="bulk_review_status">
+                        Opnamestatus
+                    </label>
+                    <select name="bulk_review_status"  id="bulk_review_status">
+                        <option value="__KEEP__">
+                            Niet wijzigen
+                        </option>
+                        <option value="__EMPTY__">
+                            Leeg maken
+                        </option>
+                        <option value="OPGENOMEN">
+                            Opgenomen
+                        </option>
+                        <option value="OVER-OPM">
+                            Overgeslagen met opm
+                        </option>
+                        <option value="OVER-AL_VIDEO">
+                            Overgeslagen, al video
+                        </option>
+                    </select>
+                </div>
+                <div class="bulk-update-button">
+                    <button
+                        type="submit"
+                        id="bulk-submit"
+                        disabled
+                    >
+                        TOEPASSEN OP SELECTIE
+                    </button>
+                </div>
             </div>
         </div>
     </form>
