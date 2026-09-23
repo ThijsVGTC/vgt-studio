@@ -113,8 +113,10 @@ Opnames | VGT Studio
     </form>
     {% endif %}
 
-    <form id="bulk-update-form" method="post" action="{% url 'bulk_update_recordings' %}" class="bulk-update-form"  style="margin-bottom: 20px;">
+    <form id="bulk-update-form" method="post" action="{% url 'bulk_update_recordings' %}" class="bulk-update-form" style="margin-bottom: 20px;" data-total-count="{{ filtered_count }}">
         {% csrf_token %}
+        <input type="hidden" name="select_all" id="select-all-mode" value="0">
+        <input type="hidden" name="all_item_ids" value="{{ filtered_item_ids_csv }}">
         <div class="bulk-update-bar">
             <div class="bulk-selection-info">
                 <strong>
@@ -207,7 +209,7 @@ Opnames | VGT Studio
         <thead>
             <tr>
                 <th class="selection-column">
-                    <input type="checkbox" id="select-all-recordings" title="Alle zichtbare rijen selecteren">
+                    <input type="checkbox" id="select-all-recordings" title="Alle resultaten in deze lijst selecteren">
                 </th>
                 <th>Gloss ID</th>
                 <th>Signbank ID</th>
@@ -352,6 +354,11 @@ document.addEventListener("DOMContentLoaded", function () {
                 );
                 newRows.forEach(function (row) {
                     tableBody.appendChild(row);
+                    if (
+                        typeof window.applyRecordingSelectionState=== "function"
+                    ) {
+                        window.applyRecordingSelectionState(row);
+                    }
                 });
                 const newLoadMore = doc.getElementById("load-more");
                 if (newLoadMore) {
@@ -385,24 +392,75 @@ document.addEventListener("DOMContentLoaded", function () {
     const selectAll = document.getElementById(
         "select-all-recordings"
     );
+    const selectAllMode = document.getElementById(
+        "select-all-mode"
+    );
     const selectedCount = document.getElementById(
         "selected-count"
     );
     const bulkSubmit = document.getElementById(
         "bulk-submit"
     );
+    const bulkForm = document.getElementById(
+        "bulk-update-form"
+    );
+    const totalCount = parseInt(
+        bulkForm.dataset.totalCount || "0"
+    );
     function getCheckboxes() {
         return document.querySelectorAll(
             ".recording-checkbox"
         );
     }
+    function updateRowHighlight(checkbox) {
+        const row = checkbox.closest(
+            ".recording-row"
+        );
+        if (!row) {
+            return;
+        }
+        row.classList.toggle(
+            "recording-row-selected",
+            checkbox.checked
+        );
+    }
+    /*
+     * Wordt ook gebruikt wanneer via infinite scroll
+     * nieuwe rijen worden toegevoegd.
+     */
+    window.applyRecordingSelectionState = function (row) {
+        const checkbox = row.querySelector(
+            ".recording-checkbox"
+        );
+        if (!checkbox) {
+            return;
+        }
+        if (selectAllMode.value === "1") {
+            checkbox.checked = true;
+        }
+        updateRowHighlight(checkbox);
+    };
     function updateSelectionCount() {
         const checkboxes = getCheckboxes();
         const checked = document.querySelectorAll(
             ".recording-checkbox:checked"
         );
-        selectedCount.textContent = checked.length;
-        bulkSubmit.disabled = checked.length === 0;
+         /*
+         * Bij globale selectie tonen we het aantal
+         * resultaten van de VOLLEDIGE lijst.
+         */
+        if (selectAllMode.value === "1") {
+            selectedCount.textContent = totalCount;
+            bulkSubmit.disabled =
+                totalCount === 0;
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+            return;
+        }
+        selectedCount.textContent =
+            checked.length;
+        bulkSubmit.disabled =
+            checked.length === 0;
         if (!checkboxes.length) {
             selectAll.checked = false;
             selectAll.indeterminate = false;
@@ -411,38 +469,80 @@ document.addEventListener("DOMContentLoaded", function () {
         if (checked.length === 0) {
             selectAll.checked = false;
             selectAll.indeterminate = false;
-        } else if (
-            checked.length === checkboxes.length
-        ) {
-            selectAll.checked = true;
-            selectAll.indeterminate = false;
         } else {
+            /*
+             * Er is een handmatige selectie.
+             * "Alles" blijft dus niet aangevinkt.
+             */
             selectAll.checked = false;
             selectAll.indeterminate = true;
         }
     }
+    /*
+     * Alles selecteren.
+     */
     selectAll.addEventListener(
         "change",
         function () {
-            getCheckboxes().forEach(
-                function (checkbox) {
-                    checkbox.checked =
-                        selectAll.checked;
-                }
-            );
+            if (selectAll.checked) {
+                selectAllMode.value = "1";
+                getCheckboxes().forEach(
+                    function (checkbox) {
+                        checkbox.checked = true;
+                        updateRowHighlight(
+                            checkbox
+                        );
+                    }
+                );
+            } else {
+                selectAllMode.value = "0";
+                getCheckboxes().forEach(
+                    function (checkbox) {
+                        checkbox.checked = false;
+                        updateRowHighlight(
+                            checkbox
+                        );
+                    }
+                );
+            }
             updateSelectionCount();
         }
     );
+    /*
+     * Individuele rij aan- of uitzetten.
+     */
     document.addEventListener(
         "change",
         function (event) {
             if (
-                event.target.classList.contains(
+                !event.target.classList.contains(
                     "recording-checkbox"
                 )
             ) {
-                updateSelectionCount();
+                return;
             }
+            /*
+             * Zodra iemand één rij afzonderlijk wijzigt,
+             * verlaten we "alles geselecteerd".
+             */
+            if (selectAllMode.value === "1") {
+                selectAllMode.value = "0";
+                selectAll.checked = false;
+            }
+            updateRowHighlight(
+                event.target
+            );
+            updateSelectionCount();
+        }
+    );
+    /*
+     * Eventuele bestaande selectie markeren.
+     */
+    getCheckboxes().forEach(
+        function (checkbox) {
+            updateRowHighlight(
+                checkbox
+            );
         }
     );
     updateSelectionCount();

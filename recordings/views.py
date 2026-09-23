@@ -51,6 +51,16 @@ def recording_list(request):
     filtered_ids = list(
         items.values_list("signbank_id", flat=True)
     )
+    # Alle database-ID's van de volledige gefilterde lijst.
+    # Nodig zodat "alles selecteren" ook niet-geladen rijen selecteert.
+
+    filtered_item_ids = list(
+        items.values_list("id", flat=True)
+        )
+    filtered_item_ids_csv = ",".join(
+        str(item_id) for item_id in filtered_item_ids
+        )
+    filtered_count = len(filtered_item_ids)
     paginator = Paginator(items, 25)
     page_number = request.GET.get("page",1)
     page_obj = paginator.get_page(page_number)
@@ -93,6 +103,8 @@ def recording_list(request):
             "selected_review_status": selected_review_status,
             "search_query": search_query,
             "filtered_ids": filtered_ids,
+            "filtered_item_ids_csv": filtered_item_ids_csv,
+            "filtered_count": filtered_count,
         }
     )
 
@@ -100,7 +112,22 @@ def recording_list(request):
 def bulk_update_recordings(request):
     if request.method != "POST":
         return redirect("recording_list")
-    items_ids = request.POST.getlist("item_ids")
+    select_all = request.POST.get("select_all") == "1"
+
+    if select_all:
+        all_item_ids = request.POST.get(
+            "all_item_ids",
+            ""
+        )
+        items_ids = [
+            item_id.strip()
+            for item_id in all_item_ids.split(",")
+            if item_id.strip().isdigit()
+        ]
+    else:
+        items_ids = request.POST.getlist(
+            "item_ids"
+        )
     if not items_ids:
         return redirect("recording_list")
     items=RecordingItem.objects.filter(id__in=items_ids)

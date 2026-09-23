@@ -423,3 +423,11 @@ tr:hover td {
     opacity: 0.5;
     cursor: not-allowed;
 }
+
+.recording-row {
+    transition: background-color 0.15s ease;
+}
+
+.recording-row.recording-row-selected > td {
+    background-color: #3c7ecf !important;
+}
