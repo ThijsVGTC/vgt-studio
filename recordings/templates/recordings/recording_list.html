@@ -133,7 +133,7 @@ Opnames | VGT Studio
             <tr class="recording-row">
                 <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
-                <td>
+                <td class="t_center">
                     {% if item.thumbnail_path %}
                         <a href="{{ item.old_video_url }}" target="_blank" title="Oude video openen">
                             <img src="{{ item.thumbnail_url }}" class="video-thumbnail" loading="lazy" alt="Thumbnail {{ item.gloss_id }}">

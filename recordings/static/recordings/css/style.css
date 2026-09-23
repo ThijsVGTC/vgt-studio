@@ -373,3 +373,7 @@ tr:hover td {
         grid-template-columns: repeat(2, 1fr);
     }
 }
+
+.t_center {
+    vertical-align: center;
+}
