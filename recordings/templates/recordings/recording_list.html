@@ -113,9 +113,109 @@ Opnames | VGT Studio
     </form>
     {% endif %}
 
+    <form id="bulk-update-form" method="post" action="{% url 'bulk_update_recordings' %}" class="bulk-update-form">
+        {% csrf_token %}
+        <div class="bulk-update-bar">
+            <div class="bulk-selection-info">
+                <strong>
+                    <span id="selected-count">0</span>
+                    geselecteerd
+                </strong>
+            </div>
+            <div>
+                <label for="bulk_recording_by">
+                    Wie opname?
+                </label>
+                <select name="bulk_recording_by" id="bulk_recording_by">
+                    <option value="__KEEP__">
+                        Niet wijzigen
+                    </option>
+                    <option value="__EMPTY__">
+                        Leeg maken
+                    </option>
+                    {% for person in recording_people %}
+                        <option value="{{ person }}">
+                            {{ person }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="bulk_recording_date">
+                    Wanneer opname?
+                </label>
+                <select name="bulk_recording_date" id="bulk_recording_date">
+                    <option value="__KEEP__">
+                        Niet wijzigen
+                    </option>
+                    <option value="__EMPTY__">
+                        Leeg maken
+                    </option>
+                    {% for date in recording_dates %}
+                        <option value="{{ date }}">
+                            {{ date }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="bulk_status">
+                    Status
+                </label>
+                <select name="bulk_status"  id="bulk_status">
+                    <option value="__KEEP__">
+                        Niet wijzigen
+                    </option>
+                    <option value="__EMPTY__">
+                        Leeg maken
+                    </option>
+                    {% for status in statuses %}
+                        <option value="{{ status }}">
+                            {{ status }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div>
+                <label for="bulk_review_status">
+                    Opnamestatus
+                </label>
+                <select name="bulk_review_status"  id="bulk_review_status">
+                    <option value="__KEEP__">
+                        Niet wijzigen
+                    </option>
+                    <option value="__EMPTY__">
+                        Leeg maken
+                    </option>
+                    <option value="OPGENOMEN">
+                        Opgenomen
+                    </option>
+                    <option value="OVER-OPM">
+                        Overgeslagen met opm
+                    </option>
+                    <option value="OVER-AL_VIDEO">
+                        Overgeslagen, al video
+                    </option>
+                </select>
+            </div>
+            <div class="bulk-update-button">
+                <button
+                    type="submit"
+                    id="bulk-submit"
+                    disabled
+                >
+                    TOEPASSEN OP SELECTIE
+                </button>
+            </div>
+        </div>
+    </form>
+
     <table border="1" cellpadding="10">
         <thead>
             <tr>
+                <th class="selection-column">
+                    <input type="checkbox" id="select-all-recordings" title="Alle zichtbare rijen selecteren">
+                </th>
                 <th>Gloss ID</th>
                 <th>Signbank ID</th>
                 <th>Oude video</th>
@@ -131,6 +231,9 @@ Opnames | VGT Studio
         <tbody id="recording-table-body">
             {% for item in items %}
             <tr class="recording-row">
+                <td class="selection-column">
+                    <input type="checkbox" class="recording-checkbox" name="item_ids" value="{{ item.id }}" form="bulk-update-form">
+                </td>
                 <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
                 <td class="t_center">
@@ -172,7 +275,7 @@ Opnames | VGT Studio
             </tr>
             {% empty %}
             <tr>
-                <td colspan="5">
+                <td colspan="10">
                     Nog geen opnames in de lijst.
                 </td>
             </tr>
@@ -281,6 +384,75 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
     observer.observe(loadMore);
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const selectAll = document.getElementById(
+        "select-all-recordings"
+    );
+    const selectedCount = document.getElementById(
+        "selected-count"
+    );
+    const bulkSubmit = document.getElementById(
+        "bulk-submit"
+    );
+    function getCheckboxes() {
+        return document.querySelectorAll(
+            ".recording-checkbox"
+        );
+    }
+    function updateSelectionCount() {
+        const checkboxes = getCheckboxes();
+        const checked = document.querySelectorAll(
+            ".recording-checkbox:checked"
+        );
+        selectedCount.textContent = checked.length;
+        bulkSubmit.disabled = checked.length === 0;
+        if (!checkboxes.length) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+            return;
+        }
+        if (checked.length === 0) {
+            selectAll.checked = false;
+            selectAll.indeterminate = false;
+        } else if (
+            checked.length === checkboxes.length
+        ) {
+            selectAll.checked = true;
+            selectAll.indeterminate = false;
+        } else {
+            selectAll.checked = false;
+            selectAll.indeterminate = true;
+        }
+    }
+    selectAll.addEventListener(
+        "change",
+        function () {
+            getCheckboxes().forEach(
+                function (checkbox) {
+                    checkbox.checked =
+                        selectAll.checked;
+                }
+            );
+            updateSelectionCount();
+        }
+    );
+    document.addEventListener(
+        "change",
+        function (event) {
+            if (
+                event.target.classList.contains(
+                    "recording-checkbox"
+                )
+            ) {
+                updateSelectionCount();
+            }
+        }
+    );
+    updateSelectionCount();
 });
 </script>
 

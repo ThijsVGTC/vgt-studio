@@ -46,7 +46,7 @@ def recording_list(request):
             search_filter |= Q(signbank_id=int(search_query))
         items = items.filter(search_filter)
 
-    items = items.order_by("signbank_id")
+    items = items.order_by("-id")
 
     filtered_ids = list(
         items.values_list("signbank_id", flat=True)
@@ -95,6 +95,61 @@ def recording_list(request):
             "filtered_ids": filtered_ids,
         }
     )
+
+@login_required
+def bulk_update_recordings(request):
+    if request.method != "POST":
+        return redirect("recording_list")
+    items_ids = request.POST.getlist("item_ids")
+    if not items_ids:
+        return redirect("recording_list")
+    items=RecordingItem.objects.filter(id__in=items_ids)
+    recording_by = request.POST.get("bulk_recording_by", "__KEEP__")
+    recording_date = request.POST.get("bulk_recording_date", "__KEEP__")
+    status = request.POST.get("bulk_status", "__KEEP__")
+    review_status = request.POST.get("bulk_review_status", "__KEEP__")
+
+    # Wie opname
+    if recording_by != "__KEEP__":
+        if recording_by == "__EMPTY__":
+            recording_by = ""
+        items.update(
+            recording_by=recording_by
+        )
+
+    # Wanneer opname
+    if recording_date != "__KEEP__":
+        if recording_date == "__EMPTY__":
+            recording_date = ""
+        items.update(
+            recording_date=recording_date
+        )
+
+    # Status
+    if status != "__KEEP__":
+        if status == "__EMPTY__":
+            status = ""
+        items.update(
+            status=status
+        )
+
+    # Opnamestatus
+    if review_status != "__KEEP__":
+        allowed_review_statuses = [
+            "",
+            "OPGENOMEN",
+            "OVER-OPM",
+            "OVER-AL_VIDEO",
+        ]
+        if review_status == "__EMPTY__":
+            review_status = ""
+        if review_status in allowed_review_statuses:
+            items.update(
+                review_status=review_status
+            )
+
+    return redirect("recording_list")
+
 
 @login_required
 def start_recording_series(request):
