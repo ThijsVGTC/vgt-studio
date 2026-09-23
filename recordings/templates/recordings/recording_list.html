@@ -138,7 +138,11 @@ Opnames | VGT Studio
                                 {{ person }}
                             </option>
                         {% endfor %}
+                        <option value="__NEW__">
+                            + Nieuwe naam toevoegen
+                        </option>
                     </select>
+                    <input type="text" name="bulk_recording_by_new" id="bulk_recording_by_new" placeholder="Nieuwe naam" style="display: none; margin-top: 6px;">
                 </div>
                 <div>
                     <label for="bulk_recording_date">
@@ -153,7 +157,11 @@ Opnames | VGT Studio
                                 {{ date }}
                             </option>
                         {% endfor %}
+                        <option value="__NEW__">
+                            + Nieuwe datum toevoegen
+                        </option>
                     </select>
+                    <input type="date" name="bulk_recording_date_new" id="bulk_recording_date_new" style="display: none; margin-top: 6px;">
                 </div>
                 <div>
                     <label for="bulk_status">
@@ -546,6 +554,50 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     );
     updateSelectionCount();
+});
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const recordingBySelect = document.getElementById(
+        "bulk_recording_by"
+    );
+    const recordingByNew = document.getElementById(
+        "bulk_recording_by_new"
+    );
+    const recordingDateSelect = document.getElementById(
+        "bulk_recording_date"
+    );
+    const recordingDateNew = document.getElementById(
+        "bulk_recording_date_new"
+    );
+    function updateNewFields() {
+        if (recordingBySelect.value === "__NEW__") {
+            recordingByNew.style.display = "block";
+            recordingByNew.required = true;
+        } else {
+            recordingByNew.style.display = "none";
+            recordingByNew.required = false;
+            recordingByNew.value = "";
+        }
+        if (recordingDateSelect.value === "__NEW__") {
+            recordingDateNew.style.display = "block";
+            recordingDateNew.required = true;
+        } else {
+            recordingDateNew.style.display = "none";
+            recordingDateNew.required = false;
+            recordingDateNew.value = "";
+        }
+    }
+    recordingBySelect.addEventListener(
+        "change",
+        updateNewFields
+    );
+    recordingDateSelect.addEventListener(
+        "change",
+        updateNewFields
+    );
+    updateNewFields();
 });
 </script>
 

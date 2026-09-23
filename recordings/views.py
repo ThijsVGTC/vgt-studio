@@ -131,13 +131,18 @@ def bulk_update_recordings(request):
     if not items_ids:
         return redirect("recording_list")
     items=RecordingItem.objects.filter(id__in=items_ids)
-    recording_by = request.POST.get("bulk_recording_by", "__KEEP__")
-    recording_date = request.POST.get("bulk_recording_date", "__KEEP__")
+    recording_by = request.POST.get("bulk_recording_by","__KEEP__")
+    recording_date = request.POST.get("bulk_recording_date","__KEEP__")
+    new_recording_by = request.POST.get("bulk_recording_by_new","").strip()
+    new_recording_date = request.POST.get("bulk_recording_date_new","").strip()
     status = request.POST.get("bulk_status", "__KEEP__")
     review_status = request.POST.get("bulk_review_status", "__KEEP__")
 
     # Wie opname
-    if recording_by != "__KEEP__":
+    if recording_by == "__NEW":
+        if new_recording_by:
+            items.update(recording_by=new_recording_by)
+    elif recording_by != "__KEEP__":
         if recording_by == "__EMPTY__":
             recording_by = ""
         items.update(
@@ -145,7 +150,10 @@ def bulk_update_recordings(request):
         )
 
     # Wanneer opname
-    if recording_date != "__KEEP__":
+    if recording_date == "__NEW__":
+        if new_recording_date:
+            items.update(recording_date=new_recording_date)
+    elif recording_date != "__KEEP__":
         if recording_date == "__EMPTY__":
             recording_date = ""
         items.update(
