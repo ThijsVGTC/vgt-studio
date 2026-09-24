@@ -20,6 +20,7 @@ class RecordingItem(models.Model):
     new_video = models.FileField(upload_to="recordings/new/",blank=True,null=True,)
     VIDEO_REVIEW_CHOICES = [("WACHT_OP_CONTROLE", "Wacht op controle"),("GOEDGEKEURD", "Goedgekeurd"),("AFGEKEURD", "Afgekeurd"),]
     new_video_status = models.CharField(max_length=30,choices=VIDEO_REVIEW_CHOICES,blank=True,default="",)  
+    video_review_remarks = models.TextField(blank=True,default="",)    
     status = models.CharField(max_length=255,blank=True)
     recording_by = models.CharField(max_length=255,blank=True)
     recording_date = models.CharField(max_length=100,blank=True)

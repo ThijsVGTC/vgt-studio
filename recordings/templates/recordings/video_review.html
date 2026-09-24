@@ -43,6 +43,19 @@ Videocontrole | VGT Studio
     {{ item.signbank_id }}
 </p>
 
+{% if item.remarks %}
+
+<div class="video-review-comment">
+
+    <strong>Opmerking opname</strong>
+
+    <p>
+        {{ item.remarks|linebreaksbr }}
+    </p>
+
+</div>
+
+{% endif %}
 
 <div class="video-review-grid">
 

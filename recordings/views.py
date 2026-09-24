@@ -227,10 +227,12 @@ def reject_new_video(request, signbank_id):
     if request.method == "POST":
 
         item.new_video_status = "AFGEKEURD"
+        item.review_status = "OPNAME_AFGEKEURD"
 
         item.save(
             update_fields=[
                 "new_video_status",
+                "review_status",
             ]
         )
     return redirect("video_review")
