@@ -14,6 +14,7 @@ from .models import RecordingItem, AppSettings
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
+from django.contrib import messages
 
 # Create your views here.
 
@@ -482,7 +483,7 @@ def signbank_export_preview(request):
 
     items = (
         RecordingItem.objects
-        .filter(new_video_status="GOEDGEKEURD")
+        .filter(new_video_status="GOEDGEKEURD",signbank_exported=False,)
         .exclude(new_video="")
         .order_by("-id")
     )
@@ -537,6 +538,126 @@ def signbank_export_preview(request):
         {
             "export_items": export_items,
         },
+    )
+
+@login_required
+def signbank_export_item(request, signbank_id):
+
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method != "POST":
+        return redirect("signbank_export_preview")
+
+    # Alleen goedgekeurde video's verwerken
+    if item.new_video_status != "GOEDGEKEURD":
+        messages.error(
+            request,
+            "Deze video is niet goedgekeurd."
+        )
+        return redirect("signbank_export_preview")
+
+    if not item.new_video:
+        messages.error(
+            request,
+            "Er is geen nieuwe video beschikbaar."
+        )
+        return redirect("signbank_export_preview")
+
+    gloss = (item.gloss_id or "").strip()
+
+    if len(gloss) < 2:
+        messages.error(
+            request,
+            "Ongeldige gloss ID."
+        )
+        return redirect("signbank_export_preview")
+
+    signbank_root = Path(
+        settings.SIGNBANK_GLOSSVIDEO_ROOT
+    )
+
+    folder_name = gloss[:2].upper()
+
+    target_dir = (
+        signbank_root
+        / folder_name
+    )
+
+    target_dir.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    filename = (
+        f"{gloss}-{item.signbank_id}.mp4"
+    )
+
+    source_path = Path(
+        item.new_video.path
+    )
+
+    target_path = (
+        target_dir
+        / filename
+    )
+
+    # Extra veiligheid
+    if not source_path.exists():
+        messages.error(
+            request,
+            "Het bronbestand bestaat niet meer."
+        )
+        return redirect("signbank_export_preview")
+
+    try:
+
+        # -------------------------------------------------
+        # Bestaande Signbank-video vervangen
+        # -------------------------------------------------
+
+        if target_path.exists():
+            target_path.unlink()
+
+        # -------------------------------------------------
+        # Nieuwe video naar Signbank verplaatsen
+        # -------------------------------------------------
+
+        shutil.move(
+            str(source_path),
+            str(target_path),
+        )
+
+        # -------------------------------------------------
+        # Database pas aanpassen nadat verplaatsen gelukt is
+        # -------------------------------------------------
+
+        item.new_video = None
+        item.signbank_exported = True
+
+        item.save(
+            update_fields=[
+                "new_video",
+                "signbank_exported",
+            ]
+        )
+
+        messages.success(
+            request,
+            f"{gloss} is naar Signbank verwerkt."
+        )
+
+    except Exception as exc:
+
+        messages.error(
+            request,
+            f"Export naar Signbank mislukt: {exc}"
+        )
+
+    return redirect(
+        "signbank_export_preview"
     )
 
 @login_required

@@ -12,6 +12,7 @@ urlpatterns = [
     path("video-controle/<int:signbank_id>/afkeuren/",views.reject_new_video,name="reject_new_video",),
     path("video-controle/<int:signbank_id>/heropenen/",views.reopen_rejected_video,name="reopen_rejected_video",),
     path("signbank/export/",views.signbank_export_preview,name="signbank_export_preview",),
+    path("signbank/export/<int:signbank_id>/verwerken/",views.signbank_export_item,name="signbank_export_item",),
     path("opname/<int:signbank_id>/",views.recording_detail,name="recording_detail"),
     path("import/", views.import_urls, name="import_urls"),
     path("import-google-sheet/", views.import_google_sheet, name="import_google_sheet"),

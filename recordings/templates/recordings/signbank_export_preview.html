@@ -24,6 +24,7 @@ Signbank export | VGT Studio
                 <th>Nieuwe video</th>
                 <th>Doel in Signbank</th>
                 <th>Actie</th>
+                <th></th>
             </tr>
         </thead>
 
@@ -83,12 +84,37 @@ Signbank export | VGT Studio
 
                     </td>
 
+                    <td>
+
+                        {% if export.valid %}
+
+                            <form
+                                method="post"
+                                action="{% url 'signbank_export_item' export.item.signbank_id %}"
+                            >
+                                {% csrf_token %}
+
+                                <button
+                                    type="submit"
+                                    onclick="return confirm(
+                                        'Deze video naar Signbank verwerken? Een bestaande video met dezelfde naam wordt vervangen.'
+                                    );"
+                                >
+                                    Naar Signbank verwerken
+                                </button>
+
+                            </form>
+
+                        {% endif %}
+
+                    </td>
+
                 </tr>
 
             {% empty %}
 
                 <tr>
-                    <td colspan="5">
+                    <td colspan="6">
                         Geen goedgekeurde video's klaar voor Signbank.
                     </td>
                 </tr>
