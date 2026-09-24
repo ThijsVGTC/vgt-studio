@@ -8,6 +8,7 @@ Opnames | VGT Studio
 {% block content %}
     <h1>VGT Studio</h1>
     <p>
+        <a href="{% url 'bulk_video_upload' %}">Bulk video-upload</a>
         <a href="{% url 'import_urls' %}">URL-lijst importeren</a>
         <a href="{% url 'import_google_sheet' %}">Google Spreadsheet koppelen</a>
         <a href="{% url 'sync_google_sheet' %}">Synchroniseer Google Sheet</a>

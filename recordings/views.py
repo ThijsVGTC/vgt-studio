@@ -17,6 +17,142 @@ from django.core.paginator import Paginator
 # Create your views here.
 
 @login_required
+def bulk_video_upload(request):
+    results = []
+    if request.method == "POST":
+        uploaded_videos = request.FILES.getlist("videos")
+        for uploaded_video in uploaded_videos:
+            original_filename = uploaded_video.name
+            filename = PurePosixPath(original_filename).name
+            result = {
+                "filename": filename,
+                "status": "",
+                "message": "",
+                "item": None,
+            }
+            # Alleen MP4 toelaten
+            if not filename.lower().endswith(".mp4"):
+                result["status"] = "error"
+                result["message"] = "Geen MP4-bestand."
+                results.append(result)
+                continue
+            stem = PurePosixPath(filename).stem.strip()
+            matched_item = None
+            # -------------------------------------------------
+            # 1. Alleen Signbank ID
+            # Bijvoorbeeld:
+            # 7270.mp4
+            # -------------------------------------------------
+            if stem.isdigit():
+                signbank_id = int(stem)
+                matched_item = (
+                    RecordingItem.objects
+                    .filter(signbank_id=signbank_id)
+                    .first()
+                )
+                if not matched_item:
+                    result["status"] = "error"
+                    result["message"] = (
+                        f"Signbank ID {signbank_id} niet gevonden."
+                    )
+                    results.append(result)
+                    continue
+            else:
+                # -------------------------------------------------
+                # 2. Bestandsnaam + Signbank ID
+                # Bijvoorbeeld:
+                # MAROKKO-D-7270.mp4
+                # -------------------------------------------------
+                parts = stem.rsplit("-", 1)
+                if (
+                    len(parts) == 2
+                    and parts[1].isdigit()
+                ):
+                    filename_gloss = parts[0].strip()
+                    signbank_id = int(parts[1])
+                    item_by_id = (
+                        RecordingItem.objects
+                        .filter(signbank_id=signbank_id)
+                        .first()
+                    )
+                    if item_by_id:
+                        # ID bestaat, maar gloss moet ook overeenkomen
+                        if (
+                            item_by_id.gloss_id.strip().casefold()
+                            != filename_gloss.casefold()
+                        ):
+                            result["status"] = "conflict"
+                            result["message"] = (
+                                f"ID {signbank_id} hoort bij "
+                                f"{item_by_id.gloss_id}, niet bij "
+                                f"{filename_gloss}."
+                            )
+                            results.append(result)
+                            continue
+                        matched_item = item_by_id
+                # -------------------------------------------------
+                # 3. Alleen bestandsnaam
+                # Bijvoorbeeld:
+                # MAROKKO-D.mp4
+                # -------------------------------------------------
+                if matched_item is None:
+                    matches = RecordingItem.objects.filter(
+                        gloss_id__iexact=stem
+                    )
+                    match_count = matches.count()
+                    if match_count == 1:
+                        matched_item = matches.first()
+                    elif match_count > 1:
+                        result["status"] = "conflict"
+                        result["message"] = (
+                            "Deze bestandsnaam komt bij meerdere "
+                            "Signbank-items voor."
+                        )
+                        results.append(result)
+                        continue
+            # -------------------------------------------------
+            # Geen match gevonden
+            # -------------------------------------------------
+            if matched_item is None:
+                result["status"] = "error"
+                result["message"] = (
+                    "Geen overeenkomst gevonden."
+                )
+                results.append(result)
+                continue
+            # -------------------------------------------------
+            # Er staat al een nieuwe video
+            # -------------------------------------------------
+            if matched_item.new_video:
+                result["status"] = "warning"
+                result["item"] = matched_item
+                result["message"] = (
+                    "Er is al een nieuwe video gekoppeld. "
+                    "Bestand niet vervangen."
+                )
+                results.append(result)
+                continue
+            # -------------------------------------------------
+            # Video opslaan bij RecordingItem
+            # -------------------------------------------------
+            matched_item.new_video.save(
+                filename,
+                uploaded_video,
+                save=True,
+            )
+            result["status"] = "success"
+            result["item"] = matched_item
+            result["message"] = "Video gekoppeld."
+            results.append(result)
+    return render(
+        request,
+        "recordings/bulk_video_upload.html",
+        {
+            "results": results,
+        },
+    )
+
+@login_required
 def recording_list(request):
     items = RecordingItem.objects.all()
     selected_status = request.GET.get("status", "")

@@ -4,6 +4,7 @@ from . import views
 urlpatterns = [
     path("", views.recording_list, name="recording_list"),
     path("bulk-update/",views.bulk_update_recordings,name="bulk_update_recordings"),
+    path("bulk-video-upload/",views.bulk_video_upload,name="bulk_video_upload"),
     path("opname/<int:signbank_id>/",views.recording_detail,name="recording_detail"),
     path("import/", views.import_urls, name="import_urls"),
     path("import-google-sheet/", views.import_google_sheet, name="import_google_sheet"),

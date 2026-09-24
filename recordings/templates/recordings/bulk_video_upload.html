@@ -1,0 +1,120 @@
+{% extends "recordings/base.html" %}
+
+{% block title %}
+Bulk video-upload | VGT Studio
+{% endblock %}
+
+{% block content %}
+
+<h1>Bulk video-upload</h1>
+
+<p>
+    Selecteer de gemonteerde video's die je aan de opnames wilt koppelen.
+</p>
+
+<p>
+    Herkende bestandsnamen:
+    <strong>MAROKKO-D.mp4</strong>,
+    <strong>MAROKKO-D-7270.mp4</strong>
+    of
+    <strong>7270.mp4</strong>.
+</p>
+
+<form
+    method="post"
+    enctype="multipart/form-data"
+    style="margin-bottom: 30px;"
+>
+    {% csrf_token %}
+
+    <input
+        type="file"
+        name="videos"
+        accept=".mp4,video/mp4"
+        multiple
+        required
+    >
+
+    <br><br>
+
+    <button type="submit">
+        VIDEO'S UPLOADEN
+    </button>
+</form>
+
+
+{% if results %}
+
+<h2>Resultaat</h2>
+
+<table border="1" cellpadding="10">
+
+    <thead>
+        <tr>
+            <th>Bestand</th>
+            <th>Gloss</th>
+            <th>Signbank ID</th>
+            <th>Resultaat</th>
+        </tr>
+    </thead>
+
+    <tbody>
+
+        {% for result in results %}
+
+        <tr>
+
+            <td>
+                {{ result.filename }}
+            </td>
+
+            <td>
+                {% if result.item %}
+                    {{ result.item.gloss_id }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+
+            <td>
+                {% if result.item %}
+                    {{ result.item.signbank_id }}
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+
+            <td>
+
+                {% if result.status == "success" %}
+                    ✅
+                {% elif result.status == "warning" %}
+                    ⚠️
+                {% elif result.status == "conflict" %}
+                    ❌ Conflict:
+                {% else %}
+                    ❌
+                {% endif %}
+
+                {{ result.message }}
+
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+{% endif %}
+
+
+<p style="margin-top: 30px;">
+    <a href="{% url 'recording_list' %}">
+        ← Terug naar opnames
+    </a>
+</p>
+
+{% endblock %}
