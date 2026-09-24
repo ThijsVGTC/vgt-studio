@@ -16,6 +16,7 @@ from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
 from django.utils import timezone
+from django.urls import reverse
 
 # Create your views here.
 
@@ -642,7 +643,7 @@ def signbank_export_item(request, signbank_id):
             request,
             "Het bronbestand bestaat niet meer."
         )
-        return redirect("signbank_export_preview")
+        return redirect(f"{reverse('signbank_export_preview')}?tab=pending")
 
     try:
 
