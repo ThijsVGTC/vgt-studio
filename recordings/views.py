@@ -502,7 +502,7 @@ def signbank_export_preview(request):
     signbank_root = Path(
         settings.SIGNBANK_GLOSSVIDEO_ROOT
     )
-
+    
     for item in items:
 
         gloss = (item.gloss_id or "").strip()
