@@ -42,6 +42,20 @@ Videocontrole | VGT Studio
     <strong>Signbank ID:</strong>
     {{ item.signbank_id }}
 </p>
+<p>
+    <strong>Controlestatus:</strong>
+
+    {% if item.new_video_status == "WACHT_OP_CONTROLE" %}
+        Wacht op controle
+
+    {% elif item.new_video_status == "GOEDGEKEURD" %}
+        ✅ Goedgekeurd
+
+    {% elif item.new_video_status == "AFGEKEURD" %}
+        ❌ Afgekeurd
+
+    {% endif %}
+</p>
 
 {% if item.remarks %}
 
@@ -149,6 +163,12 @@ Videocontrole | VGT Studio
 
     {% csrf_token %}
 
+    <input
+        type="hidden"
+        name="return_to"
+        value="{{ return_to }}"
+    >
+
     <button
 
         type="submit"
@@ -206,5 +226,17 @@ Videocontrole | VGT Studio
     </a>
 
 </p>
+
+{% if single_item %}
+
+<p style="margin-top: 30px;">
+
+    <a href="{% url 'video_review_overview' %}">
+        ← Terug naar videocontrole
+    </a>
+
+</p>
+
+{% endif %}
 
 {% endblock %}

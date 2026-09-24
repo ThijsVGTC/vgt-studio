@@ -491,3 +491,84 @@ tr:hover td {
     box-sizing: border-box;
     resize: vertical;
 }
+
+.video-review-stats {
+    display: flex;
+    gap: 15px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+}
+
+.video-review-stat {
+    min-width: 150px;
+    padding: 18px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: #fff;
+}
+
+.video-review-stat strong {
+    display: block;
+    font-size: 26px;
+    margin-bottom: 5px;
+}
+
+.video-review-stat span {
+    font-size: 14px;
+}
+
+.video-review-filters {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin: 25px 0;
+}
+
+.video-review-filters a {
+    padding: 8px 14px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    text-decoration: none;
+}
+
+.video-review-filters a.active {
+    font-weight: 700;
+    border-color: #184148;
+}
+
+.video-review-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.video-review-table th,
+.video-review-table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+    text-align: left;
+    vertical-align: top;
+}
+
+.video-review-table th {
+    white-space: nowrap;
+}
+
+.review-status {
+    display: inline-block;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.review-status.waiting {
+    background: #f1f1f1;
+}
+
+.review-status.approved {
+    background: #e6f4ea;
+}
+
+.review-status.rejected {
+    background: #fce8e6;
+}

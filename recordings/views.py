@@ -155,6 +155,81 @@ def bulk_video_upload(request):
     )
 
 @login_required
+def video_review_overview(request):
+    selected_status = request.GET.get(
+        "status",
+        ""
+    ).strip()
+
+    items = (
+        RecordingItem.objects
+        .exclude(new_video="")
+        .order_by("-id")
+    )
+
+    if selected_status:
+        items = items.filter(
+            new_video_status=selected_status
+        )
+
+    waiting_count = RecordingItem.objects.filter(
+        new_video_status="WACHT_OP_CONTROLE"
+    ).count()
+
+    approved_count = RecordingItem.objects.filter(
+        new_video_status="GOEDGEKEURD"
+    ).count()
+
+    rejected_count = RecordingItem.objects.filter(
+        new_video_status="AFGEKEURD"
+    ).count()
+
+    total_count = (
+        RecordingItem.objects
+        .exclude(new_video="")
+        .count()
+    )
+
+    return render(
+        request,
+        "recordings/video_review_overview.html",
+        {
+            "items": items,
+            "selected_status": selected_status,
+            "waiting_count": waiting_count,
+            "approved_count": approved_count,
+            "rejected_count": rejected_count,
+            "total_count": total_count,
+        },
+    )
+
+@login_required
+def video_review_item(
+    request,
+    signbank_id,
+):
+
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if not item.new_video:
+        return redirect(
+            "video_review_overview"
+        )
+
+    return render(
+        request,
+        "recordings/video_review.html",
+        {
+            "item": item,
+            "single_item": True,
+            "return_to": "overview",
+        },
+    )
+
+@login_required
 def video_review(request):
     items = (
         RecordingItem.objects
@@ -195,6 +270,8 @@ def video_review(request):
             "position": 1,
             "approved_count": approved_count,
             "rejected_count": rejected_count,
+            "single_item": False,
+            "return_to": "queue",
         },
     )
 
@@ -216,6 +293,9 @@ def approve_new_video(request, signbank_id):
                 "video_review_remarks",
             ]
         )
+
+    if request.POST.get("return_to") == "overview":
+        return redirect("video_review_overview")
 
     return redirect("video_review")
 
@@ -240,6 +320,8 @@ def reject_new_video(request, signbank_id):
                 "video_review_remarks"
             ]
         )
+    if request.POST.get("return_to") == "overview":
+        return redirect("video_review_overview")
     return redirect("video_review")
 
 @login_required

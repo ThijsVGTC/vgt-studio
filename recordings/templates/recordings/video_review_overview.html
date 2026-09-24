@@ -1,0 +1,209 @@
+{% extends "recordings/base.html" %}
+
+{% block title %}
+Videocontrole | VGT Studio
+{% endblock %}
+
+{% block content %}
+
+<h1>Videocontrole</h1>
+
+
+<div class="video-review-stats">
+
+    <div class="video-review-stat">
+        <strong>{{ total_count }}</strong>
+        <span>Totaal</span>
+    </div>
+
+    <div class="video-review-stat">
+        <strong>{{ waiting_count }}</strong>
+        <span>Wacht op controle</span>
+    </div>
+
+    <div class="video-review-stat">
+        <strong>{{ approved_count }}</strong>
+        <span>Goedgekeurd</span>
+    </div>
+
+    <div class="video-review-stat">
+        <strong>{{ rejected_count }}</strong>
+        <span>Afgekeurd</span>
+    </div>
+
+</div>
+
+
+{% if waiting_count %}
+
+<div style="margin: 25px 0;">
+
+    <a
+        href="{% url 'video_review' %}"
+        class="button"
+    >
+        CONTROLE STARTEN ({{ waiting_count }})
+    </a>
+
+</div>
+
+{% endif %}
+
+
+<div class="video-review-filters">
+
+    <a
+        href="{% url 'video_review_overview' %}"
+        {% if not selected_status %}
+            class="active"
+        {% endif %}
+    >
+        Alles
+    </a>
+
+    <a
+        href="?status=WACHT_OP_CONTROLE"
+        {% if selected_status == "WACHT_OP_CONTROLE" %}
+            class="active"
+        {% endif %}
+    >
+        Wacht op controle
+    </a>
+
+    <a
+        href="?status=GOEDGEKEURD"
+        {% if selected_status == "GOEDGEKEURD" %}
+            class="active"
+        {% endif %}
+    >
+        Goedgekeurd
+    </a>
+
+    <a
+        href="?status=AFGEKEURD"
+        {% if selected_status == "AFGEKEURD" %}
+            class="active"
+        {% endif %}
+    >
+        Afgekeurd
+    </a>
+
+</div>
+
+
+<div class="table-wrapper">
+
+<table class="video-review-table">
+
+    <thead>
+
+        <tr>
+            <th>Gloss</th>
+            <th>Signbank ID</th>
+            <th>Status</th>
+            <th>Opmerking opname</th>
+            <th>Opmerking controle</th>
+            <th></th>
+        </tr>
+
+    </thead>
+
+    <tbody>
+
+        {% for item in items %}
+
+        <tr>
+
+            <td>
+                <strong>
+                    {{ item.gloss_id }}
+                </strong>
+            </td>
+
+            <td>
+                {{ item.signbank_id }}
+            </td>
+
+            <td>
+
+                {% if item.new_video_status == "WACHT_OP_CONTROLE" %}
+
+                    <span class="review-status waiting">
+                        Wacht op controle
+                    </span>
+
+                {% elif item.new_video_status == "GOEDGEKEURD" %}
+
+                    <span class="review-status approved">
+                        Goedgekeurd
+                    </span>
+
+                {% elif item.new_video_status == "AFGEKEURD" %}
+
+                    <span class="review-status rejected">
+                        Afgekeurd
+                    </span>
+
+                {% else %}
+
+                    —
+
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if item.remarks %}
+                    {{ item.remarks|linebreaksbr }}
+                {% else %}
+                    —
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                {% if item.video_review_remarks %}
+                    {{ item.video_review_remarks|linebreaksbr }}
+                {% else %}
+                    —
+                {% endif %}
+
+            </td>
+
+            <td>
+
+                <a
+                    href="{% url 'video_review_item' item.signbank_id %}"
+                >
+                    {% if item.new_video_status == "WACHT_OP_CONTROLE" %}
+                        Controleren
+                    {% else %}
+                        Bekijken
+                    {% endif %}
+                </a>
+
+            </td>
+
+        </tr>
+
+        {% empty %}
+
+        <tr>
+
+            <td colspan="6">
+                Geen video's gevonden.
+            </td>
+
+        </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>
+
+{% endblock %}
