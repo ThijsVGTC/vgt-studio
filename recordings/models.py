@@ -7,6 +7,7 @@ class RecordingItem(models.Model):
         ("OPGENOMEN", "OPGENOMEN"),
         ("OVER-OPM", "OVER-OPM"),
         ("OVER-AL_VIDEO", "OVER-AL_VIDEO"),
+        ("OPNAME_AFGEKEURD", "OPNAME AFGEKEURD"),
     ]
     signbank_id = models.IntegerField(unique=True)
     gloss_id = models.CharField(max_length=255)
