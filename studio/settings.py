@@ -131,6 +131,8 @@ MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
+SIGNBANK_GLOSSVIDEO_ROOT = "/home/vlaamseg/signbank/writable/glossvideo"
+
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration

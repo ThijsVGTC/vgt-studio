@@ -478,6 +478,68 @@ def reopen_rejected_video(request, signbank_id):
     return redirect("video_review_overview")
 
 @login_required
+def signbank_export_preview(request):
+
+    items = (
+        RecordingItem.objects
+        .filter(new_video_status="GOEDGEKEURD")
+        .exclude(new_video="")
+        .order_by("-id")
+    )
+
+    export_items = []
+
+    signbank_root = Path(
+        settings.SIGNBANK_GLOSSVIDEO_ROOT
+    )
+
+    for item in items:
+
+        gloss = (item.gloss_id or "").strip()
+
+        if len(gloss) < 2:
+            export_items.append({
+                "item": item,
+                "valid": False,
+                "error": "Gloss ID is ongeldig.",
+            })
+            continue
+
+        folder_name = gloss[:2].upper()
+
+        filename = (
+            f"{gloss}-{item.signbank_id}.mp4"
+        )
+
+        relative_path = (
+            Path(folder_name)
+            / filename
+        )
+
+        target_path = (
+            signbank_root
+            / relative_path
+        )
+
+        export_items.append({
+            "item": item,
+            "valid": True,
+            "folder": folder_name,
+            "filename": filename,
+            "relative_path": str(relative_path),
+            "target_path": str(target_path),
+            "exists": target_path.exists(),
+        })
+
+    return render(
+        request,
+        "recordings/signbank_export_preview.html",
+        {
+            "export_items": export_items,
+        },
+    )
+
+@login_required
 def recording_list(request):
     items = RecordingItem.objects.all()
     selected_status = request.GET.get("status", "")

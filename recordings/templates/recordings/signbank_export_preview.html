@@ -1,0 +1,104 @@
+{% extends "recordings/base.html" %}
+
+{% block title %}
+Signbank export | VGT Studio
+{% endblock %}
+
+{% block content %}
+
+<h1>Signbank export</h1>
+
+<p>
+    Hieronder staan alle goedgekeurde video's die klaarstaan
+    om naar Signbank te worden verwerkt.
+</p>
+
+<div class="table-wrapper">
+
+    <table class="video-review-table">
+
+        <thead>
+            <tr>
+                <th>Gloss</th>
+                <th>Signbank ID</th>
+                <th>Nieuwe video</th>
+                <th>Doel in Signbank</th>
+                <th>Actie</th>
+            </tr>
+        </thead>
+
+        <tbody>
+
+            {% for export in export_items %}
+
+                <tr>
+
+                    <td>
+                        <strong>
+                            {{ export.item.gloss_id }}
+                        </strong>
+                    </td>
+
+                    <td>
+                        {{ export.item.signbank_id }}
+                    </td>
+
+                    <td>
+                        {% if export.item.new_video %}
+                            {{ export.item.new_video.name }}
+                        {% endif %}
+                    </td>
+
+                    <td>
+
+                        {% if export.valid %}
+
+                            <code>
+                                {{ export.relative_path }}
+                            </code>
+
+                        {% else %}
+
+                            {{ export.error }}
+
+                        {% endif %}
+
+                    </td>
+
+                    <td>
+
+                        {% if not export.valid %}
+
+                            ❌ Ongeldig
+
+                        {% elif export.exists %}
+
+                            ⚠️ Bestaande video vervangen
+
+                        {% else %}
+
+                            ✅ Nieuwe video
+
+                        {% endif %}
+
+                    </td>
+
+                </tr>
+
+            {% empty %}
+
+                <tr>
+                    <td colspan="5">
+                        Geen goedgekeurde video's klaar voor Signbank.
+                    </td>
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+</div>
+
+{% endblock %}
