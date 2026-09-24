@@ -24,6 +24,13 @@ def recording_list(request):
     selected_recording_date = request.GET.get("recording_date", "")
     selected_review_status = request.GET.get("review_status", "")
     search_query = request.GET.get("q", "").strip()
+    sort = request.GET.get("sort","")
+    direction = request.GET.get("direction","")
+    allowed_sorts = {
+        "gloss_id": "gloss_id",
+        "signbank_id": "signbank_id",
+        "recording_date": "recording_date",
+    }
 
     if selected_status:
         items=items.filter(status=selected_status)
@@ -46,7 +53,13 @@ def recording_list(request):
             search_filter |= Q(signbank_id=int(search_query))
         items = items.filter(search_filter)
 
-    items = items.order_by("-id")
+    if sort in allowed_sorts:
+        order_field = allowed_sorts[sort]
+        if direction == "desc":
+            order_field = f"-{order_field}"
+        items = items.order_by(order_field)
+    else:
+        items = items.order_by("-id")
 
     filtered_ids = list(
         items.values_list("signbank_id", flat=True)
@@ -102,6 +115,8 @@ def recording_list(request):
             "selected_recording_date": selected_recording_date,
             "selected_review_status": selected_review_status,
             "search_query": search_query,
+            "sort": sort,
+            "direction": direction,
             "filtered_ids": filtered_ids,
             "filtered_item_ids_csv": filtered_item_ids_csv,
             "filtered_count": filtered_count,
