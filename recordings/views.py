@@ -138,8 +138,10 @@ def bulk_video_upload(request):
             matched_item.new_video.save(
                 filename,
                 uploaded_video,
-                save=True,
+                save=False,
             )
+            matched_item.new_video_status = "WACHT_OP_CONTROLE"
+            matched_item.save(update_fields=["new_video","new_video_status",])
             result["status"] = "success"
             result["item"] = matched_item
             result["message"] = "Video gekoppeld."
@@ -151,6 +153,87 @@ def bulk_video_upload(request):
             "results": results,
         },
     )
+
+@login_required
+def video_review(request):
+    items = (
+        RecordingItem.objects
+        .exclude(new_video="")
+        .filter(new_video_status="WACHT_OP_CONTROLE")
+        .order_by("id")
+    )
+
+    total_count = items.count()
+
+    if total_count == 0:
+        return render(
+            request,
+            "recordings/video_review.html",
+            {
+                "item": None,
+                "total_count": 0,
+                "position": 0,
+            },
+        )
+
+    item = items.first()
+
+    approved_count = RecordingItem.objects.filter(
+        new_video_status="GOEDGEKEURD"
+    ).count()
+
+    rejected_count = RecordingItem.objects.filter(
+        new_video_status="AFGEKEURD"
+    ).count()
+
+    return render(
+        request,
+        "recordings/video_review.html",
+        {
+            "item": item,
+            "total_count": total_count,
+            "position": 1,
+            "approved_count": approved_count,
+            "rejected_count": rejected_count,
+        },
+    )
+
+@login_required
+def approve_new_video(request, signbank_id):
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method == "POST":
+
+        item.new_video_status = "GOEDGEKEURD"
+
+        item.save(
+            update_fields=[
+                "new_video_status",
+            ]
+        )
+
+    return redirect("video_review")
+
+@login_required
+def reject_new_video(request, signbank_id):
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method == "POST":
+
+        item.new_video_status = "AFGEKEURD"
+
+        item.save(
+            update_fields=[
+                "new_video_status",
+            ]
+        )
+    return redirect("video_review")
 
 @login_required
 def recording_list(request):

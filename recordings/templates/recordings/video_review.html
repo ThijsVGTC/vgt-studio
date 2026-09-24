@@ -1,0 +1,166 @@
+{% extends "recordings/base.html" %}
+
+{% block title %}
+Videocontrole | VGT Studio
+{% endblock %}
+
+{% block content %}
+
+<h1>Videocontrole</h1>
+
+{% if item %}
+
+<div class="recording-progress">
+
+    <div class="recording-stats">
+
+        <div class="recording-stat">
+            <strong>{{ total_count }}</strong>
+            <span>Nog te controleren</span>
+        </div>
+
+        <div class="recording-stat">
+            <strong>{{ approved_count }}</strong>
+            <span>Goedgekeurd</span>
+        </div>
+
+        <div class="recording-stat">
+            <strong>{{ rejected_count }}</strong>
+            <span>Afgekeurd</span>
+        </div>
+
+    </div>
+
+</div>
+
+
+<h2>
+    {{ item.gloss_id }}
+</h2>
+
+<p>
+    <strong>Signbank ID:</strong>
+    {{ item.signbank_id }}
+</p>
+
+
+<div class="video-review-grid">
+
+    <div class="video-review-column">
+
+        <h3>Oude video</h3>
+
+        {% if item.old_video_url %}
+
+            <video controls>
+                <source
+                    src="{{ item.old_video_url }}"
+                    type="video/mp4"
+                >
+
+                Je browser ondersteunt deze video niet.
+            </video>
+
+        {% else %}
+
+            <p>
+                Geen oude video beschikbaar.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+
+    <div class="video-review-column">
+
+        <h3>Nieuwe video</h3>
+
+        {% if item.new_video %}
+
+            <video controls>
+                <source
+                    src="{{ item.new_video.url }}"
+                    type="video/mp4"
+                >
+
+                Je browser ondersteunt deze video niet.
+            </video>
+
+        {% else %}
+
+            <p>
+                Geen nieuwe video beschikbaar.
+            </p>
+
+        {% endif %}
+
+    </div>
+
+</div>
+
+
+<div class="video-review-actions">
+
+    <form
+        method="post"
+        action="{% url 'reject_new_video' item.signbank_id %}"
+    >
+
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="stopbutton"
+        >
+            AFKEUREN
+        </button>
+
+    </form>
+
+
+    <form
+        method="post"
+        action="{% url 'approve_new_video' item.signbank_id %}"
+    >
+
+        {% csrf_token %}
+
+        <button
+            type="submit"
+            class="startbutton"
+        >
+            GOEDKEUREN
+        </button>
+
+    </form>
+
+</div>
+
+
+{% else %}
+
+<div style="padding: 40px 0;">
+
+    <h2>
+        Alle video's zijn gecontroleerd
+    </h2>
+
+    <p>
+        Er staan momenteel geen nieuwe video's klaar voor controle.
+    </p>
+
+</div>
+
+{% endif %}
+
+
+<p style="margin-top: 30px;">
+
+    <a href="{% url 'recording_list' %}">
+        ← Terug naar opnames
+    </a>
+
+</p>
+
+{% endblock %}
