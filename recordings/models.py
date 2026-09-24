@@ -16,31 +16,12 @@ class RecordingItem(models.Model):
     )
     thumbnail_path = models.CharField(max_length=500, blank=True,)
     video_hash = models.CharField(max_length=64,blank=True,)
-
-    status = models.CharField(
-        max_length=255,
-        blank=True
-    )
-    recording_by = models.CharField(
-        max_length=255,
-        blank=True
-    )
-
-    recording_date = models.CharField(
-        max_length=100,
-        blank=True
-    )
-
-    remarks = models.TextField(
-        blank=True
-    )
-
-    review_status = models.CharField(
-        max_length=20,
-        choices=REVIEW_CHOICES,
-        blank=True,
-        default="",
-    )
+    new_video = models.FileField(upload_to="recordings/new/",blank=True,null=True,)
+    status = models.CharField(max_length=255,blank=True)
+    recording_by = models.CharField(max_length=255,blank=True)
+    recording_date = models.CharField(max_length=100,blank=True)
+    remarks = models.TextField(blank=True)
+    review_status = models.CharField(max_length=20,choices=REVIEW_CHOICES,blank=True,default="",)
     
     @property
     def filename(self):
