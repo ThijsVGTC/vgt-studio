@@ -15,6 +15,7 @@ from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
 from django.contrib import messages
+from django.utils import timezone
 
 # Create your views here.
 
@@ -532,11 +533,17 @@ def signbank_export_preview(request):
             "exists": target_path.exists(),
         })
 
+        exported_items = (
+            RecordingItem.objects
+            .filter(signbank_exported=True)
+            .order_by("-signbank_exported_at")
+        )
     return render(
         request,
         "recordings/signbank_export_preview.html",
         {
             "export_items": export_items,
+            "exported_items": exported_items,
         },
     )
 
@@ -636,11 +643,13 @@ def signbank_export_item(request, signbank_id):
 
         item.new_video = None
         item.signbank_exported = True
+        item.signbank_exported_at = timezone.now()
 
         item.save(
             update_fields=[
                 "new_video",
                 "signbank_exported",
+                "signbank_exported_at",
             ]
         )
 

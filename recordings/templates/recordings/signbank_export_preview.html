@@ -125,6 +125,72 @@ Signbank export | VGT Studio
 
     </table>
 
+    <hr style="margin: 50px 0;">
+
+    <h2>Verwerkt naar Signbank</h2>
+
+    <div class="table-wrapper">
+
+        <table class="video-review-table">
+
+            <thead>
+                <tr>
+                    <th>Gloss</th>
+                    <th>Signbank ID</th>
+                    <th>Verwerkt op</th>
+                    <th>Doelbestand</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for item in exported_items %}
+
+                    <tr>
+
+                        <td>
+                            <strong>
+                                {{ item.gloss_id }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ item.signbank_id }}
+                        </td>
+
+                        <td>
+                            {% if item.signbank_exported_at %}
+                                {{ item.signbank_exported_at|date:"d/m/Y H:i" }}
+                            {% else %}
+                                —
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            <code>
+                                {{ item.gloss_id|slice:":2"|upper }}/{{ item.gloss_id }}-{{ item.signbank_id }}.mp4
+                            </code>
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="4">
+                            Nog geen video's naar Signbank verwerkt.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+
 </div>
 
 {% endblock %}
