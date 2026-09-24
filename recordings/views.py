@@ -481,6 +481,13 @@ def reopen_rejected_video(request, signbank_id):
 
 @login_required
 def signbank_export_preview(request):
+    selected_tab = request.GET.get(
+        "tab",
+        "pending",
+    )
+
+    if selected_tab not in ["pending", "processed"]:
+        selected_tab = "pending"
 
     items = (
         RecordingItem.objects
@@ -538,12 +545,30 @@ def signbank_export_preview(request):
             .filter(signbank_exported=True)
             .order_by("-signbank_exported_at")
         )
+        
+        pending_count = (
+            RecordingItem.objects
+            .filter(
+                new_video_status="GOEDGEKEURD",
+                signbank_exported=False,
+            )
+            .exclude(new_video="")
+            .count()
+        )
+
+        processed_count = (
+            RecordingItem.objects
+            .filter(signbank_exported=True)
+            .count()
+        )
     return render(
         request,
         "recordings/signbank_export_preview.html",
         {
             "export_items": export_items,
             "exported_items": exported_items,
+            "selected_tab": selected_tab,
+            "processed_count": processed_count,
         },
     )
 

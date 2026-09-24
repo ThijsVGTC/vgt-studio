@@ -572,3 +572,37 @@ tr:hover td {
 .review-status.rejected {
     background: #fce8e6;
 }
+
+.signbank-tabs {
+    display: flex;
+    gap: 8px;
+    margin: 25px 0 30px;
+    border-bottom: 1px solid #ddd;
+}
+
+.signbank-tabs a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    margin-bottom: -1px;
+    text-decoration: none;
+    border-bottom: 3px solid transparent;
+}
+
+.signbank-tabs a.active {
+    font-weight: 700;
+    border-bottom-color: #184148;
+}
+
+.signbank-tabs span {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    padding: 0 6px;
+    border-radius: 12px;
+    background: #eee;
+    font-size: 12px;
+}
