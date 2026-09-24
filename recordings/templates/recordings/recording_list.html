@@ -35,6 +35,9 @@ Opnames | VGT Studio
                     <option value="OVER-AL_VIDEO" {% if selected_review_status == "OVER-AL_VIDEO" %}selected{% endif %}>
                         Overgeslagen, al video
                     </option>
+                    <option value="OPNAME_AFGEKEURD" {% if selected_review_status == "OPNAME_AFGEKEURD" %}selected{% endif %}>
+                        Opname afgekeurd
+                    </option>
                 </select>
             </div>
 
@@ -199,6 +202,9 @@ Opnames | VGT Studio
                         <option value="OVER-AL_VIDEO">
                             Overgeslagen, al video
                         </option>
+                        <option value="OPNAME_AFGEKEURD">
+                            Opname afgekeurd
+                        </option>
                     </select>
                 </div>
                 <div class="bulk-update-button">
@@ -249,6 +255,7 @@ Opnames | VGT Studio
                     </a>
                 </th>
                 <th>Opmerkingen</th>
+                <th>Controle-opmerking</th>
                 <th>Opnamestatus</th>
             </tr>
         </thead>
@@ -280,6 +287,13 @@ Opnames | VGT Studio
                 <td>{{ item.recording_date }}</td>
                 <td>{{ item.remarks }}</td>
                 <td>
+                    {% if item.video_review_remarks %}
+                        {{ item.video_review_remarks|linebreaksbr }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+                <td>
                     <form method="post" action="{% url 'update_review_status' item.id %}">
                         {% csrf_token %}
                         <select name="review_status" onchange="this.form.submit()">
@@ -293,6 +307,9 @@ Opnames | VGT Studio
                             <option value="OVER-AL_VIDEO" {% if item.review_status == "OVER-AL_VIDEO" %}selected{% endif %}>
                                 Overgeslagen, al video
                             </option>
+                            <option value="OPNAME_AFGEKEURD" {% if item.review_status == "OPNAME_AFGEKEURD" %}selected{% endif %}>
+                                Opname afgekeurd
+                            </option>
                         </select>
                     </form>
                 </td>
@@ -300,7 +317,7 @@ Opnames | VGT Studio
             </tr>
             {% empty %}
             <tr>
-                <td colspan="10">
+                <td colspan="11">
                     Nog geen opnames in de lijst.
                 </td>
             </tr>

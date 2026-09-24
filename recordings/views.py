@@ -355,6 +355,7 @@ def recording_list(request):
             | Q(recording_by__icontains=search_query)
             | Q(recording_date__icontains=search_query)
             | Q(remarks__icontains=search_query)
+            | Q(video_review_remarks__icontains=search_query)
             | Q(review_status__icontains=search_query)
         )
         if search_query.isdigit():
@@ -498,6 +499,7 @@ def bulk_update_recordings(request):
             "OPGENOMEN",
             "OVER-OPM",
             "OVER-AL_VIDEO",
+            "OPNAME_AFGEKEURD",
         ]
         if review_status == "__EMPTY__":
             review_status = ""
