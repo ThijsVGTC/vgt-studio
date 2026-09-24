@@ -569,6 +569,7 @@ def signbank_export_preview(request):
             "export_items": export_items,
             "exported_items": exported_items,
             "selected_tab": selected_tab,
+            "pending_count": pending_count,
             "processed_count": processed_count,
         },
     )
