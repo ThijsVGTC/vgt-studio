@@ -30,123 +30,151 @@ Signbank export | VGT Studio
 
 {% if selected_tab == "pending" %}
 
+
     <p>
         Hieronder staan alle goedgekeurde video's die klaarstaan
         om naar Signbank te worden verwerkt.
     </p>
 
-    <div class="table-wrapper">
+    <form method="post" action="{% url 'signbank_export_bulk' %}" id="signbank-bulk-form">
+        {% csrf_token %}
 
-        <table class="video-review-table">
+        <div class="table-wrapper">
 
-            <thead>
-                <tr>
-                    <th>Gloss</th>
-                    <th>Signbank ID</th>
-                    <th>Nieuwe video</th>
-                    <th>Doel in Signbank</th>
-                    <th>Actie</th>
-                    <th></th>
-                </tr>
-            </thead>
+            <table class="video-review-table">
 
-            <tbody>
-
-                {% for export in export_items %}
-
+                <thead>
                     <tr>
+                        <th>    
+                            <input type="checkbox" id="select-all-signbank" aria-label="Alles selecteren">
+                        </th>
+                        <th>Gloss</th>
+                        <th>Signbank ID</th>
+                        <th>Nieuwe video</th>
+                        <th>Doel in Signbank</th>
+                        <th>Actie</th>
+                        <th></th>
+                    </tr>
+                </thead>
 
-                        <td>
-                            <strong>
-                                {{ export.item.gloss_id }}
-                            </strong>
-                        </td>
+                <tbody>
 
-                        <td>
-                            {{ export.item.signbank_id }}
-                        </td>
+                    {% for export in export_items %}
 
-                        <td>
-                            {% if export.item.new_video %}
-                                {{ export.item.new_video.name }}
-                            {% endif %}
-                        </td>
-
-                        <td>
-
-                            {% if export.valid %}
-
-                                <code>
-                                    {{ export.relative_path }}
-                                </code>
-
-                            {% else %}
-
-                                {{ export.error }}
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            {% if not export.valid %}
-
-                                ❌ Ongeldig
-
-                            {% elif export.exists %}
-
-                                ⚠️ Bestaande video vervangen
-
-                            {% else %}
-
-                                ✅ Nieuwe video
-
-                            {% endif %}
-
-                        </td>
-
-                        <td>
-
-                            {% if export.valid %}
-
-                                <form
-                                    method="post"
-                                    action="{% url 'signbank_export_item' export.item.signbank_id %}"
-                                >
-                                    {% csrf_token %}
-
-                                    <button
-                                        type="submit"
-                                        onclick="return confirm(
-                                            'Deze video naar Signbank verwerken? Een bestaande video met dezelfde naam wordt vervangen.'
-                                        );"
+                        <tr>
+                            <td>
+                                {% if export.valid %}
+                                    <input
+                                        type="checkbox"
+                                        name="selected_items"
+                                        value="{{ export.item.signbank_id }}"
+                                        class="signbank-select"
+                                        aria-label="Selecteer {{ export.item.gloss_id }}"
                                     >
-                                        Naar Signbank verwerken
-                                    </button>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <strong>
+                                    {{ export.item.gloss_id }}
+                                </strong>
+                            </td>
 
-                                </form>
+                            <td>
+                                {{ export.item.signbank_id }}
+                            </td>
 
-                            {% endif %}
+                            <td>
+                                {% if export.item.new_video %}
+                                    {{ export.item.new_video.name }}
+                                {% endif %}
+                            </td>
 
-                        </td>
+                            <td>
 
-                    </tr>
+                                {% if export.valid %}
 
-                {% empty %}
+                                    <code>
+                                        {{ export.relative_path }}
+                                    </code>
 
-                    <tr>
-                        <td colspan="6">
-                            Geen goedgekeurde video's klaar voor Signbank.
-                        </td>
-                    </tr>
+                                {% else %}
 
-                {% endfor %}
+                                    {{ export.error }}
 
-            </tbody>
+                                {% endif %}
 
-        </table>
-    </div>
+                            </td>
+
+                            <td>
+
+                                {% if not export.valid %}
+
+                                    ❌ Ongeldig
+
+                                {% elif export.exists %}
+
+                                    ⚠️ Bestaande video vervangen
+
+                                {% else %}
+
+                                    ✅ Nieuwe video
+
+                                {% endif %}
+
+                            </td>
+
+                            <td>
+
+                                {% if export.valid %}
+
+                                    <form
+                                        method="post"
+                                        action="{% url 'signbank_export_item' export.item.signbank_id %}"
+                                    >
+                                        {% csrf_token %}
+
+                                        <button
+                                            type="submit"
+                                            onclick="return confirm(
+                                                'Deze video naar Signbank verwerken? Een bestaande video met dezelfde naam wordt vervangen.'
+                                            );"
+                                        >
+                                            Naar Signbank verwerken
+                                        </button>
+
+                                    </form>
+
+                                {% endif %}
+
+                            </td>
+
+                        </tr>
+
+                    {% empty %}
+
+                        <tr>
+                            <td colspan="7">
+                                Geen goedgekeurde video's klaar voor Signbank.
+                            </td>
+                        </tr>
+
+                    {% endfor %}
+
+                </tbody>
+
+            </table>
+        </div>
+        <div style="margin-top: 20px;">
+            <button
+                type="submit"
+                onclick="return confirm(
+                    'De geselecteerde video's naar Signbank verwerken? Bestaande Signbank-video’s met dezelfde naam worden vervangen.'
+                );"
+            >
+                Geselecteerde naar Signbank verwerken
+            </button>
+        </div>
+    </form>
 
 {% endif %}
 
@@ -216,5 +244,35 @@ Signbank export | VGT Studio
     </div>
 
 {% endif %}
+
+<script>
+
+document.addEventListener("DOMContentLoaded", function () {
+
+    const selectAll = document.getElementById("select-all-signbank");
+
+    if (!selectAll) {
+
+        return;
+
+    }
+
+    selectAll.addEventListener("change", function () {
+
+        document
+
+            .querySelectorAll(".signbank-select")
+
+            .forEach(function (checkbox) {
+
+                checkbox.checked = selectAll.checked;
+
+            });
+
+    });
+
+});
+
+</script>
 
 {% endblock %}

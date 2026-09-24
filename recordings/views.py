@@ -697,6 +697,122 @@ def signbank_export_item(request, signbank_id):
     )
 
 @login_required
+def signbank_export_bulk(request):
+
+    if request.method != "POST":
+        return redirect(
+            f"{reverse('signbank_export_preview')}?tab=pending"
+        )
+
+    selected_ids = request.POST.getlist("selected_items")
+
+    if not selected_ids:
+        messages.warning(
+            request,
+            "Geen video's geselecteerd."
+        )
+        return redirect(
+            f"{reverse('signbank_export_preview')}?tab=pending"
+        )
+
+    items = (
+        RecordingItem.objects
+        .filter(
+            signbank_id__in=selected_ids,
+            new_video_status="GOEDGEKEURD",
+            signbank_exported=False,
+        )
+        .exclude(new_video="")
+    )
+
+    success_count = 0
+    error_count = 0
+
+    signbank_root = Path(
+        settings.SIGNBANK_GLOSSVIDEO_ROOT
+    )
+
+    for item in items:
+
+        gloss = (item.gloss_id or "").strip()
+
+        if len(gloss) < 2 or not item.new_video:
+            error_count += 1
+            continue
+
+        source_path = Path(
+            item.new_video.path
+        )
+
+        if not source_path.exists():
+            error_count += 1
+            continue
+
+        folder_name = gloss[:2].upper()
+
+        target_dir = (
+            signbank_root
+            / folder_name
+        )
+
+        filename = (
+            f"{gloss}-{item.signbank_id}.mp4"
+        )
+
+        target_path = (
+            target_dir
+            / filename
+        )
+
+        try:
+
+            target_dir.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            if target_path.exists():
+                target_path.unlink()
+
+            shutil.move(
+                str(source_path),
+                str(target_path),
+            )
+
+            item.new_video = None
+            item.signbank_exported = True
+            item.signbank_exported_at = timezone.now()
+
+            item.save(
+                update_fields=[
+                    "new_video",
+                    "signbank_exported",
+                    "signbank_exported_at",
+                ]
+            )
+
+            success_count += 1
+
+        except Exception:
+            error_count += 1
+
+    if success_count:
+        messages.success(
+            request,
+            f"{success_count} video('s) naar Signbank verwerkt."
+        )
+
+    if error_count:
+        messages.warning(
+            request,
+            f"{error_count} video('s) konden niet worden verwerkt."
+        )
+
+    return redirect(
+        f"{reverse('signbank_export_preview')}?tab=pending"
+    )
+
+@login_required
 def recording_list(request):
     items = RecordingItem.objects.all()
     selected_status = request.GET.get("status", "")
