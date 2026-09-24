@@ -56,6 +56,41 @@ detail-pagina {{ item.gloss_id }}
             {% else %}
             <p>Geen video beschikbaar.</p>
             {% endif %}
+            {% if item.rejected_video %}
+
+                <div class="rejected-video">
+
+                    <h3>Afgekeurde opname</h3>
+
+                    <video
+                        controls
+                        style="width: 100%; max-width: 700px;"
+                    >
+                        <source
+                            src="{{ item.rejected_video.url }}"
+                            type="video/mp4"
+                        >
+
+                        Je browser ondersteunt deze video niet.
+                    </video>
+
+                    {% if item.video_review_remarks %}
+
+                        <div class="video-review-comment">
+
+                            <strong>Reden afkeuring</strong>
+
+                            <p>
+                                {{ item.video_review_remarks|linebreaksbr }}
+                            </p>
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            {% endif %}
             <hr>
         </div>
         <div class="detail_inhoud">

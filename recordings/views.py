@@ -3,8 +3,9 @@ import io
 import re
 import requests
 import gspread
+import shutil
 
-from pathlib import PurePosixPath
+from pathlib import PurePosixPath, Path
 from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, render, redirect
@@ -307,21 +308,72 @@ def reject_new_video(request, signbank_id):
     )
 
     if request.method == "POST":
-
         item.new_video_status = "AFGEKEURD"
         item.review_status = "OPNAME_AFGEKEURD"
-        item.video_review_remarks = request.POST.get("video_review_remarks", "").strip()
 
+        item.video_review_remarks = request.POST.get(
+            "video_review_remarks",
+            ""
+        ).strip()
+
+        # -------------------------------------------------
+        # Nieuwe video fysiek verplaatsen naar rejected
+        # -------------------------------------------------
+
+        if item.new_video:
+            source_path = Path(item.new_video.path)
+
+            rejected_dir = (
+                Path(settings.MEDIA_ROOT)
+                / "recordings"
+                / "rejected"
+            )
+
+            rejected_dir.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            destination_path = (
+                rejected_dir
+                / source_path.name
+            )
+
+            # Als er toevallig al een bestand met dezelfde naam staat,
+            # gebruik Signbank ID om overschrijven te voorkomen.
+            if destination_path.exists():
+                destination_path = (
+                    rejected_dir
+                    / f"{item.signbank_id}_{source_path.name}"
+                )
+
+            shutil.move(
+                str(source_path),
+                str(destination_path),
+            )
+
+            item.rejected_video.name = (
+                f"recordings/rejected/"
+                f"{destination_path.name}"
+            )
+
+            # new_video vrijmaken zodat een nieuwe opname
+            # opnieuw kan worden geüpload
+            item.new_video = None
 
         item.save(
             update_fields=[
                 "new_video_status",
                 "review_status",
-                "video_review_remarks"
+                "video_review_remarks",
+                "rejected_video",
+                "new_video",
             ]
         )
+
     if request.POST.get("return_to") == "overview":
         return redirect("video_review_overview")
+
     return redirect("video_review")
 
 @login_required
