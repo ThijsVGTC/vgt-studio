@@ -541,26 +541,26 @@ def signbank_export_preview(request):
             "exists": target_path.exists(),
         })
 
-        exported_items = (
-            RecordingItem.objects
-            .filter(signbank_exported=True)
-            .order_by("-signbank_exported_at")
+    exported_items = (
+        RecordingItem.objects
+        .filter(signbank_exported=True)
+        .order_by("-signbank_exported_at")
+    )
+    
+    pending_count = (
+        RecordingItem.objects
+        .filter(
+            new_video_status="GOEDGEKEURD",
+            signbank_exported=False,
         )
-        
-        pending_count = (
-            RecordingItem.objects
-            .filter(
-                new_video_status="GOEDGEKEURD",
-                signbank_exported=False,
-            )
-            .exclude(new_video="")
-            .count()
-        )
+        .exclude(new_video="")
+        .count()
+    )
 
-        processed_count = (
-            RecordingItem.objects
-            .filter(signbank_exported=True)
-            .count()
+    processed_count = (
+        RecordingItem.objects
+        .filter(signbank_exported=True)
+        .count()
         )
     return render(
         request,
