@@ -110,14 +110,23 @@ Videocontrole | VGT Studio
                     src="{{ item.new_video.url }}"
                     type="video/mp4"
                 >
+                Je browser ondersteunt deze video niet.
+            </video>
 
+        {% elif item.rejected_video %}
+
+            <video controls>
+                <source
+                    src="{{ item.rejected_video.url }}"
+                    type="video/mp4"
+                >
                 Je browser ondersteunt deze video niet.
             </video>
 
         {% else %}
 
             <p>
-                Geen nieuwe video beschikbaar.
+                Geen video beschikbaar.
             </p>
 
         {% endif %}

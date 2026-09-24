@@ -164,7 +164,11 @@ def video_review_overview(request):
 
     items = (
         RecordingItem.objects
-        .exclude(new_video="")
+        .filter(
+            Q(new_video__isnull=False) & ~Q(new_video="")
+            |
+            Q(rejected_video__isnull=False) & ~Q(rejected_video="")
+        )
         .order_by("-id")
     )
 
@@ -187,7 +191,11 @@ def video_review_overview(request):
 
     total_count = (
         RecordingItem.objects
-        .exclude(new_video="")
+        .filter(
+            Q(new_video__isnull=False) & ~Q(new_video="")
+            |
+            Q(rejected_video__isnull=False) & ~Q(rejected_video="")
+        )
         .count()
     )
 
@@ -215,7 +223,7 @@ def video_review_item(
         signbank_id=signbank_id,
     )
 
-    if not item.new_video:
+    if not item.new_video and not item.rejected_video:
         return redirect(
             "video_review_overview"
         )
