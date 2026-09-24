@@ -303,6 +303,7 @@ def approve_new_video(request, signbank_id):
             ""
         ).strip()
 
+        # Eerst de statuswijzigingen opslaan
         item.save(
             update_fields=[
                 "new_video_status",
@@ -310,6 +311,25 @@ def approve_new_video(request, signbank_id):
                 "video_review_remarks",
             ]
         )
+
+        # -------------------------------------------------
+        # Oude afgekeurde video veilig verwijderen
+        # -------------------------------------------------
+
+        if item.rejected_video:
+
+            rejected_path = Path(item.rejected_video.path)
+
+            if rejected_path.exists():
+                rejected_path.unlink()
+
+            item.rejected_video = None
+
+            item.save(
+                update_fields=[
+                    "rejected_video",
+                ]
+            )
 
     if request.POST.get("return_to") == "overview":
         return redirect("video_review_overview")
