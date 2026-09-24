@@ -208,10 +208,12 @@ def approve_new_video(request, signbank_id):
     if request.method == "POST":
 
         item.new_video_status = "GOEDGEKEURD"
+        item.video_review_remarks = request.POST.get("video_review_remarks", "").strip()
 
         item.save(
             update_fields=[
                 "new_video_status",
+                "video_review_remarks",
             ]
         )
 
@@ -228,11 +230,14 @@ def reject_new_video(request, signbank_id):
 
         item.new_video_status = "AFGEKEURD"
         item.review_status = "OPNAME_AFGEKEURD"
+        item.video_review_remarks = request.POST.get("video_review_remarks", "").strip()
+
 
         item.save(
             update_fields=[
                 "new_video_status",
                 "review_status",
+                "video_review_remarks"
             ]
         )
     return redirect("video_review")

@@ -474,3 +474,20 @@ tr:hover td {
     }
 
 }
+
+.video-review-decision {
+    margin: 30px 0 15px;
+}
+
+.video-review-decision label {
+    display: block;
+    margin-bottom: 8px;
+}
+
+.video-review-decision textarea {
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    box-sizing: border-box;
+    resize: vertical;
+}

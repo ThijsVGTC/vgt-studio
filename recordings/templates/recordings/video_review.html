@@ -113,40 +113,71 @@ Videocontrole | VGT Studio
 </div>
 
 
-<div class="video-review-actions">
+<div class="video-review-decision">
 
-    <form
-        method="post"
-        action="{% url 'reject_new_video' item.signbank_id %}"
+    <label for="video-review-remarks">
+
+        <strong>Opmerking controle</strong>
+
+    </label>
+
+    <textarea
+
+        id="video-review-remarks"
+
+        name="video_review_remarks"
+
+        form="video-review-form"
+
+        rows="4"
+
+        placeholder="Bijvoorbeeld: hand valt buiten beeld, keying onvoldoende, verkeerde opname..."
+
+    >{{ item.video_review_remarks }}</textarea>
+
+</div>
+
+<form
+
+    id="video-review-form"
+
+    method="post"
+
+    class="video-review-actions"
+
+>
+
+    {% csrf_token %}
+
+    <button
+
+        type="submit"
+
+        formaction="{% url 'reject_new_video' item.signbank_id %}"
+
+        class="button button-danger"
+
     >
 
-        {% csrf_token %}
+        Afkeuren
 
-        <button
-            type="submit"
-            class="stopbutton"
-        >
-            AFKEUREN
-        </button>
+    </button>
 
-    </form>
+    <button
 
+        type="submit"
 
-    <form
-        method="post"
-        action="{% url 'approve_new_video' item.signbank_id %}"
+        formaction="{% url 'approve_new_video' item.signbank_id %}"
+
+        class="button button-success"
+
     >
 
-        {% csrf_token %}
+        Goedkeuren
 
-        <button
-            type="submit"
-            class="startbutton"
-        >
-            GOEDKEUREN
-        </button>
+    </button>
 
-    </form>
+</form>
 
 </div>
 
