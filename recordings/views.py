@@ -377,6 +377,71 @@ def reject_new_video(request, signbank_id):
     return redirect("video_review")
 
 @login_required
+def reopen_rejected_video(request, signbank_id):
+
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method == "POST":
+
+        if item.rejected_video:
+
+            source_path = Path(item.rejected_video.path)
+
+            new_dir = (
+                Path(settings.MEDIA_ROOT)
+                / "recordings"
+                / "new"
+            )
+
+            new_dir.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            destination_path = (
+                new_dir
+                / source_path.name
+            )
+
+            if destination_path.exists():
+                destination_path = (
+                    new_dir
+                    / f"{item.signbank_id}_{source_path.name}"
+                )
+
+            shutil.move(
+                str(source_path),
+                str(destination_path),
+            )
+
+            item.new_video.name = (
+                f"recordings/new/"
+                f"{destination_path.name}"
+            )
+
+            item.rejected_video = None
+
+        item.new_video_status = "WACHT_OP_CONTROLE"
+
+        # De opname moet niet langer als afgekeurd staan
+        if item.review_status == "OPNAME_AFGEKEURD":
+            item.review_status = ""
+
+        item.save(
+            update_fields=[
+                "new_video",
+                "rejected_video",
+                "new_video_status",
+                "review_status",
+            ]
+        )
+
+    return redirect("video_review_overview")
+
+@login_required
 def recording_list(request):
     items = RecordingItem.objects.all()
     selected_status = request.GET.get("status", "")

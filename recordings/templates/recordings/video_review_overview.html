@@ -183,6 +183,22 @@ Videocontrole | VGT Studio
                         Bekijken
                     {% endif %}
                 </a>
+                {% if item.new_video_status == "AFGEKEURD" and item.rejected_video %}
+
+                    <form
+                        method="post"
+                        action="{% url 'reopen_rejected_video' item.signbank_id %}"
+                        style="margin-top: 8px;"
+                    >
+                        {% csrf_token %}
+
+                        <button type="submit">
+                            Terug naar controle
+                        </button>
+
+                    </form>
+
+                {% endif %}
 
             </td>
 
