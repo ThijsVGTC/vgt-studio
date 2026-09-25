@@ -106,11 +106,21 @@ class Command(BaseCommand):
                         "locatie_begin": self.clean(row["locprim"]),
                         "locatie_einde": locatie_einde,
                         "mogelijke_vertaling": translations,
-                        "categorie_1": self.clean(row["semField"]),
-                        "categorie_2": self.clean(row["semField1"]),
-                        "categorie_3": self.clean(row["semField2"]),
-                        "categorie_4": self.clean(row["semField3"]),
-                        "categorie_5": self.clean(row["semField4"]),
+                        "categorie_1": self.get_fieldchoice_label(
+                            connection, "semField", row["semField"]
+                        ),
+                        "categorie_2": self.get_fieldchoice_label(
+                            connection, "semField", row["semField1"]
+                        ),
+                        "categorie_3": self.get_fieldchoice_label(
+                            connection, "semField", row["semField2"]
+                        ),
+                        "categorie_4": self.get_fieldchoice_label(
+                            connection, "semField", row["semField3"]
+                        ),
+                        "categorie_5": self.get_fieldchoice_label(
+                            connection, "semField", row["semField4"]
+                        ),
                         "labels": labels,
                         "in_woordenboek": bool(row["inWeb"]),
                         "signbank_last_updated": self.parse_signbank_datetime(
@@ -289,6 +299,44 @@ class Command(BaseCommand):
         ]
 
         return "; ".join(labels)
+
+    def get_fieldchoice_label(self, connection, field_name, value):
+        """
+        Zet een machine_value uit dictionary_gloss om
+        naar een leesbare Nederlandse waarde via dictionary_fieldchoice.
+        """
+        if value is None or str(value).strip() == "":
+            return ""
+
+        try:
+            machine_value = int(value)
+        except (TypeError, ValueError):
+            return self.clean(value)
+
+        row = connection.execute(
+            """
+            SELECT
+                dutch_name,
+                english_name
+            FROM dictionary_fieldchoice
+            WHERE field = ?
+            AND machine_value = ?
+            LIMIT 1
+            """,
+            (
+                field_name,
+                machine_value,
+            ),
+        ).fetchone()
+
+        if not row:
+            return str(value)
+
+        return (
+            self.clean(row["dutch_name"])
+            or self.clean(row["english_name"])
+            or str(value)
+        )
 
     def get_final_location(self, connection, final_loc):
         """
