@@ -107,19 +107,19 @@ class Command(BaseCommand):
                         "locatie_einde": locatie_einde,
                         "mogelijke_vertaling": translations,
                         "categorie_1": self.get_fieldchoice_label(
-                            connection, "semField", row["semField"]
+                            connection, "SemField", row["semField"]
                         ),
                         "categorie_2": self.get_fieldchoice_label(
-                            connection, "semField", row["semField1"]
+                            connection, "SemField", row["semField1"]
                         ),
                         "categorie_3": self.get_fieldchoice_label(
-                            connection, "semField", row["semField2"]
+                            connection, "SemField", row["semField2"]
                         ),
                         "categorie_4": self.get_fieldchoice_label(
-                            connection, "semField", row["semField3"]
+                            connection, "SemField", row["semField3"]
                         ),
                         "categorie_5": self.get_fieldchoice_label(
-                            connection, "semField", row["semField4"]
+                            connection, "SemField", row["semField4"]
                         ),
                         "labels": labels,
                         "in_woordenboek": bool(row["inWeb"]),
