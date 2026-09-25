@@ -1240,6 +1240,7 @@ def sync_google_sheet(request):
             skipped_count = 0
             thumbnail_count = 0
             thumbnail_error_count = 0
+            thumbnail_errors = []
 
             for row in reader:
                 video_url = (row.get("Video URL") or "").strip()
@@ -1274,7 +1275,7 @@ def sync_google_sheet(request):
 
                     if item.old_video_url:
 
-                        success, _ = (
+                        success, thumbnail_message = (
                             generate_thumbnail_for_item(
                                 item,
                                 force=True,
@@ -1282,9 +1283,23 @@ def sync_google_sheet(request):
                         )
 
                         if success:
+
                             thumbnail_count += 1
+
                         else:
+
                             thumbnail_error_count += 1
+                            thumbnail_errors.append(
+                                f"{item.signbank_id} ({item.gloss_id}): "
+                                f"{thumbnail_message}"
+                            )
+
+                            print(
+                                f"Thumbnail fout voor "
+                                f"{item.signbank_id} "
+                                f"({item.gloss_id}): "
+                                f"{thumbnail_message}"
+                            )
 
                 else:
 
@@ -1292,7 +1307,7 @@ def sync_google_sheet(request):
             message = (
                 f"{created_count} toegevoegd, "
                 f"{updated_count} bijgewerkt, "
-                f"{skipped_count} overgeslagen."
+                f"{skipped_count} overgeslagen. "
                 f"{thumbnail_count} nieuwe thumbnails gemaakt."
             )
 
@@ -1301,6 +1316,12 @@ def sync_google_sheet(request):
                     f" {thumbnail_error_count} thumbnails "
                     f"konden niet gemaakt worden."
                 )
+
+                if thumbnail_errors:
+                    message += (
+                        " Eerste fout: "
+                        + thumbnail_errors[0]
+                    )
 
         except Exception as e:
             message = f"Fout bij synchroniseren: {e}"
