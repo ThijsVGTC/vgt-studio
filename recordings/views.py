@@ -17,6 +17,7 @@ from django.core.paginator import Paginator
 from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
+from .thumbnail_utils import ( generate_thumbnail_for_item,)
 
 # Create your views here.
 
@@ -664,6 +665,14 @@ def signbank_export_item(request, signbank_id):
             str(target_path),
         )
 
+        thumbnail_success, thumbnail_message = (
+            generate_thumbnail_for_item(
+                item,
+                source_path=target_path,
+                force=True,
+            )
+        )
+
         # -------------------------------------------------
         # Database pas aanpassen nadat verplaatsen gelukt is
         # -------------------------------------------------
@@ -684,6 +693,15 @@ def signbank_export_item(request, signbank_id):
             request,
             f"{gloss} is naar Signbank verwerkt."
         )
+
+        if not thumbnail_success:
+            messages.warning(
+                request,
+                "Video is naar Signbank verwerkt, "
+                f"maar thumbnail maken is mislukt: "
+                f"{thumbnail_message}"
+            )
+
 
     except Exception as exc:
 
@@ -727,6 +745,7 @@ def signbank_export_bulk(request):
 
     success_count = 0
     error_count = 0
+    thumbnail_error_count = 0
 
     signbank_root = Path(
         settings.SIGNBANK_GLOSSVIDEO_ROOT
@@ -779,6 +798,17 @@ def signbank_export_bulk(request):
                 str(target_path),
             )
 
+            thumbnail_success, _ = (
+                generate_thumbnail_for_item(
+                    item,
+                    source_path=target_path,
+                    force=True,
+                )
+            )
+
+            if not thumbnail_success:
+                thumbnail_error_count += 1
+
             item.new_video = None
             item.signbank_exported = True
             item.signbank_exported_at = timezone.now()
@@ -806,6 +836,13 @@ def signbank_export_bulk(request):
         messages.warning(
             request,
             f"{error_count} video('s) konden niet worden verwerkt."
+        )
+
+    if thumbnail_error_count:
+        messages.warning(
+            request,
+            f"{thumbnail_error_count} thumbnail(s) "
+            "konden niet automatisch worden vernieuwd."
         )
 
     return redirect(
@@ -1201,6 +1238,9 @@ def sync_google_sheet(request):
             created_count = 0
             updated_count = 0
             skipped_count = 0
+            thumbnail_count = 0
+            thumbnail_error_count = 0
+
             for row in reader:
                 video_url = (row.get("Video URL") or "").strip()
                 gloss_id = (row.get("lexicon") or "").strip()
@@ -1229,15 +1269,38 @@ def sync_google_sheet(request):
                     }
                 )
                 if was_created:
-                    created_count += 1
-                else:
-                    updated_count += 1
 
+                    created_count += 1
+
+                    if item.old_video_url:
+
+                        success, _ = (
+                            generate_thumbnail_for_item(
+                                item,
+                                force=True,
+                            )
+                        )
+
+                        if success:
+                            thumbnail_count += 1
+                        else:
+                            thumbnail_error_count += 1
+
+                else:
+
+                    updated_count += 1
             message = (
                 f"{created_count} toegevoegd, "
                 f"{updated_count} bijgewerkt, "
                 f"{skipped_count} overgeslagen."
+                f"{thumbnail_count} nieuwe thumbnails gemaakt."
             )
+
+            if thumbnail_error_count:
+                message += (
+                    f" {thumbnail_error_count} thumbnails "
+                    f"konden niet gemaakt worden."
+                )
 
         except Exception as e:
             message = f"Fout bij synchroniseren: {e}"
@@ -1446,6 +1509,86 @@ def update_remarks(request, signbank_id):
         item.save(
             update_fields=["remarks"]
         )
+    return redirect(
+        "recording_detail",
+        signbank_id=signbank_id,
+    )
+
+@login_required
+def update_video_source(request,signbank_id,):
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    if request.method == "POST":
+        gloss_id = request.POST.get(
+            "gloss_id",
+            ""
+        ).strip()
+
+        old_video_url = request.POST.get(
+            "old_video_url",
+            ""
+        ).strip()
+
+        if not gloss_id:
+            messages.error(
+                request,
+                "Gloss mag niet leeg zijn."
+            )
+
+            return redirect(
+                "recording_detail",
+                signbank_id=signbank_id,
+            )
+
+        if not old_video_url:
+            messages.error(
+                request,
+                "Oude video-URL mag niet leeg zijn."
+            )
+
+            return redirect(
+                "recording_detail",
+                signbank_id=signbank_id,
+            )
+
+        item.gloss_id = gloss_id
+        item.old_video_url = old_video_url
+
+        item.save(
+            update_fields=[
+                "gloss_id",
+                "old_video_url",
+            ]
+        )
+
+        # Thumbnail ALTIJD opnieuw maken na
+        # wijziging van gloss/video-URL
+        success, thumbnail_message = (
+            generate_thumbnail_for_item(
+                item,
+                force=True,
+            )
+        )
+
+        if success:
+            messages.success(
+                request,
+                "Gloss en video-URL aangepast. "
+                "Thumbnail is opnieuw gegenereerd."
+            )
+
+        else:
+            messages.warning(
+                request,
+                "Gloss en video-URL zijn aangepast, "
+                "maar de thumbnail kon niet "
+                f"gegenereerd worden: "
+                f"{thumbnail_message}"
+            )
+
     return redirect(
         "recording_detail",
         signbank_id=signbank_id,

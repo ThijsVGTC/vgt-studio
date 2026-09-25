@@ -94,6 +94,56 @@ detail-pagina {{ item.gloss_id }}
             <hr>
         </div>
         <div class="detail_inhoud">
+            <div class="video-source-edit">
+                <h3>Video-bron corrigeren</h3>
+                <form
+                    method="post"
+                    action="{% url 'update_video_source' item.signbank_id %}"
+                >
+                    {% csrf_token %}
+                    <p>
+                        <label for="gloss_id">
+                            <strong>Gloss:</strong>
+                        </label>
+
+                        <br>
+
+                        <input
+                            type="text"
+                            id="gloss_id"
+                            name="gloss_id"
+                            value="{{ item.gloss_id }}"
+                            required
+                            style="width: 100%;"
+                        >
+                    </p>
+
+                    <p>
+                        <label for="old_video_url">
+                            <strong>Oude video-URL:</strong>
+                        </label>
+
+                        <br>
+
+                        <input
+                            type="url"
+                            id="old_video_url"
+                            name="old_video_url"
+                            value="{{ item.old_video_url }}"
+                            required
+                            style="width: 100%;"
+                        >
+                    </p>
+
+                    <button type="submit">
+                        GLOSS EN VIDEO-URL OPSLAAN
+                    </button>
+
+                </form>
+
+            </div>
+
+            <hr>
             <p>
                 <strong>Status:</strong>
                 {{ item.status }}
