@@ -24,8 +24,11 @@
                 <a href="{% url 'video_review_overview' %}">
                     Videocontrole
                 </a>
-                <a href="{% url 'signbank_export_preview' %}">
+                <a href="{% url 'signbank_list' %}">
                     Signbank
+                </a>
+                <a href="{% url 'signbank_export_preview' %}">
+                    Signbank Export
                 </a>
                 <span class="user-name">
                     {{ user.username }}

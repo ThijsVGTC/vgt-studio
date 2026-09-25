@@ -612,3 +612,153 @@ tr:hover td {
     top: 0;
     z-index: 50;
 }
+
+/* SIGNBANK */
+
+.page-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    margin-bottom: 25px;
+}
+
+.page-heading h1 {
+    margin-bottom: 4px;
+}
+
+.page-intro {
+    margin: 0;
+    color: #6b7280;
+}
+
+.signbank-count {
+    padding: 8px 12px;
+    background: #eef2f3;
+    border-radius: 6px;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.signbank-filter-form {
+    margin-bottom: 25px;
+    padding: 18px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+}
+
+.signbank-filter-grid {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: end;
+    gap: 14px;
+}
+
+.signbank-filter-grid label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+.signbank-filter-grid input,
+.signbank-filter-grid select {
+    min-width: 190px;
+}
+
+.signbank-filter-grid input[type="search"] {
+    min-width: 280px;
+}
+
+.signbank-filter-buttons {
+    display: flex;
+    gap: 8px;
+}
+
+.button-secondary {
+    background: #e5e7eb;
+    color: #1f2937;
+}
+
+.signbank-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+}
+
+.signbank-table {
+    min-width: 1250px;
+}
+
+.signbank-gloss {
+    font-weight: 600;
+}
+
+.signbank-value-pair {
+    display: grid;
+    grid-template-columns: 45px 1fr;
+    gap: 6px;
+    font-size: 13px;
+}
+
+.signbank-value-pair + .signbank-value-pair {
+    margin-top: 4px;
+}
+
+.signbank-value-label {
+    color: #6b7280;
+}
+
+.signbank-translations {
+    min-width: 180px;
+    max-width: 280px;
+}
+
+.signbank-badges {
+    min-width: 180px;
+}
+
+.data-badge {
+    display: inline-block;
+    margin: 2px 3px 2px 0;
+    padding: 3px 7px;
+    background: #eef2f3;
+    border-radius: 999px;
+    font-size: 12px;
+    white-space: nowrap;
+}
+
+.label-list {
+    font-size: 13px;
+}
+
+.dictionary-status {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    font-weight: 700;
+}
+
+.dictionary-status-yes {
+    background: #dcfce7;
+    color: #166534;
+}
+
+.dictionary-status-no {
+    background: #f3f4f6;
+    color: #9ca3af;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 25px;
+}
+
+.pagination-info {
+    font-size: 14px;
+    color: #6b7280;
+}

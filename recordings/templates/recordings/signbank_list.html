@@ -1,0 +1,445 @@
+{% extends "recordings/base.html" %}
+
+{% block title %}
+Signbank | VGT Studio
+{% endblock %}
+
+{% block content %}
+
+<div class="page-heading">
+    <div>
+        <h1>Signbank</h1>
+
+        <p class="page-intro">
+            Gesynchroniseerde gegevens uit Signbank.
+        </p>
+    </div>
+
+    <div class="signbank-count">
+        {{ filtered_count }} resultaten
+    </div>
+</div>
+
+
+<form method="get" class="signbank-filter-form">
+
+    <div class="signbank-filter-grid">
+
+        <div>
+            <label for="q">
+                <strong>Zoeken</strong>
+            </label>
+
+            <input
+                type="search"
+                id="q"
+                name="q"
+                value="{{ search_query }}"
+                placeholder="GLOSS, ID, vertaling..."
+            >
+        </div>
+
+
+        <div>
+            <label for="category">
+                <strong>Categorie</strong>
+            </label>
+
+            <select
+                name="category"
+                id="category"
+            >
+                <option value="">
+                    Alle categorieën
+                </option>
+
+                {% for category in categories %}
+                    <option
+                        value="{{ category }}"
+                        {% if category == selected_category %}selected{% endif %}
+                    >
+                        {{ category }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div>
+            <label for="label">
+                <strong>Label</strong>
+            </label>
+
+            <select
+                name="label"
+                id="label"
+            >
+                <option value="">
+                    Alle labels
+                </option>
+
+                {% for label in labels %}
+                    <option
+                        value="{{ label }}"
+                        {% if label == selected_label %}selected{% endif %}
+                    >
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
+
+
+        <div>
+            <label for="in_dictionary">
+                <strong>In woordenboek</strong>
+            </label>
+
+            <select
+                name="in_dictionary"
+                id="in_dictionary"
+            >
+                <option value="">
+                    Alles
+                </option>
+
+                <option
+                    value="yes"
+                    {% if selected_in_dictionary == "yes" %}selected{% endif %}
+                >
+                    Ja
+                </option>
+
+                <option
+                    value="no"
+                    {% if selected_in_dictionary == "no" %}selected{% endif %}
+                >
+                    Nee
+                </option>
+            </select>
+        </div>
+
+
+        <div class="signbank-filter-buttons">
+            <button type="submit">
+                Filteren
+            </button>
+
+            <a
+                href="{% url 'signbank_list' %}"
+                class="button button-secondary"
+            >
+                Wissen
+            </a>
+        </div>
+
+    </div>
+
+</form>
+
+
+<div class="signbank-table-wrapper">
+
+<table class="signbank-table">
+
+    <thead>
+
+        <tr>
+
+            <th>
+                GLOSS
+            </th>
+
+            <th>
+                ID
+            </th>
+
+            <th>
+                Handvorm
+            </th>
+
+            <th>
+                Locatie
+            </th>
+
+            <th>
+                Mogelijke vertaling
+            </th>
+
+            <th>
+                Categorieën
+            </th>
+
+            <th>
+                Labels
+            </th>
+
+            <th class="t_center">
+                Woordenboek
+            </th>
+
+        </tr>
+
+    </thead>
+
+
+    <tbody>
+
+        {% for entry in entries %}
+
+            <tr>
+
+                <td class="signbank-gloss">
+
+                    <a
+                        href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ entry.signbank_id }}/"
+                        target="_blank"
+                    >
+                        {{ entry.gloss }}
+                    </a>
+
+                </td>
+
+
+                <td>
+
+                    <a
+                        href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ entry.signbank_id }}/"
+                        target="_blank"
+                    >
+                        {{ entry.signbank_id }}
+                    </a>
+
+                </td>
+
+
+                <td>
+
+                    <div class="signbank-value-pair">
+
+                        <span class="signbank-value-label">
+                            Begin
+                        </span>
+
+                        <span>
+                            {% if entry.handvorm_begin %}
+                                {{ entry.handvorm_begin }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+
+                    <div class="signbank-value-pair">
+
+                        <span class="signbank-value-label">
+                            Einde
+                        </span>
+
+                        <span>
+                            {% if entry.handvorm_einde %}
+                                {{ entry.handvorm_einde }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+                </td>
+
+
+                <td>
+
+                    <div class="signbank-value-pair">
+
+                        <span class="signbank-value-label">
+                            Begin
+                        </span>
+
+                        <span>
+                            {% if entry.locatie_begin %}
+                                {{ entry.locatie_begin }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+
+                    <div class="signbank-value-pair">
+
+                        <span class="signbank-value-label">
+                            Einde
+                        </span>
+
+                        <span>
+                            {% if entry.locatie_einde %}
+                                {{ entry.locatie_einde }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+
+                    </div>
+
+                </td>
+
+
+                <td class="signbank-translations">
+
+                    {% if entry.mogelijke_vertaling %}
+                        {{ entry.mogelijke_vertaling }}
+                    {% else %}
+                        -
+                    {% endif %}
+
+                </td>
+
+
+                <td class="signbank-badges">
+
+                    {% if entry.categorie_1 %}
+                        <span class="data-badge">
+                            {{ entry.categorie_1 }}
+                        </span>
+                    {% endif %}
+
+                    {% if entry.categorie_2 %}
+                        <span class="data-badge">
+                            {{ entry.categorie_2 }}
+                        </span>
+                    {% endif %}
+
+                    {% if entry.categorie_3 %}
+                        <span class="data-badge">
+                            {{ entry.categorie_3 }}
+                        </span>
+                    {% endif %}
+
+                    {% if entry.categorie_4 %}
+                        <span class="data-badge">
+                            {{ entry.categorie_4 }}
+                        </span>
+                    {% endif %}
+
+                    {% if entry.categorie_5 %}
+                        <span class="data-badge">
+                            {{ entry.categorie_5 }}
+                        </span>
+                    {% endif %}
+
+                    {% if not entry.categorie_1 and not entry.categorie_2 and not entry.categorie_3 and not entry.categorie_4 and not entry.categorie_5 %}
+                        -
+                    {% endif %}
+
+                </td>
+
+
+                <td>
+
+                    {% if entry.labels %}
+
+                        <span class="label-list">
+                            {{ entry.labels }}
+                        </span>
+
+                    {% else %}
+                        -
+                    {% endif %}
+
+                </td>
+
+
+                <td class="t_center">
+
+                    {% if entry.in_woordenboek %}
+
+                        <span
+                            class="dictionary-status dictionary-status-yes"
+                            title="In woordenboek"
+                        >
+                            ✓
+                        </span>
+
+                    {% else %}
+
+                        <span
+                            class="dictionary-status dictionary-status-no"
+                            title="Niet in woordenboek"
+                        >
+                            —
+                        </span>
+
+                    {% endif %}
+
+                </td>
+
+            </tr>
+
+
+        {% empty %}
+
+            <tr>
+
+                <td colspan="8">
+
+                    Geen Signbank-items gevonden.
+
+                </td>
+
+            </tr>
+
+        {% endfor %}
+
+    </tbody>
+
+</table>
+
+</div>
+
+
+{% if page_obj.paginator.num_pages > 1 %}
+
+<div class="pagination">
+
+    {% if page_obj.has_previous %}
+
+        <a
+            href="?page={{ page_obj.previous_page_number }}&q={{ search_query|urlencode }}&category={{ selected_category|urlencode }}&label={{ selected_label|urlencode }}&in_dictionary={{ selected_in_dictionary }}"
+            class="button button-secondary"
+        >
+            ← Vorige
+        </a>
+
+    {% endif %}
+
+
+    <span class="pagination-info">
+
+        Pagina {{ page_obj.number }}
+        van {{ page_obj.paginator.num_pages }}
+
+    </span>
+
+
+    {% if page_obj.has_next %}
+
+        <a
+            href="?page={{ page_obj.next_page_number }}&q={{ search_query|urlencode }}&category={{ selected_category|urlencode }}&label={{ selected_label|urlencode }}&in_dictionary={{ selected_in_dictionary }}"
+            class="button button-secondary"
+        >
+            Volgende →
+        </a>
+
+    {% endif %}
+
+</div>
+
+{% endif %}
+
+
+{% endblock %}

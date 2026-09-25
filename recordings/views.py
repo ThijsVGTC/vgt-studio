@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
-from .models import RecordingItem, AppSettings
+from .models import RecordingItem, AppSettings, SignbankEntry
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
@@ -847,6 +847,155 @@ def signbank_export_bulk(request):
 
     return redirect(
         f"{reverse('signbank_export_preview')}?tab=pending"
+    )
+
+@login_required
+def signbank_list(request):
+    entries = SignbankEntry.objects.all()
+
+    search_query = request.GET.get("q", "").strip()
+    selected_category = request.GET.get("category", "").strip()
+    selected_label = request.GET.get("label", "").strip()
+    selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
+
+    # -------------------------------------------------
+    # Zoeken
+    # -------------------------------------------------
+    if search_query:
+        search_filter = (
+            Q(gloss__icontains=search_query)
+            | Q(mogelijke_vertaling__icontains=search_query)
+            | Q(labels__icontains=search_query)
+        )
+
+        if search_query.isdigit():
+            search_filter |= Q(signbank_id=int(search_query))
+
+        entries = entries.filter(search_filter)
+
+    # -------------------------------------------------
+    # Categorie
+    # Een categorie kan in een van de 5 velden staan.
+    # -------------------------------------------------
+    if selected_category:
+        entries = entries.filter(
+            Q(categorie_1=selected_category)
+            | Q(categorie_2=selected_category)
+            | Q(categorie_3=selected_category)
+            | Q(categorie_4=selected_category)
+            | Q(categorie_5=selected_category)
+        )
+
+    # -------------------------------------------------
+    # Label
+    # -------------------------------------------------
+    if selected_label:
+        entries = entries.filter(
+            labels__icontains=selected_label
+        )
+
+    # -------------------------------------------------
+    # In woordenboek
+    # -------------------------------------------------
+    if selected_in_dictionary == "yes":
+        entries = entries.filter(
+            in_woordenboek=True
+        )
+    elif selected_in_dictionary == "no":
+        entries = entries.filter(
+            in_woordenboek=False
+        )
+
+    entries = entries.order_by("gloss", "signbank_id")
+
+    # -------------------------------------------------
+    # Alle beschikbare categorieën verzamelen
+    # -------------------------------------------------
+    categories = set()
+
+    for field_name in [
+        "categorie_1",
+        "categorie_2",
+        "categorie_3",
+        "categorie_4",
+        "categorie_5",
+    ]:
+        values = (
+            SignbankEntry.objects
+            .exclude(**{field_name: ""})
+            .values_list(field_name, flat=True)
+        )
+
+        categories.update(
+            value
+            for value in values
+            if value
+        )
+
+    categories = sorted(
+        categories,
+        key=str.casefold,
+    )
+
+    # -------------------------------------------------
+    # Alle labels verzamelen
+    # labels zijn opgeslagen als:
+    # "label 1; label 2; label 3"
+    # -------------------------------------------------
+    labels = set()
+
+    for label_string in (
+        SignbankEntry.objects
+        .exclude(labels="")
+        .values_list("labels", flat=True)
+    ):
+        if not label_string:
+            continue
+
+        for label in label_string.split(";"):
+            label = label.strip()
+
+            if label:
+                labels.add(label)
+
+    labels = sorted(
+        labels,
+        key=str.casefold,
+    )
+
+    # -------------------------------------------------
+    # Paginering
+    # -------------------------------------------------
+    paginator = Paginator(entries, 50)
+
+    page_number = request.GET.get(
+        "page",
+        1,
+    )
+
+    page_obj = paginator.get_page(
+        page_number
+    )
+
+    return render(
+        request,
+        "recordings/signbank_list.html",
+        {
+            "entries": page_obj,
+            "page_obj": page_obj,
+
+            "search_query": search_query,
+
+            "categories": categories,
+            "selected_category": selected_category,
+
+            "labels": labels,
+            "selected_label": selected_label,
+
+            "selected_in_dictionary": selected_in_dictionary,
+
+            "filtered_count": paginator.count,
+        },
     )
 
 @login_required
