@@ -2,6 +2,87 @@ from django.db import models
 from urllib.parse import urlparse
 import os
 # Create your models here.
+
+class SignbankEntry(models.Model):
+    signbank_id = models.IntegerField(
+        unique=True,
+        db_index=True,
+    )
+
+    gloss = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
+    handvorm_begin = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    handvorm_einde = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    locatie_begin = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    locatie_einde = models.CharField(
+        max_length=100,
+        blank=True,
+    )
+
+    mogelijke_vertaling = models.TextField(
+        blank=True,
+    )
+
+    categorie_1 = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    categorie_2 = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    categorie_3 = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    categorie_4 = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    categorie_5 = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    labels = models.TextField(
+        blank=True,
+    )
+
+    in_woordenboek = models.BooleanField(
+        default=False,
+    )
+
+    signbank_last_updated = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    synced_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    def __str__(self):
+        return f"{self.gloss} ({self.signbank_id})"
+    
 class RecordingItem(models.Model):
     REVIEW_CHOICES = [
         ("OPGENOMEN", "OPGENOMEN"),
