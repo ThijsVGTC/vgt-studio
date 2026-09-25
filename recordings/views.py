@@ -1316,10 +1316,14 @@ def sync_google_sheet(request):
 
 @login_required
 def sync_to_google_sheet(request):
+
     settings_obj, created = AppSettings.objects.get_or_create(pk=1)
+
     if request.method != "POST":
         return redirect("sync_google_sheet")
+
     sheet_url = settings_obj.google_sheet_url
+
     if not sheet_url:
         return render(
             request,
@@ -1329,24 +1333,44 @@ def sync_to_google_sheet(request):
                 "message": "Er is geen Google Spreadsheet gekoppeld.",
             },
         )
+
     try:
+
         gc = gspread.service_account(
             filename=settings.GOOGLE_SERVICE_ACCOUNT_FILE
         )
+
         spreadsheet = gc.open_by_url(sheet_url)
-        gid_match = re.search(r"gid=(\d+)", sheet_url)
-        gid = int(gid_match.group(1)) if gid_match else 0
+
+        gid_match = re.search(
+            r"gid=(\d+)",
+            sheet_url
+        )
+
+        gid = int(
+            gid_match.group(1)
+        ) if gid_match else 0
+
         worksheet = None
+
         for ws in spreadsheet.worksheets():
+
             if ws.id == gid:
                 worksheet = ws
                 break
+
         if worksheet is None:
             worksheet = spreadsheet.sheet1
+
         rows = worksheet.get_all_values()
+
         if not rows:
-            raise ValueError("De Google Sheet is leeg.")
+            raise ValueError(
+                "De Google Sheet is leeg."
+            )
+
         headers = rows[0]
+
         required_headers = [
             "GLOS NR",
             "Status",
@@ -1355,61 +1379,102 @@ def sync_to_google_sheet(request):
             "Opmerkingen",
             "Opnamestatus",
         ]
+
         for header in required_headers:
+
             if header not in headers:
-                headers.append(header)
-        worksheet.update(
-            range_name="A1",
-            values=[headers],
-        )
+                raise ValueError(
+                    f"Kolom '{header}' ontbreekt in Google Sheet."
+                )
+
         column_map = {
-            header: headers.index(header)
+            header: headers.index(header) + 1
             for header in required_headers
         }
+
         items = {
             str(item.signbank_id): item
             for item in RecordingItem.objects.all()
         }
+
         updated_count = 0
         skipped_count = 0
-        output_rows = [headers]
-        for row in rows[1:]:
-            while len(row) < len(headers):
-                row.append("")
-            glos_nr = row[
-                column_map["GLOS NR"]
-            ].strip()
-            if not glos_nr:
-                output_rows.append(row)
-                skipped_count += 1
-                continue
-            item = items.get(glos_nr)
-            if not item:
-                output_rows.append(row)
-                skipped_count += 1
-                continue
-            row[column_map["Status"]] = item.status or ""
-            row[column_map["Wie Opname?"]] = item.recording_by or ""
-            row[column_map["Wanneer Opname?"]] = (
-                str(item.recording_date)
-                if item.recording_date
-                else ""
+
+        updates = []
+
+        for row_number, row in enumerate(
+            rows[1:],
+            start=2,
+        ):
+
+            glos_index = (
+                column_map["GLOS NR"] - 1
             )
-            row[column_map["Opmerkingen"]] = item.remarks or ""
-            row[column_map["Opnamestatus"]] = item.review_status or ""
-            output_rows.append(row)
+
+            if len(row) <= glos_index:
+                skipped_count += 1
+                continue
+
+            glos_nr = (
+                row[glos_index].strip()
+            )
+
+            if not glos_nr:
+                skipped_count += 1
+                continue
+
+            item = items.get(glos_nr)
+
+            if not item:
+                skipped_count += 1
+                continue
+
+            values = {
+                "Status": item.status or "",
+                "Wie Opname?": item.recording_by or "",
+                "Wanneer Opname?": (
+                    str(item.recording_date)
+                    if item.recording_date
+                    else ""
+                ),
+                "Opmerkingen": item.remarks or "",
+                "Opnamestatus": item.review_status or "",
+            }
+
+            for header, value in values.items():
+
+                column_number = column_map[header]
+
+                cell = gspread.utils.rowcol_to_a1(
+                    row_number,
+                    column_number,
+                )
+
+                updates.append({
+                    "range": cell,
+                    "values": [[value]],
+                })
+
             updated_count += 1
-        worksheet.update(
-            range_name="A1",
-            values=output_rows,
-        )
+
+        if updates:
+
+            worksheet.batch_update(
+                updates
+            )
+
         message = (
             f"{updated_count} rijen terug gesynchroniseerd "
             f"naar Google Sheet. "
             f"{skipped_count} rijen overgeslagen."
         )
+
     except Exception as e:
-        message = f"Fout bij terug synchroniseren: {e}"
+
+        message = (
+            f"Fout bij terug synchroniseren: {e}"
+        )
+
     return render(
         request,
         "recordings/sync_google_sheet.html",
