@@ -391,7 +391,7 @@ tr:hover td {
 }
 
 .bulk-update-form {
-    margin: 20px 0;
+    margin: 20px 0 0 0;
 }
 
 .bulk-update-bar {
@@ -611,9 +611,4 @@ tr:hover td {
     position: sticky;
     top: 0;
     z-index: 50;
-
-    background: #fff;
-    padding: 12px 0;
-
-    border-bottom: 1px solid #ddd;
 }
