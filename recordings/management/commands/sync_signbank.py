@@ -52,8 +52,8 @@ class Command(BaseCommand):
                 SELECT
                     g.id,
                     g.annotation_idgloss,
-                    g.domhndsh,
-                    g.final_domhndsh,
+                    g.subhndsh,
+                    g.final_subhndsh,
                     g.locprim,
                     g.final_loc,
                     g.semField,
@@ -101,10 +101,10 @@ class Command(BaseCommand):
 
                     defaults = {
                         "gloss": self.clean(row["annotation_idgloss"]),
-                        "handvorm_begin": self.clean(row["domhndsh"]),
-                        "handvorm_einde": self.clean(row["final_domhndsh"]),
-                        "locatie_begin": self.clean(row["locprim"]),
-                        "locatie_einde": locatie_einde,
+                        "handvorm_begin": self.get_fieldchoice_label(connection,"Handshape",row["subhndsh"],),
+                        "handvorm_einde": self.get_fieldchoice_label(connection,"Handshape",row["final_subhndsh"],),
+                        "locatie_begin": self.get_fieldchoice_label(connection,"Location",row["locprim"],),
+                        "locatie_einde": self.get_fieldchoice_label(connection,"Location",row["final_loc"],),
                         "mogelijke_vertaling": translations,
                         "categorie_1": self.get_fieldchoice_label(
                             connection, "SemField", row["semField"]
