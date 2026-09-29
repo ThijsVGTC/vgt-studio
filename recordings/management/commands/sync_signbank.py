@@ -94,16 +94,15 @@ class Command(BaseCommand):
                         gloss_content_type_id,
                     )
 
-                    locatie_einde = self.get_final_location(
-                        connection,
-                        row["final_loc"],
-                    )
-
                     defaults = {
                         "gloss": self.clean(row["annotation_idgloss"]),
+                        "handvorm_begin_code": self.clean(row["subhndsh"]),
                         "handvorm_begin": self.get_fieldchoice_label(connection,"Handshape",row["subhndsh"],),
+                        "handvorm_einde_code": self.clean(row["final_subhndsh"]),
                         "handvorm_einde": self.get_fieldchoice_label(connection,"Handshape",row["final_subhndsh"],),
+                        "locatie_begin_code": self.clean(row["locprim"]),
                         "locatie_begin": self.get_fieldchoice_label(connection,"Location",row["locprim"],),
+                        "locatie_einde_code": self.clean(row["final_loc"]),
                         "locatie_einde": self.get_fieldchoice_label(connection,"Location",row["final_loc"],),
                         "mogelijke_vertaling": translations,
                         "categorie_1": self.get_fieldchoice_label(
@@ -259,7 +258,7 @@ class Command(BaseCommand):
             if self.clean(row["text"])
         ]
 
-        return "; ".join(translations)
+        return ", ".join(translations)
 
     def get_labels(
         self,
@@ -337,54 +336,6 @@ class Command(BaseCommand):
             or self.clean(row["english_name"])
             or str(value)
         )
-
-    def get_final_location(self, connection, final_loc):
-        """
-        final_loc is in de oude Signbank een integer.
-
-        Probeer eerst de leesbare waarde te vinden in dictionary_fieldchoice.
-        Als er geen overeenkomst gevonden wordt, bewaren we de originele code.
-        """
-        if final_loc is None:
-            return ""
-
-        rows = connection.execute(
-            """
-            SELECT
-                field,
-                english_name,
-                dutch_name,
-                machine_value
-            FROM dictionary_fieldchoice
-            WHERE machine_value = ?
-            """,
-            (final_loc,),
-        ).fetchall()
-
-        if not rows:
-            return str(final_loc)
-
-        # Geef voorkeur aan een fieldchoice die over locatie gaat.
-        for row in rows:
-            field_name = self.clean(row["field"]).lower()
-
-            if "loc" in field_name:
-                return (
-                    self.clean(row["dutch_name"])
-                    or self.clean(row["english_name"])
-                    or str(final_loc)
-                )
-
-        # Fallback wanneer machine_value wel gevonden wordt,
-        # maar het veld niet herkenbaar "locatie" heet.
-        if len(rows) == 1:
-            return (
-                self.clean(rows[0]["dutch_name"])
-                or self.clean(rows[0]["english_name"])
-                or str(final_loc)
-            )
-
-        return str(final_loc)
 
     def parse_signbank_datetime(self, value):
         if not value:

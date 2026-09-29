@@ -14,6 +14,26 @@ class SignbankEntry(models.Model):
         blank=True,
     )
 
+    handvorm_begin_code = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    handvorm_einde_code = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    locatie_begin_code = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
+    locatie_einde_code = models.CharField(
+        max_length=50,
+        blank=True,
+    )
+
     handvorm_begin = models.CharField(
         max_length=50,
         blank=True,
