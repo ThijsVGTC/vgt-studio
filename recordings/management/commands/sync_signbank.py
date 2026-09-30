@@ -96,14 +96,59 @@ class Command(BaseCommand):
 
                     defaults = {
                         "gloss": self.clean(row["annotation_idgloss"]),
-                        "handvorm_begin_code": self.clean(row["subhndsh"]),
-                        "handvorm_begin": self.get_fieldchoice_label(connection,"Handshape",row["subhndsh"],),
-                        "handvorm_einde_code": self.clean(row["final_subhndsh"]),
-                        "handvorm_einde": self.get_fieldchoice_label(connection,"Handshape",row["final_subhndsh"],),
-                        "locatie_begin_code": self.clean(row["locprim"]),
-                        "locatie_begin": self.get_fieldchoice_label(connection,"Location",row["locprim"],),
-                        "locatie_einde_code": self.clean(row["final_loc"]),
-                        "locatie_einde": self.get_fieldchoice_label(connection,"Location",row["final_loc"],),
+                        "handvorm_begin_code": (
+                            ""
+                            if self.clean(row["subhndsh"]) == "0"
+                            else self.clean(row["subhndsh"])
+                        ),
+                        "handvorm_begin": (
+                            ""
+                            if self.clean(row["subhndsh"]) == "0"
+                            else self.get_fieldchoice_label(
+                                connection,
+                                "Handshape",
+                                row["subhndsh"],
+                            )
+                        ),
+                        "handvorm_einde_code": (
+                            ""
+                            if self.clean(row["final_subhndsh"]) == "0"
+                            else self.clean(row["final_subhndsh"])
+                        ),
+                        "handvorm_einde": (
+                            ""
+                            if self.clean(row["final_subhndsh"]) == "0"
+                            else self.get_fieldchoice_label(
+                                connection,
+                                "Handshape",
+                                row["final_subhndsh"],
+                            )
+                        ),
+                        "locatie_begin_code": (
+                            "" if self.clean(row["locprim"]) == "0"
+                            else self.clean(row["locprim"])
+                        ),
+                        "locatie_begin": (
+                            "" if self.clean(row["locprim"]) == "0"
+                            else self.get_fieldchoice_label(
+                                connection,
+                                "Location",
+                                row["locprim"],
+                            )
+                        ),
+
+                        "locatie_einde_code": (
+                            "" if self.clean(row["final_loc"]) == "0"
+                            else self.clean(row["final_loc"])
+                        ),
+                        "locatie_einde": (
+                            "" if self.clean(row["final_loc"]) == "0"
+                            else self.get_fieldchoice_label(
+                                connection,
+                                "Location",
+                                row["final_loc"],
+                            )
+                        ),
                         "mogelijke_vertaling": translations,
                         "categorie_1": self.get_fieldchoice_label(
                             connection, "SemField", row["semField"]

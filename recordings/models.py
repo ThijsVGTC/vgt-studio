@@ -102,9 +102,9 @@ class SignbankEntry(models.Model):
 
     @property
     def handvorm_begin_image(self):
-        if not self.handvorm_begin_code:
+        if not self.handvorm_begin_code or self.handvorm_begin_code == "0":
             return ""
-
+        
         return (
             "recordings/images/handshapes/"
             f"handshape_{self.handvorm_begin_code}.png"
@@ -113,7 +113,7 @@ class SignbankEntry(models.Model):
 
     @property
     def handvorm_einde_image(self):
-        if not self.handvorm_einde_code:
+        if not self.handvorm_einde_code or self.handvorm_einde_code == "0":
             return ""
 
         return (
