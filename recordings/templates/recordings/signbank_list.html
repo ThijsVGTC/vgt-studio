@@ -21,7 +21,6 @@ Signbank | VGT Studio
     </div>
 </div>
 
-
 <form method="get" class="signbank-filter-form">
 
     <div class="signbank-filter-grid">
@@ -138,6 +137,20 @@ Signbank | VGT Studio
 
 </form>
 
+<div class="handshape-view-toggle">
+    <span>Handvormen:</span>
+
+    <button
+        type="button"
+        id="handshape-view-toggle"
+        class="handshape-toggle-button"
+        aria-pressed="false"
+    >
+        <span class="handshape-toggle-images">Afbeeldingen</span>
+        <span class="handshape-toggle-separator">/</span>
+        <span class="handshape-toggle-names">Namen</span>
+    </button>
+</div>
 
 <div class="signbank-table-wrapper">
 
@@ -214,13 +227,14 @@ Signbank | VGT Studio
                 </td>
                 <td class="signbank-handshapes">
 
-                    <div class="signbank-handshape-flow">
+                    {# VISUELE WEERGAVE #}
+                    <div class="signbank-handshape-flow handshape-view-images">
 
                         {% if entry.handvorm_begin_image %}
                             <img
                                 src="{% static entry.handvorm_begin_image %}"
                                 alt="{{ entry.handvorm_begin }}"
-                                title="Begin: {{ entry.handvorm_begin }}"
+                                title="{{ entry.handvorm_begin }}"
                                 class="signbank-handshape-image"
                                 loading="lazy"
                             >
@@ -234,13 +248,37 @@ Signbank | VGT Studio
                             <img
                                 src="{% static entry.handvorm_einde_image %}"
                                 alt="{{ entry.handvorm_einde }}"
-                                title="Einde: {{ entry.handvorm_einde }}"
+                                title="{{ entry.handvorm_einde }}"
                                 class="signbank-handshape-image"
                                 loading="lazy"
                             >
                         {% else %}
                             <span class="signbank-handshape-empty">-</span>
                         {% endif %}
+
+                    </div>
+
+
+                    {# DUTCH_NAME WEERGAVE #}
+                    <div class="signbank-handshape-flow handshape-view-names">
+
+                        <span class="signbank-handshape-name">
+                            {% if entry.handvorm_begin %}
+                                {{ entry.handvorm_begin }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
+
+                        <span class="signbank-handshape-arrow">→</span>
+
+                        <span class="signbank-handshape-name">
+                            {% if entry.handvorm_einde %}
+                                {{ entry.handvorm_einde }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </span>
 
                     </div>
 
@@ -436,6 +474,49 @@ Signbank | VGT Studio
 </div>
 
 {% endif %}
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    const toggle = document.getElementById("handshape-view-toggle");
+
+    if (!toggle) {
+        return;
+    }
+
+    const savedView = localStorage.getItem("signbankHandshapeView");
+
+    if (savedView === "names") {
+        document.body.classList.add("handshape-show-names");
+        toggle.setAttribute("aria-pressed", "true");
+    }
+
+    toggle.addEventListener("click", function () {
+
+        const showNames =
+            document.body.classList.toggle("handshape-show-names");
+
+        if (showNames) {
+            localStorage.setItem(
+                "signbankHandshapeView",
+                "names"
+            );
+
+            toggle.setAttribute("aria-pressed", "true");
+
+        } else {
+            localStorage.setItem(
+                "signbankHandshapeView",
+                "images"
+            );
+
+            toggle.setAttribute("aria-pressed", "false");
+        }
+
+    });
+
+});
+</script>
 
 
 {% endblock %}

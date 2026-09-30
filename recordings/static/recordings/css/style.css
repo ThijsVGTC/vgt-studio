@@ -794,3 +794,71 @@ tr:hover td {
     text-align: center;
     color: #9ca3af;
 }
+
+/* Toggle handvormweergave */
+
+.handshape-view-toggle {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+}
+
+.handshape-toggle-button {
+    border: 1px solid #d1d5db;
+    background: #ffffff;
+    border-radius: 6px;
+    padding: 7px 12px;
+    cursor: pointer;
+    font-size: 13px;
+}
+
+.handshape-toggle-button:hover {
+    background: #f3f4f6;
+}
+
+.handshape-toggle-images {
+    font-weight: 600;
+}
+
+.handshape-toggle-names {
+    color: #9ca3af;
+}
+
+.handshape-toggle-separator {
+    margin: 0 4px;
+    color: #d1d5db;
+}
+
+
+/* Namen standaard verbergen */
+
+.handshape-view-names {
+    display: none;
+}
+
+
+/* Wanneer namen actief zijn */
+
+body.handshape-show-names .handshape-view-images {
+    display: none;
+}
+
+body.handshape-show-names .handshape-view-names {
+    display: flex;
+}
+
+body.handshape-show-names .handshape-toggle-images {
+    font-weight: 400;
+    color: #9ca3af;
+}
+
+body.handshape-show-names .handshape-toggle-names {
+    font-weight: 600;
+    color: inherit;
+}
+
+.signbank-handshape-name {
+    font-size: 13px;
+    white-space: nowrap;
+}
