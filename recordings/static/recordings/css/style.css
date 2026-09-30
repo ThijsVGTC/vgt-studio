@@ -762,3 +762,35 @@ tr:hover td {
     font-size: 14px;
     color: #6b7280;
 }
+
+.signbank-handshapes {
+    min-width: 150px;
+}
+
+.signbank-handshape-flow {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    white-space: nowrap;
+}
+
+.signbank-handshape-image {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.signbank-handshape-arrow {
+    font-size: 24px;
+    font-weight: 600;
+    color: #6b7280;
+    line-height: 1;
+}
+
+.signbank-handshape-empty {
+    width: 58px;
+    text-align: center;
+    color: #9ca3af;
+}

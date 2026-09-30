@@ -1,4 +1,5 @@
 {% extends "recordings/base.html" %}
+{% load static %}
 
 {% block title %}
 Signbank | VGT Studio
@@ -211,45 +212,40 @@ Signbank | VGT Studio
                     </a>
 
                 </td>
+                <td class="signbank-handshapes">
 
+                    <div class="signbank-handshape-flow">
 
-                <td>
+                        {% if entry.handvorm_begin_code %}
+                            <img
+                                src="{% static entry.handvorm_begin_image %}"
+                                alt="{{ entry.handvorm_begin }}"
+                                title="Begin: {{ entry.handvorm_begin }}"
+                                class="signbank-handshape-image"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <span class="signbank-handshape-empty">-</span>
+                        {% endif %}
 
-                    <div class="signbank-value-pair">
+                        <span class="signbank-handshape-arrow">→</span>
 
-                        <span class="signbank-value-label">
-                            Begin
-                        </span>
-
-                        <span>
-                            {% if entry.handvorm_begin %}
-                                {{ entry.handvorm_begin }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </span>
-
-                    </div>
-
-
-                    <div class="signbank-value-pair">
-
-                        <span class="signbank-value-label">
-                            Einde
-                        </span>
-
-                        <span>
-                            {% if entry.handvorm_einde %}
-                                {{ entry.handvorm_einde }}
-                            {% else %}
-                                -
-                            {% endif %}
-                        </span>
+                        {% if entry.handvorm_einde_code %}
+                            <img
+                                src="{% static entry.handvorm_einde_image %}"
+                                alt="{{ entry.handvorm_einde }}"
+                                title="Einde: {{ entry.handvorm_einde }}"
+                                class="signbank-handshape-image"
+                                loading="lazy"
+                            >
+                        {% else %}
+                            <span class="signbank-handshape-empty">-</span>
+                        {% endif %}
 
                     </div>
 
                 </td>
-
+                
 
                 <td>
 

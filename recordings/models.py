@@ -100,6 +100,27 @@ class SignbankEntry(models.Model):
         auto_now=True,
     )
 
+    @property
+    def handvorm_begin_image(self):
+        if not self.handvorm_begin_code:
+            return ""
+
+        return (
+            "recordings/images/handshapes/"
+            f"handshape_{self.handvorm_begin_code}.png"
+        )
+
+
+    @property
+    def handvorm_einde_image(self):
+        if not self.handvorm_einde_code:
+            return ""
+
+        return (
+            "recordings/images/handshapes/"
+            f"handshape_{self.handvorm_einde_code}.png"
+        )
+
     def __str__(self):
         return f"{self.gloss} ({self.signbank_id})"
     
