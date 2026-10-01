@@ -94,6 +94,21 @@ class Command(BaseCommand):
                         gloss_content_type_id,
                     )
 
+                    opmerkingen = self.get_opmerkingen(
+                        connection,
+                        signbank_id,
+                    )
+
+                    etymologie = self.get_etymologie(
+                        connection,
+                        signbank_id,
+                    )
+
+                    bronnen = self.get_bronnen(
+                        connection,
+                        signbank_id,
+                    )
+
                     defaults = {
                         "gloss": self.clean(row["annotation_idgloss"]),
                         "handvorm_begin_code": (
@@ -166,6 +181,9 @@ class Command(BaseCommand):
                             connection, "SemField", row["semField4"]
                         ),
                         "labels": labels,
+                        "opmerkingen": opmerkingen,
+                        "etymologie": etymologie,
+                        "bronnen": bronnen,
                         "in_woordenboek": bool(row["inWeb"]),
                         "signbank_last_updated": self.parse_signbank_datetime(
                             row["lastUpdated"]
@@ -343,6 +361,97 @@ class Command(BaseCommand):
         ]
 
         return "; ".join(labels)
+
+    def get_opmerkingen(self, connection, gloss_id):
+        """
+        Haal gewone opmerkingen op uit dictionary_definition.
+
+        Etymologie wordt apart behandeld.
+        OLDety wordt ook niet als gewone opmerking getoond.
+        """
+        rows = connection.execute(
+            """
+            SELECT
+                id,
+                role,
+                text
+            FROM dictionary_definition
+            WHERE gloss_id = ?
+              AND text IS NOT NULL
+              AND TRIM(text) != ''
+              AND LOWER(role) NOT IN ('ety', 'oldety')
+            ORDER BY id ASC
+            """,
+            (gloss_id,),
+        ).fetchall()
+
+        return [
+            {
+                "id": row["id"],
+                "type": self.clean(row["role"]),
+                "text": self.clean(row["text"]),
+            }
+            for row in rows
+        ]
+
+    def get_etymologie(self, connection, gloss_id):
+        """
+        Haal etymologie op uit dictionary_definition.
+        """
+        rows = connection.execute(
+            """
+            SELECT
+                id,
+                role,
+                text
+            FROM dictionary_definition
+            WHERE gloss_id = ?
+              AND LOWER(role) = 'ety'
+              AND text IS NOT NULL
+              AND TRIM(text) != ''
+            ORDER BY id ASC
+            """,
+            (gloss_id,),
+        ).fetchall()
+
+        return [
+            {
+                "id": row["id"],
+                "text": self.clean(row["text"]),
+            }
+            for row in rows
+        ]
+
+    def get_bronnen(self, connection, gloss_id):
+        """
+        Haal bronnen op via dictionary_source -> dictionary_keyword.
+        """
+        rows = connection.execute(
+            """
+            SELECT
+                s.id,
+                s."index" AS source_index,
+                k.id AS keyword_id,
+                k.text
+            FROM dictionary_source s
+            INNER JOIN dictionary_keyword k
+                ON k.id = s.source_id
+            WHERE s.gloss_id = ?
+              AND k.text IS NOT NULL
+              AND TRIM(k.text) != ''
+            ORDER BY s."index" ASC, s.id ASC
+            """,
+            (gloss_id,),
+        ).fetchall()
+
+        return [
+            {
+                "id": row["id"],
+                "keyword_id": row["keyword_id"],
+                "text": self.clean(row["text"]),
+            }
+            for row in rows
+        ]
 
     def get_fieldchoice_label(self, connection, field_name, value):
         """
