@@ -862,3 +862,16 @@ body.handshape-show-names .handshape-toggle-names {
     font-size: 13px;
     white-space: nowrap;
 }
+
+.signbank-info-actions {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    flex-wrap: nowrap;
+}
+
+.signbank-info-actions button {
+    white-space: nowrap;
+    flex-shrink: 0;
+}
