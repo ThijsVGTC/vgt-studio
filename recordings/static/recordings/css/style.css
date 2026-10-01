@@ -952,7 +952,15 @@ body.handshape-show-names .handshape-toggle-names {
 }
 
 .signbank-vimeo {
-    width: 100%;
     max-width: 480px;
     margin: 0 auto;
+}
+
+.signbank-bron-item {
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.signbank-bron-item:last-child {
+    margin-bottom: 0;
 }

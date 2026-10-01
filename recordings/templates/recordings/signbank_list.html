@@ -416,6 +416,7 @@ Signbank | VGT Studio
                             <button
                                 type="button"
                                 class="button button-secondary signbank-info-button button-bron"
+                                onclick="openBronModal('bron-modal-{{ entry.pk }}')"
                             >
                                 Bron
                             </button>
@@ -513,6 +514,54 @@ Signbank | VGT Studio
                                 </div>
                             </div>
                         </div>
+                    {% endif %}
+
+                    {% if entry.bronnen %}
+
+                        <div
+                            id="bron-modal-{{ entry.pk }}"
+                            class="signbank-modal"
+                            onclick="closeBronModalOutside(event, this)"
+                        >
+
+                            <div class="signbank-modal-content">
+
+                                <div class="signbank-modal-header">
+
+                                    <h3>
+                                        Bron — {{ entry.gloss }}
+                                    </h3>
+
+                                    <button
+                                        type="button"
+                                        class="signbank-modal-close"
+                                        onclick="closeBronModal('bron-modal-{{ entry.pk }}')"
+                                    >
+                                        &times;
+                                    </button>
+
+                                </div>
+
+                                <div class="signbank-modal-body">
+
+                                    <div class="signbank-modal-bronnen">
+
+                                        {% for bron in entry.bronnen %}
+
+                                            <div class="signbank-bron-item">
+                                                {{ bron.text }}
+                                            </div>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
                     {% endif %}
                 </td>
 
@@ -694,8 +743,29 @@ function closeEtModal(modalId) {
     }
 }
 
-
 function closeEtModalOutside(event, modal) {
+    if (event.target === modal) {
+        modal.classList.remove("is-open");
+    }
+}
+
+function openBronModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add("is-open");
+    }
+}
+
+
+function closeBronModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove("is-open");
+    }
+}
+
+
+function closeBronModalOutside(event, modal) {
     if (event.target === modal) {
         modal.classList.remove("is-open");
     }
