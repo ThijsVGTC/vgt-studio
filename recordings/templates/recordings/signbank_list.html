@@ -159,7 +159,6 @@ Signbank | VGT Studio
     <thead>
 
         <tr>
-
             <th>
                 GLOSS
             </th>
@@ -168,7 +167,7 @@ Signbank | VGT Studio
                 ID
             </th>
 
-            <th>
+            <th class="t_center">
                 Handvorm
             </th>
 
@@ -187,11 +186,13 @@ Signbank | VGT Studio
             <th>
                 Labels
             </th>
+            <th class="t_center">
+                Info
+            </th>
 
             <th class="t_center">
                 Woordenboek
             </th>
-
         </tr>
 
     </thead>
@@ -387,6 +388,52 @@ Signbank | VGT Studio
 
                 </td>
 
+                <td class="t_center">
+
+                    <div class="signbank-info-actions">
+
+                        {% if entry.opmerkingen %}
+                            <button
+                                type="button"
+                                class="button button-secondary signbank-info-button"
+                            >
+                                Opm
+                            </button>
+                        {% endif %}
+
+                        {% if entry.etymologie %}
+                            <button
+                                type="button"
+                                class="button button-secondary signbank-info-button"
+                            >
+                                Et
+                            </button>
+                        {% endif %}
+
+                        {% if entry.bronnen %}
+                            <button
+                                type="button"
+                                class="button button-secondary signbank-info-button"
+                            >
+                                Bron
+                            </button>
+                        {% endif %}
+
+
+                        {% if not entry.opmerkingen or not entry.etymologie or not entry.bronnen %}
+                            <button
+                                type="button"
+                                class="button button-secondary signbank-info-add-button"
+                                title="Informatie toevoegen"
+                            >
+                                +
+                            </button>
+                        {% endif %}
+
+                    </div>
+
+                </td>
+
 
                 <td class="t_center">
 
@@ -419,7 +466,7 @@ Signbank | VGT Studio
 
             <tr>
 
-                <td colspan="8">
+                <td colspan="9">
 
                     Geen Signbank-items gevonden.
 
