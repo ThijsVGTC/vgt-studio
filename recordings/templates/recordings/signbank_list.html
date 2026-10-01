@@ -395,7 +395,8 @@ Signbank | VGT Studio
                         {% if entry.opmerkingen %}
                             <button
                                 type="button"
-                                class="button button-secondary signbank-info-button"
+                                class="button button-secondary signbank-info-button button-opm"
+                                onclick="openOpmModal('opm-modal-{{ entry.pk }}')"
                             >
                                 Opm
                             </button>
@@ -404,7 +405,7 @@ Signbank | VGT Studio
                         {% if entry.etymologie %}
                             <button
                                 type="button"
-                                class="button button-secondary signbank-info-button"
+                                class="button button-secondary signbank-info-button button-et"
                             >
                                 Et
                             </button>
@@ -413,7 +414,7 @@ Signbank | VGT Studio
                         {% if entry.bronnen %}
                             <button
                                 type="button"
-                                class="button button-secondary signbank-info-button"
+                                class="button button-secondary signbank-info-button button-bron"
                             >
                                 Bron
                             </button>
@@ -460,8 +461,7 @@ Signbank | VGT Studio
                 </td>
 
             </tr>
-
-
+    
         {% empty %}
 
             <tr>
@@ -475,6 +475,100 @@ Signbank | VGT Studio
             </tr>
 
         {% endfor %}
+
+        {% if entry.opmerkingen %}
+
+        <div
+
+            id="opm-modal-{{ entry.pk }}"
+
+            class="signbank-modal"
+
+            onclick="closeOpmModalOutside(event, this)"
+
+        >
+
+            <div class="signbank-modal-content">
+
+                <div class="signbank-modal-header">
+
+                    <h3>
+
+                        Opmerkingen — {{ entry.gloss }}
+
+                    </h3>
+
+                    <button
+
+                        type="button"
+
+                        class="signbank-modal-close"
+
+                        onclick="closeOpmModal('opm-modal-{{ entry.pk }}')"
+
+                    >
+
+                        &times;
+
+                    </button>
+
+                </div>
+
+                <div class="signbank-modal-body">
+
+                    <div class="signbank-opmerkingen">
+
+                        {% for opmerking in entry.opmerkingen %}
+
+                            <div class="signbank-opmerking">
+
+                                <strong>{{ opmerking.type }}:</strong>
+
+                                {{ opmerking.text }}
+
+                            </div>
+
+                        {% endfor %}
+
+                    </div>
+
+                    <button
+
+                        type="button"
+
+                        class="button button-secondary signbank-add-opmerking"
+
+                    >
+
+                        + Nog een opmerking toevoegen
+
+                    </button>
+
+                    {% if entry.bronnen %}
+
+                        <hr class="signbank-modal-divider">
+
+                        <div class="signbank-modal-bronnen">
+
+                            <strong>Bron:</strong>
+
+                            {% for bron in entry.bronnen %}
+
+                                <div>{{ bron.text }}</div>
+
+                            {% endfor %}
+
+                        </div>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+        </div>
+
+        {% endif %}
 
     </tbody>
 
@@ -563,6 +657,26 @@ document.addEventListener("DOMContentLoaded", function () {
     });
 
 });
+
+function openOpmModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.add("is-open");
+    }
+}
+
+function closeOpmModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove("is-open");
+    }
+}
+
+function closeOpmModalOutside(event, modal) {
+    if (event.target === modal) {
+        modal.classList.remove("is-open");
+    }
+}
 </script>
 
 

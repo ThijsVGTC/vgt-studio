@@ -866,7 +866,7 @@ body.handshape-show-names .handshape-toggle-names {
 .signbank-info-actions {
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: end;
     gap: 5px;
     flex-wrap: nowrap;
 }
@@ -874,4 +874,73 @@ body.handshape-show-names .handshape-toggle-names {
 .signbank-info-actions button {
     white-space: nowrap;
     flex-shrink: 0;
+}
+
+.signbank-modal {
+    display: none;
+    position: fixed;
+    z-index: 10000;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+
+    align-items: center;
+    justify-content: center;
+}
+
+.signbank-modal.is-open {
+    display: flex;
+}
+
+.signbank-modal-content {
+    background: #fff;
+    width: min(650px, calc(100vw - 40px));
+    max-height: 80vh;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.25);
+}
+
+.signbank-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 18px 20px;
+    border-bottom: 1px solid #ddd;
+}
+
+.signbank-modal-header h3 {
+    margin: 0;
+}
+
+.signbank-modal-close {
+    border: 0;
+    background: transparent;
+    font-size: 28px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.signbank-modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    max-height: calc(80vh - 70px);
+}
+
+.signbank-opmerking {
+    margin-bottom: 14px;
+    line-height: 1.5;
+}
+
+.signbank-add-opmerking {
+    margin-top: 8px;
+}
+
+.signbank-modal-divider {
+    border: 0;
+    border-top: 1px solid #ddd;
+    margin: 22px 0;
+}
+
+.signbank-modal-bronnen div {
+    margin-top: 5px;
 }
