@@ -86,6 +86,20 @@ class SignbankEntry(models.Model):
     labels = models.TextField(
         blank=True,
     )
+    opmerkingen = models.JSONField(
+        default=list,
+        blank=True,
+    )
+
+    etymologie = models.JSONField(
+        default=list,
+        blank=True,
+    )
+
+    bronnen = models.JSONField(
+        default=list,
+        blank=True,
+    )
 
     in_woordenboek = models.BooleanField(
         default=False,
