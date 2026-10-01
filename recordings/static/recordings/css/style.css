@@ -947,8 +947,12 @@ body.handshape-show-names .handshape-toggle-names {
 
 .signbank-etymologie {
     margin-bottom: 20px;
+    display: flex;
+    justify-content: center;
 }
 
 .signbank-vimeo {
     width: 100%;
+    max-width: 480px;
+    margin: 0 auto;
 }
