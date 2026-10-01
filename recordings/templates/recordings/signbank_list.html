@@ -433,8 +433,100 @@ Signbank | VGT Studio
 
                     </div>
 
-                </td>
+                    {% if entry.opmerkingen %}
 
+                        <div
+
+                            id="opm-modal-{{ entry.pk }}"
+
+                            class="signbank-modal"
+
+                            onclick="closeOpmModalOutside(event, this)"
+
+                        >
+
+                            <div class="signbank-modal-content">
+
+                                <div class="signbank-modal-header">
+
+                                    <h3>
+
+                                        Opmerkingen — {{ entry.gloss }}
+
+                                    </h3>
+
+                                    <button
+
+                                        type="button"
+
+                                        class="signbank-modal-close"
+
+                                        onclick="closeOpmModal('opm-modal-{{ entry.pk }}')"
+
+                                    >
+
+                                        &times;
+
+                                    </button>
+
+                                </div>
+
+                                <div class="signbank-modal-body">
+
+                                    <div class="signbank-opmerkingen">
+
+                                        {% for opmerking in entry.opmerkingen %}
+
+                                            <div class="signbank-opmerking">
+
+                                                <strong>{{ opmerking.type }}:</strong>
+
+                                                {{ opmerking.text }}
+
+                                            </div>
+
+                                        {% endfor %}
+
+                                    </div>
+
+                                    <button
+
+                                        type="button"
+
+                                        class="button button-secondary signbank-add-opmerking"
+
+                                    >
+
+                                        + Nog een opmerking toevoegen
+
+                                    </button>
+
+                                    {% if entry.bronnen %}
+
+                                        <hr class="signbank-modal-divider">
+
+                                        <div class="signbank-modal-bronnen">
+
+                                            <strong>Bron:</strong>
+
+                                            {% for bron in entry.bronnen %}
+
+                                                <div>{{ bron.text }}</div>
+
+                                            {% endfor %}
+
+                                        </div>
+
+                                    {% endif %}
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    {% endif %}
+                </td>
 
                 <td class="t_center">
 
@@ -475,100 +567,6 @@ Signbank | VGT Studio
             </tr>
 
         {% endfor %}
-
-        {% if entry.opmerkingen %}
-
-        <div
-
-            id="opm-modal-{{ entry.pk }}"
-
-            class="signbank-modal"
-
-            onclick="closeOpmModalOutside(event, this)"
-
-        >
-
-            <div class="signbank-modal-content">
-
-                <div class="signbank-modal-header">
-
-                    <h3>
-
-                        Opmerkingen — {{ entry.gloss }}
-
-                    </h3>
-
-                    <button
-
-                        type="button"
-
-                        class="signbank-modal-close"
-
-                        onclick="closeOpmModal('opm-modal-{{ entry.pk }}')"
-
-                    >
-
-                        &times;
-
-                    </button>
-
-                </div>
-
-                <div class="signbank-modal-body">
-
-                    <div class="signbank-opmerkingen">
-
-                        {% for opmerking in entry.opmerkingen %}
-
-                            <div class="signbank-opmerking">
-
-                                <strong>{{ opmerking.type }}:</strong>
-
-                                {{ opmerking.text }}
-
-                            </div>
-
-                        {% endfor %}
-
-                    </div>
-
-                    <button
-
-                        type="button"
-
-                        class="button button-secondary signbank-add-opmerking"
-
-                    >
-
-                        + Nog een opmerking toevoegen
-
-                    </button>
-
-                    {% if entry.bronnen %}
-
-                        <hr class="signbank-modal-divider">
-
-                        <div class="signbank-modal-bronnen">
-
-                            <strong>Bron:</strong>
-
-                            {% for bron in entry.bronnen %}
-
-                                <div>{{ bron.text }}</div>
-
-                            {% endfor %}
-
-                        </div>
-
-                    {% endif %}
-
-                </div>
-
-            </div>
-
-        </div>
-
-        {% endif %}
 
     </tbody>
 
