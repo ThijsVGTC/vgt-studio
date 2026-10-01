@@ -191,7 +191,7 @@ Signbank | VGT Studio
             </th>
 
             <th class="t_center">
-                Woordenboek
+                WDB
             </th>
         </tr>
 
@@ -406,6 +406,7 @@ Signbank | VGT Studio
                             <button
                                 type="button"
                                 class="button button-secondary signbank-info-button button-et"
+                                onclick="openEtModal('et-modal-{{ entry.pk }}')"
                             >
                                 Et
                             </button>
@@ -434,97 +435,84 @@ Signbank | VGT Studio
                     </div>
 
                     {% if entry.opmerkingen %}
-
                         <div
-
                             id="opm-modal-{{ entry.pk }}"
-
                             class="signbank-modal"
-
                             onclick="closeOpmModalOutside(event, this)"
-
                         >
-
                             <div class="signbank-modal-content">
-
                                 <div class="signbank-modal-header">
-
                                     <h3>
-
                                         Opmerkingen — {{ entry.gloss }}
-
                                     </h3>
-
                                     <button
-
                                         type="button"
-
                                         class="signbank-modal-close"
-
                                         onclick="closeOpmModal('opm-modal-{{ entry.pk }}')"
-
                                     >
-
                                         &times;
-
                                     </button>
-
                                 </div>
-
                                 <div class="signbank-modal-body">
-
                                     <div class="signbank-opmerkingen">
-
                                         {% for opmerking in entry.opmerkingen %}
-
                                             <div class="signbank-opmerking">
-
                                                 <strong>{{ opmerking.type }}:</strong>
-
                                                 {{ opmerking.text }}
-
                                             </div>
-
                                         {% endfor %}
-
                                     </div>
-
                                     <button
-
                                         type="button"
-
                                         class="button button-secondary signbank-add-opmerking"
-
                                     >
-
                                         + Nog een opmerking toevoegen
-
                                     </button>
-
                                     {% if entry.bronnen %}
-
                                         <hr class="signbank-modal-divider">
-
                                         <div class="signbank-modal-bronnen">
-
                                             <strong>Bron:</strong>
-
                                             {% for bron in entry.bronnen %}
-
                                                 <div>{{ bron.text }}</div>
-
                                             {% endfor %}
-
                                         </div>
-
                                     {% endif %}
-
                                 </div>
-
                             </div>
-
                         </div>
+                    {% endif %}
 
+                    {% if entry.etymologie %}
+                        <div
+                            id="et-modal-{{ entry.pk }}"
+                            class="signbank-modal"
+                            onclick="closeEtModalOutside(event, this)"
+                        >
+                            <div class="signbank-modal-content">
+                                <div class="signbank-modal-header">
+                                    <h3>
+                                        Etymologie — {{ entry.gloss }}
+                                    </h3>
+                                    <button
+                                        type="button"
+                                        class="signbank-modal-close"
+                                        onclick="closeEtModal('et-modal-{{ entry.pk }}')"
+                                    >
+                                        &times;
+                                    </button>
+                                </div>
+                                <div class="signbank-modal-body">
+                                    {% for ety in entry.etymologie %}
+                                        <div class="signbank-etymologie">
+                                            <div
+                                                class="signbank-vimeo"
+                                                data-vimeo-url="{{ ety.text }}"
+                                            ></div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
                     {% endif %}
                 </td>
 
@@ -675,7 +663,44 @@ function closeOpmModalOutside(event, modal) {
         modal.classList.remove("is-open");
     }
 }
+
+function openEtModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (!modal) {
+        return;
+    }
+    modal.classList.add("is-open");
+    const players = modal.querySelectorAll(".signbank-vimeo");
+    players.forEach(function(player) {
+        if (player.dataset.loaded === "1") {
+            return;
+        }
+        const url = player.dataset.vimeoUrl;
+        if (!url) {
+            return;
+        }
+        new Vimeo.Player(player, {
+            url: url,
+            responsive: true
+        });
+        player.dataset.loaded = "1";
+    });
+}
+
+function closeEtModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.classList.remove("is-open");
+    }
+}
+
+
+function closeEtModalOutside(event, modal) {
+    if (event.target === modal) {
+        modal.classList.remove("is-open");
+    }
+}
 </script>
 
-
+<script src="https://player.vimeo.com/api/player.js"></script>
 {% endblock %}

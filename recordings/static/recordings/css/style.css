@@ -944,3 +944,11 @@ body.handshape-show-names .handshape-toggle-names {
 .signbank-modal-bronnen div {
     margin-top: 5px;
 }
+
+.signbank-etymologie {
+    margin-bottom: 20px;
+}
+
+.signbank-vimeo {
+    width: 100%;
+}
