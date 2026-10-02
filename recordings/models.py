@@ -191,7 +191,46 @@ class SignbankEntry(models.Model):
 
         return f"/media/{self.thumbnail_path}"
 
+    @property
+    def functional_labels(self):
+        mapping = {
+            "expliciet": ("Ex", "Expliciet"),
+            "verouderd": ("Vo", "Verouderd"),
+            "beledigend": ("Be", "Beledigend"),
+            "neologisme": ("Nl", "Neologisme"),
+            "negatief": ("Ne", "Negatief"),
+        }
 
+        result = []
+
+        for label in self.label_list:
+            key = label.strip().lower()
+
+            if key in mapping:
+                short, name = mapping[key]
+                result.append({
+                    "short": short,
+                    "name": name,
+                })
+
+        return result
+
+
+    @property
+    def internal_labels(self):
+        functional = {
+            "expliciet",
+            "verouderd",
+            "beledigend",
+            "neologisme",
+            "negatief",
+        }
+
+        return [
+            label
+            for label in self.label_list
+            if label.strip().lower() not in functional
+        ]
 
     def __str__(self):
         return f"{self.gloss} ({self.signbank_id})"
