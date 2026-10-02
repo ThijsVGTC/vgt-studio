@@ -164,7 +164,7 @@ Signbank | VGT Studio
             </th>
 
             <th>
-                ID
+                Video
             </th>
 
             <th class="t_center">
@@ -217,14 +217,15 @@ Signbank | VGT Studio
 
 
                 <td>
-
-                    <a
-                        href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ entry.signbank_id }}/"
-                        target="_blank"
-                    >
-                        {{ entry.signbank_id }}
-                    </a>
-
+                    {% if entry.thumbnail_path %}
+                        <a href="{{ entry.video_url }}" target="_blank">
+                            <img
+                                src="/media/{{ entry.thumbnail_path }}"
+                                alt="{{ entry.gloss }}"
+                                style="width: 120px; height: auto; display: block;"
+                            >
+                        </a>
+                    {% endif %}
                 </td>
                 <td class="signbank-handshapes">
 
