@@ -271,12 +271,12 @@ Opnames | VGT Studio
                 <td><a href="{% url 'recording_detail' item.signbank_id %}">{{ item.gloss_id }}</a></td>
                 <td><a href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ item.signbank_id }}/" target="_blank">{{ item.signbank_id }}</a></td>
                 <td class="t_center">
-                    {% if item.thumbnail_path %}
-                        <a href="{{ item.old_video_url }}" target="_blank" title="Oude video openen">
+                    {% if item.signbank_thumbnail_path %}
+                        <a href="{{ item.signbank_video_url }}" target="_blank" title="Oude video openen">
                             <img src="{{ item.thumbnail_url }}" class="video-thumbnail" loading="lazy" alt="Thumbnail {{ item.gloss_id }}">
                         </a>
-                    {% elif item.old_video_url %}
-                        <a href="{{ item.old_video_url }}" target="_blank">
+                    {% elif item.signbank_video_url %}
+                        <a href="{{ item.signbank_video_url }}" target="_blank">
                             Video
                         </a>
                     {% else %}
