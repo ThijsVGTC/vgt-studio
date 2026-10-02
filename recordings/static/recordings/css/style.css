@@ -964,3 +964,14 @@ body.handshape-show-names .handshape-toggle-names {
 .signbank-bron-item:last-child {
     margin-bottom: 0;
 }
+
+.label-functional {
+    display: inline-block;
+    padding: 0.25rem 0.5rem;
+    margin: 0.1rem;
+    border-radius: 0.35rem;
+    background: #f3705d;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.8rem;
+}

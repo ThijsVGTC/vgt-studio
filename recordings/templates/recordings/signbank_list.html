@@ -403,19 +403,21 @@ Signbank | VGT Studio
 
                 </td>
 
-
                 <td>
-
-                    {% if entry.labels %}
-
-                        <span class="label-list">
-                            {{ entry.labels }}
+                    {% for label in entry.functional_labels %}
+                        <span
+                            class="label-functional"
+                            title="{{ label.name }}"
+                        >
+                            {{ label.short }}
                         </span>
+                    {% endfor %}
 
-                    {% else %}
-                        -
-                    {% endif %}
-
+                    {% for label in entry.internal_labels %}
+                        <span class="badge">
+                            {{ label }}
+                        </span>
+                    {% endfor %}
                 </td>
 
                 <td class="t_center">
