@@ -857,6 +857,7 @@ def signbank_list(request):
     selected_category = request.GET.get("category", "").strip()
     selected_label = request.GET.get("label", "").strip()
     selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
+    entries = entries.order_by("signbank_id")
 
     # -------------------------------------------------
     # Zoeken
