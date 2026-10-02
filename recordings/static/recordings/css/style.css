@@ -975,3 +975,42 @@ body.handshape-show-names .handshape-toggle-names {
     font-weight: 600;
     font-size: 0.8rem;
 }
+
+.filter-dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.filter-dropdown-toggle {
+    cursor: pointer;
+}
+
+.filter-dropdown-menu {
+    display: none;
+    position: absolute;
+    z-index: 1000;
+    min-width: 220px;
+    max-height: 320px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    padding: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.filter-dropdown.open .filter-dropdown-menu {
+    display: block;
+}
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 4px;
+    cursor: pointer;
+}
+
+.filter-checkbox input {
+    margin: 0;
+}
