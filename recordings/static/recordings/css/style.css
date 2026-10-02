@@ -1037,3 +1037,19 @@ body.handshape-show-names .handshape-toggle-names {
     padding: 0 !important;
     line-height: 1.4;
 }
+
+.filter-dropdown-search {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 7px 9px;
+    margin-bottom: 8px;
+    border: 1px solid #d0d5dd;
+    border-radius: 5px;
+    font-size: 14px;
+}
+
+.filter-dropdown-separator {
+    height: 1px;
+    background: #e5e7eb;
+    margin: 5px 0;
+}
