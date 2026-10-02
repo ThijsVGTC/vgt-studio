@@ -1019,9 +1019,10 @@ body.handshape-show-names .handshape-toggle-names {
     display: flex;
     align-items: center;
     gap: 8px;
-    padding: 5px 4px;
+    padding: 7px 4px;
     cursor: pointer;
     white-space: nowrap;
+    line-height: 1.4;
 }
 
 .filter-checkbox input[type="checkbox"] {
@@ -1036,6 +1037,6 @@ body.handshape-show-names .handshape-toggle-names {
 }
 
 .filter-checkbox span {
-    display: inline;
-    line-height: 16px;
+    display: block;
+    line-height: 1.4;
 }
