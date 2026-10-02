@@ -926,6 +926,13 @@ def signbank_list(request):
             internal_filter |= Q(labels__icontains=label)
 
         entries = entries.filter(internal_filter)
+
+    if not selected_internal_labels:
+        entries = entries.exclude(
+            Q(labels__icontains="afgekeurd")
+            | Q(labels__icontains="gebaar_verplaatst")
+
+    )
     # -------------------------------------------------
     # In woordenboek
     # -------------------------------------------------
