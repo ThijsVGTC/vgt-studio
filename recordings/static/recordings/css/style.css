@@ -1014,3 +1014,28 @@ body.handshape-show-names .handshape-toggle-names {
 .filter-checkbox input {
     margin: 0;
 }
+
+.filter-checkbox {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 4px;
+    cursor: pointer;
+    white-space: nowrap;
+}
+
+.filter-checkbox input[type="checkbox"] {
+    appearance: auto;
+    -webkit-appearance: checkbox;
+    width: 16px;
+    height: 16px;
+    min-width: 16px;
+    margin: 0;
+    padding: 0;
+    flex: 0 0 16px;
+}
+
+.filter-checkbox span {
+    display: inline;
+    line-height: 16px;
+}
