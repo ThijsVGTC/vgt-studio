@@ -83,6 +83,11 @@ class SignbankEntry(models.Model):
         blank=True,
     )
 
+    variants = models.JSONField(
+        default=list,
+        blank=True,
+    )
+
     labels = models.TextField(
         blank=True,
     )
