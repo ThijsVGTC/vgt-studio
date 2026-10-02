@@ -339,12 +339,12 @@ Signbank | VGT Studio
 
                 </td>
 
-                <td>
-                    {% if entry.variants %}
-                        {% for variant in entry.variants %}
-                            <span class="badge">{{ variant }}</span>
-                        {% endfor %}
-                    {% endif %}
+                <td class="signbank-badges">
+                    {% for variant in entry.variant_badges %}
+                        <span class="badge" title="{{ variant.name }}">
+                            {{ variant.short }}
+                        </span>
+                    {% endfor %}
                 </td>
 
                 <td class="signbank-badges">

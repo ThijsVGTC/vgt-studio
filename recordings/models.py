@@ -163,6 +163,26 @@ class SignbankEntry(models.Model):
             "dictionary/protected_media/glossvideo/"
             f"{prefix}/{self.gloss}-{self.signbank_id}.mp4"
         )
+
+    @property
+    def variant_badges(self):
+        abbreviations = {
+            "West-Vlaanderen": "WVL",
+            "Oost-Vlaanderen": "OVL",
+            "Antwerpen": "ANT",
+            "Limburg": "LIM",
+            "Vlaams-Brabant": "VBR",
+            "Vlaanderen": "VL",
+            "nog niet gekend": "?",
+        }
+
+        return [
+            {
+                "name": variant,
+                "short": abbreviations.get(variant, variant),
+            }
+            for variant in self.variants
+        ]
     
     @property
     def thumbnail_url(self):
