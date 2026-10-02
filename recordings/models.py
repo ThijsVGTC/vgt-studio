@@ -190,6 +190,17 @@ class SignbankEntry(models.Model):
             return ""
 
         return f"/media/{self.thumbnail_path}"
+    
+    @property
+    def label_list(self):
+        if not self.labels:
+            return []
+
+        return [
+            label.strip()
+            for label in self.labels.split(";")
+            if label.strip()
+        ]
 
     @property
     def functional_labels(self):
