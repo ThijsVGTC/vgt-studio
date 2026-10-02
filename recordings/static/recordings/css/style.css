@@ -982,6 +982,12 @@ body.handshape-show-names .handshape-toggle-names {
 }
 
 .filter-dropdown-toggle {
+    padding: 12px 20px;
+    line-height: 1.2;
+    box-sizing: border-box;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
     cursor: pointer;
 }
 
@@ -1073,11 +1079,3 @@ body.handshape-show-names .handshape-toggle-names {
     padding: 0 !important;
 }
 
-.filter-dropdown-toggle {
-    padding: 12px 20px;
-    line-height: 1.2;
-    box-sizing: border-box;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-}
