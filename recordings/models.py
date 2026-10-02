@@ -254,6 +254,7 @@ class RecordingItem(models.Model):
         ("OPNAME_AFGEKEURD", "OPNAME AFGEKEURD"),
     ]
     signbank_id = models.IntegerField(unique=True)
+    signbank_entry = models.ForeignKey(SignbankEntry,on_delete=models.SET_NULL,null=True,blank=True,related_name="recording_items",)
     gloss_id = models.CharField(max_length=255)
     old_video_url = models.URLField(
         max_length=1000,
