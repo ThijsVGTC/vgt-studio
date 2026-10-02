@@ -1076,6 +1076,7 @@ def recording_list(request):
     selected_recording_by = request.GET.get("recording_by", "")
     selected_recording_date = request.GET.get("recording_date", "")
     selected_review_status = request.GET.get("review_status", "")
+    selected_variant = request.GET.get("variant", "")
     search_query = request.GET.get("q", "").strip()
     sort = request.GET.get("sort","")
     direction = request.GET.get("direction","")
@@ -1093,6 +1094,17 @@ def recording_list(request):
         items = items.filter(recording_date=selected_recording_date)
     if selected_review_status:
         items = items.filter(review_status=selected_review_status)
+    if selected_variant:
+        matching_signbank_ids = [
+            signbank_id
+            for signbank_id, variants in SignbankEntry.objects.values_list(
+                "signbank_id",
+                "variants",
+            )
+            if selected_variant in (variants or [])
+        ]
+
+        items = items.filter(signbank_id__in=matching_signbank_ids)
     if search_query:
         search_filter = (
             Q(gloss_id__icontains=search_query)
@@ -1155,6 +1167,17 @@ def recording_list(request):
         .distinct()
         .order_by("recording_date")
     )
+    variant_values = SignbankEntry.objects.values_list(
+        "variants",
+        flat=True,
+    )
+
+    variants = sorted({
+        variant
+        for variant_list in variant_values
+        for variant in (variant_list or [])
+        if variant
+    })
     return render(
         request,
         "recordings/recording_list.html",
@@ -1168,6 +1191,8 @@ def recording_list(request):
             "selected_recording_by": selected_recording_by,
             "selected_recording_date": selected_recording_date,
             "selected_review_status": selected_review_status,
+            "variants": variants,
+            "selected_variant": selected_variant,
             "search_query": search_query,
             "sort": sort,
             "direction": direction,
@@ -1274,6 +1299,7 @@ def start_recording_series(request):
         "recording_by": request.POST.get("recording_by", ""),
         "recording_date": request.POST.get("recording_date", ""),
         "review_status": request.POST.get("review_status", ""),
+        "variant": request.POST.get("variant", ""),
         "q": request.POST.get("q", ""),
     }
     request.session["opnamereeks_actief"] = True

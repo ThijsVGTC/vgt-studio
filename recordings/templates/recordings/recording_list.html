@@ -87,6 +87,21 @@ Opnames | VGT Studio
                 </select>
             </div>
 
+            <div class="filter-group">
+                <label for="variant">Variant</label>
+                <select name="variant" id="variant">
+                    <option value="">Alle varianten</option>
+
+                    {% for variant in variants %}
+                        <option value="{{ variant }}"
+                            {% if selected_variant == variant %}selected{% endif %}
+                        >
+                            {{ variant }}
+                        </option>
+                    {% endfor %}
+                </select>
+            </div>
+
             <div>
                 <button type="submit">Filteren</button>
                 <a href="{% url 'recording_list' %}">
@@ -104,6 +119,7 @@ Opnames | VGT Studio
         <input type="hidden" name="recording_by" value="{{ selected_recording_by }}">
         <input type="hidden" name="recording_date" value="{{ selected_recording_date }}">
         <input type="hidden" name="review_status" value="{{ selected_review_status }}">
+        <input type="hidden" name="variant" value="{{ selected_variant }}">
         {% for signbank_id in filtered_ids %}
             <input
                 type="hidden"
@@ -229,7 +245,7 @@ Opnames | VGT Studio
                     <input type="checkbox" id="select-all-recordings" title="Alle resultaten in deze lijst selecteren">
                 </th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&sort=gloss_id&direction={% if sort == 'gloss_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=gloss_id&direction={% if sort == 'gloss_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Gloss ID
                         {% if sort == "gloss_id" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
@@ -237,7 +253,7 @@ Opnames | VGT Studio
                     </a>
                 </th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&sort=signbank_id&direction={% if sort == 'signbank_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=signbank_id&direction={% if sort == 'signbank_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Signbank ID
                         {% if sort == "signbank_id" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
@@ -245,11 +261,11 @@ Opnames | VGT Studio
                     </a>
                 </th>
                 <th>Oude video</th>
-                <th>Bestandsnaam</th>
+                <th>Variant</th>
                 <th>Status</th>
                 <th>Wie opname?</th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&sort=recording_date&direction={% if sort == 'recording_date' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=recording_date&direction={% if sort == 'recording_date' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Wanneer opname?
                         {% if sort == "recording_date" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
@@ -283,7 +299,13 @@ Opnames | VGT Studio
                         -
                     {% endif %}
                 </td>
-                <td>{{ item.filename }}</td>
+                <td>    
+                    {% if item.signbank_entry and item.signbank_entry.variants %}
+                        {{ item.signbank_entry.variants|join:", " }}
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
                 <td>{{ item.status }}</td>
                 <td>{{ item.recording_by }}</td>
                 <td>{{ item.recording_date }}</td>
