@@ -160,7 +160,16 @@ Signbank | VGT Studio
 
         <tr>
             <th>
-                GLOSS
+                <a href="?sort=gloss&dir={% if sort == 'gloss' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    GLOSS
+                    {% if sort == "gloss" %}
+                        {% if direction == "asc" %}
+                            ↑
+                        {% else %}
+                            ↓
+                        {% endif %}
+                    {% endif %}
+                </a>
             </th>
 
             <th class="t_center">
