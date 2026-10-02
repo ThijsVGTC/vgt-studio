@@ -857,6 +857,8 @@ def signbank_list(request):
     selected_category = request.GET.get("category", "").strip()
     selected_label = request.GET.get("label", "").strip()
     selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
+    sort=request.GET.get("sort","signbank_id").strip()
+    direction=request.GET.get("dir","asc").strip()
     entries = entries.order_by("signbank_id")
 
     # -------------------------------------------------
@@ -906,8 +908,6 @@ def signbank_list(request):
         entries = entries.filter(
             in_woordenboek=False
         )
-
-    entries = entries.order_by("gloss", "signbank_id")
 
     # -------------------------------------------------
     # Alle beschikbare categorieën verzamelen
@@ -963,7 +963,24 @@ def signbank_list(request):
         labels,
         key=str.casefold,
     )
+    sort_fields = {
+        "gloss": "gloss",
+        "video": "signbank_id",
+        "handvorm": "handvorm_begin",
+        "locatie": "locatie_begin",
+        "vertaling": "mogelijke_vertaling",
+        "categorie": "categorie_1",
+        "labels": "labels",
+        "wdb": "in_woordenboek",
+        "signbank_id": "signbank_id",
+    }
 
+    sort_field = sort_fields.get(sort, "signbank_id")
+
+    if direction == "desc":
+        sort_field = f"-{sort_field}"
+
+    entries = entries.order_by(sort_field, "signbank_id")
     # -------------------------------------------------
     # Paginering
     # -------------------------------------------------
