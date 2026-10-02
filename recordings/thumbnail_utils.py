@@ -60,7 +60,7 @@ def generate_thumbnail_for_item(
 
         else:
 
-            if not item.old_video_url:
+            if not item.video_url:
                 return (
                     False,
                     "Geen oude video-URL beschikbaar.",
@@ -76,7 +76,7 @@ def generate_thumbnail_for_item(
                 temp_path = temp_file.name
 
                 response = requests.get(
-                    item.old_video_url,
+                    item.video_url,
                     stream=True,
                     timeout=120,
                 )

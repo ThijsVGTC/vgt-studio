@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 
-from recordings.models import RecordingItem
+from recordings.models import SignbankEntry
 from recordings.thumbnail_utils import (
     generate_thumbnail_for_item,
 )
@@ -28,8 +28,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
 
         items = (
-            RecordingItem.objects
-            .exclude(old_video_url="")
+            SignbankEntry.objects
             .order_by("id")
         )
 
