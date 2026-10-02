@@ -134,7 +134,20 @@ class SignbankEntry(models.Model):
             "recordings/images/handshapes/"
             f"handshape_{self.handvorm_einde_code}.png"
         )
+    
+    @property
+    def video_url(self):
+        if not self.gloss or not self.signbank_id:
+            return ""
 
+        prefix = self.gloss[:2].upper()
+
+        return (
+            "https://vlaamsegebarentaal.be/signbank/"
+            "dictionary/protected_media/glossvideo/"
+            f"{prefix}/{self.gloss}-{self.signbank_id}.mp4"
+        )
+    
     def __str__(self):
         return f"{self.gloss} ({self.signbank_id})"
     
