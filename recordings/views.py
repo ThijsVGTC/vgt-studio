@@ -1027,6 +1027,20 @@ def signbank_list(request):
         "negatief",
     ]
 
+    functional_label_names = {
+        "expliciet",
+        "verouderd",
+        "beledigend",
+        "neologisme",
+        "negatief",
+    }
+
+    internal_label_options = [
+        label
+        for label in labels
+        if label.lower() not in functional_label_names
+    ]
+
     return render(
         request,
         "recordings/signbank_list.html",
@@ -1044,6 +1058,7 @@ def signbank_list(request):
             "selected_in_dictionary": selected_in_dictionary,
             "filtered_count": paginator.count,
             "functional_label_options": functional_label_options,
+            "internal_label_options": internal_label_options,
         },
     )
 
