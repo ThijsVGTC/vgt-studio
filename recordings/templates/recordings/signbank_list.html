@@ -41,22 +41,12 @@ Signbank | VGT Studio
 
 
         <div>
-            <label for="category">
-                <strong>Categorie</strong>
-            </label>
-
-            <select
-                name="category"
-                id="category"
-            >
-                <option value="">
-                    Alle categorieën
-                </option>
-
+            <label for="category">Categorieën</label>
+            <select name="category" id="category" multiple>
                 {% for category in categories %}
                     <option
                         value="{{ category }}"
-                        {% if category == selected_category %}selected{% endif %}
+                        {% if category in selected_categories %}selected{% endif %}
                     >
                         {{ category }}
                     </option>
@@ -66,22 +56,12 @@ Signbank | VGT Studio
 
 
         <div>
-            <label for="label">
-                <strong>Label</strong>
-            </label>
-
-            <select
-                name="label"
-                id="label"
-            >
-                <option value="">
-                    Alle labels
-                </option>
-
-                {% for label in labels %}
+           <label for="functional_label">Functionele labels</label>
+            <select name="functional_label" id="functional_label" multiple>
+                {% for label in functional_label_options %}
                     <option
                         value="{{ label }}"
-                        {% if label == selected_label %}selected{% endif %}
+                        {% if label in selected_functional_labels %}selected{% endif %}
                     >
                         {{ label }}
                     </option>
@@ -89,6 +69,19 @@ Signbank | VGT Studio
             </select>
         </div>
 
+        <div>
+            <label for="internal_label">Interne labels</label>
+            <select name="internal_label" id="internal_label" multiple>
+                {% for label in internal_label_options %}
+                    <option
+                        value="{{ label }}"
+                        {% if label in selected_internal_labels %}selected{% endif %}
+                    >
+                        {{ label }}
+                    </option>
+                {% endfor %}
+            </select>
+        </div>
 
         <div>
             <label for="in_dictionary">

@@ -1019,6 +1019,14 @@ def signbank_list(request):
         page_number
     )
 
+    functional_label_options = [
+        "expliciet",
+        "verouderd",
+        "beledigend",
+        "neologisme",
+        "negatief",
+    ]
+
     return render(
         request,
         "recordings/signbank_list.html",
@@ -1035,6 +1043,7 @@ def signbank_list(request):
             "selected_internal_labels": selected_internal_labels,
             "selected_in_dictionary": selected_in_dictionary,
             "filtered_count": paginator.count,
+            "functional_label_options": functional_label_options,
         },
     )
 
