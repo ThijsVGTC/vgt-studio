@@ -1001,17 +1001,14 @@ def signbank_list(request):
         {
             "entries": page_obj,
             "page_obj": page_obj,
-
+            "sort": sort,
+            "direction": direction,
             "search_query": search_query,
-
             "categories": categories,
             "selected_category": selected_category,
-
             "labels": labels,
             "selected_label": selected_label,
-
             "selected_in_dictionary": selected_in_dictionary,
-
             "filtered_count": paginator.count,
         },
     )
