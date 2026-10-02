@@ -49,7 +49,7 @@ class Command(BaseCommand):
             self.stdout.write(
                 f"Verwerken: "
                 f"{item.signbank_id} - "
-                f"{item.gloss_id}"
+                f"{item.gloss}"
             )
 
             success, message = (
