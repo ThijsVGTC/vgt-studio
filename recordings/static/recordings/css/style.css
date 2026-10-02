@@ -1059,3 +1059,16 @@ body.handshape-show-names .handshape-toggle-names {
     display: none !important;
 
 }
+
+.filter-checkbox input[type="radio"] {
+    appearance: auto;
+    -webkit-appearance: radio;
+    display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
+    min-width: 16px !important;
+    max-width: 16px !important;
+    flex: 0 0 16px;
+    margin: 0 !important;
+    padding: 0 !important;
+}
