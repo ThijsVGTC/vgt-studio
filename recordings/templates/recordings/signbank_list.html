@@ -844,58 +844,19 @@ document.addEventListener("click", function (event) {
 
 document.querySelectorAll(".filter-dropdown-search").forEach(function (input) {
     input.addEventListener("input", function () {
-        const search = input.value.toLowerCase();
+        const search = input.value.trim().toLowerCase();
 
         const menu = input.closest(".filter-dropdown-menu");
 
         menu.querySelectorAll(".filter-category-option").forEach(function (option) {
-            const text = option.textContent.toLowerCase();
-
-            option.style.display = text.includes(search)
-                ? "flex"
-                : "none";
-        });
-    });
-});
-
-document.addEventListener("DOMContentLoaded", function () {
-
-    const searchInput = document.querySelector(
-
-        "#category-dropdown .filter-dropdown-search"
-
-    );
-
-    if (!searchInput) return;
-
-    const categoryOptions = document.querySelectorAll(
-
-        "#category-dropdown .filter-category-option"
-
-    );
-
-    searchInput.addEventListener("input", function () {
-
-        const search = this.value.trim().toLowerCase();
-
-        categoryOptions.forEach(function (option) {
-
             const text = option.textContent.trim().toLowerCase();
 
-            if (text.includes(search)) {
-
-                option.style.display = "flex";
-
-            } else {
-
-                option.style.display = "none";
-
-            }
-
+            option.classList.toggle(
+                "is-hidden",
+                !text.includes(search)
+            );
         });
-
     });
-
 });
 
 const selectAllFunctional = document.querySelector(

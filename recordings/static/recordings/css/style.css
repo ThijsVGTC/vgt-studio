@@ -1053,3 +1053,9 @@ body.handshape-show-names .handshape-toggle-names {
     background: #e5e7eb;
     margin: 5px 0;
 }
+
+.filter-checkbox.is-hidden {
+
+    display: none !important;
+
+}
