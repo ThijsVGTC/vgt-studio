@@ -88,6 +88,11 @@ class Command(BaseCommand):
                         signbank_id,
                     )
 
+                    variants = self.get_variants(
+                        connection,
+                        signbank_id,
+                    )                    
+                    
                     labels = self.get_labels(
                         connection,
                         signbank_id,
@@ -164,6 +169,7 @@ class Command(BaseCommand):
                                 row["final_loc"],
                             )
                         ),
+                        "variants": variants,
                         "mogelijke_vertaling": translations,
                         "categorie_1": self.get_fieldchoice_label(
                             connection, "SemField", row["semField"]
@@ -323,6 +329,31 @@ class Command(BaseCommand):
 
         return ", ".join(translations)
 
+    def get_variants(self, connection, gloss_id):
+        """
+        Verzamel alle dialecten/varianten van een gloss.
+        """
+        rows = connection.execute(
+            """
+            SELECT DISTINCT
+                d.name
+            FROM dictionary_gloss_dialect gd
+            INNER JOIN dictionary_dialect d
+                ON d.id = gd.dialect_id
+            WHERE gd.gloss_id = ?
+            AND d.name IS NOT NULL
+            AND TRIM(d.name) != ''
+            ORDER BY d.name COLLATE NOCASE
+            """,
+            (gloss_id,),
+        ).fetchall()
+
+        return [
+            self.clean(row["name"])
+            for row in rows
+            if self.clean(row["name"])
+        ]    
+    
     def get_labels(
         self,
         connection,
