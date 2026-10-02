@@ -204,9 +204,11 @@ Signbank | VGT Studio
                     {% endif %}
                 </a>
             </th>
-
             <th>
                 Labels
+            </th>
+            <th>
+                Intern
             </th>
             <th class="t_center">
                 Info
@@ -403,7 +405,7 @@ Signbank | VGT Studio
 
                 </td>
 
-                <td>
+                <td class="signbank-badges">
                     {% for label in entry.functional_labels %}
                         <span
                             class="label-functional"
@@ -412,7 +414,8 @@ Signbank | VGT Studio
                             {{ label.short }}
                         </span>
                     {% endfor %}
-
+                </td>
+                <td class="signbank-badges">
                     {% for label in entry.internal_labels %}
                         <span class="data-badge">
                             {{ label }}
