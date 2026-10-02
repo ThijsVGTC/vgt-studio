@@ -854,8 +854,21 @@ def signbank_list(request):
     entries = SignbankEntry.objects.all()
 
     search_query = request.GET.get("q", "").strip()
-    selected_category = request.GET.get("category", "").strip()
-    selected_label = request.GET.get("label", "").strip()
+    selected_categories = [
+        value.strip()
+        for value in request.GET.getlist("category")
+        if value.strip()
+    ]
+    selected_functional_labels = [
+        value.strip()
+        for value in request.GET.getlist("functional_label")
+        if value.strip()
+    ]
+    selected_internal_labels = [
+        value.strip()
+        for value in request.GET.getlist("internal_label")
+        if value.strip()
+    ]
     selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
     sort=request.GET.get("sort","signbank_id").strip()
     direction=request.GET.get("dir","asc").strip()
@@ -880,22 +893,23 @@ def signbank_list(request):
     # Categorie
     # Een categorie kan in een van de 5 velden staan.
     # -------------------------------------------------
-    if selected_category:
-        entries = entries.filter(
-            Q(categorie_1=selected_category)
-            | Q(categorie_2=selected_category)
-            | Q(categorie_3=selected_category)
-            | Q(categorie_4=selected_category)
-            | Q(categorie_5=selected_category)
-        )
+    if selected_categories:
+        category_filter = Q()
+
+        for category in selected_categories:
+            category_filter |= (
+                Q(categorie_1=category)
+                | Q(categorie_2=category)
+                | Q(categorie_3=category)
+                | Q(categorie_4=category)
+                | Q(categorie_5=category)
+            )
+
+        entries = entries.filter(category_filter)
 
     # -------------------------------------------------
     # Label
     # -------------------------------------------------
-    if selected_label:
-        entries = entries.filter(
-            labels__icontains=selected_label
-        )
 
     # -------------------------------------------------
     # In woordenboek
@@ -1000,9 +1014,10 @@ def signbank_list(request):
             "direction": direction,
             "search_query": search_query,
             "categories": categories,
-            "selected_category": selected_category,
             "labels": labels,
-            "selected_label": selected_label,
+            "selected_categories": selected_categories,
+            "selected_functional_labels": selected_functional_labels,
+            "selected_internal_labels": selected_internal_labels,
             "selected_in_dictionary": selected_in_dictionary,
             "filtered_count": paginator.count,
         },
