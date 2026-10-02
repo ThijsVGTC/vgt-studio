@@ -1003,40 +1003,37 @@ body.handshape-show-names .handshape-toggle-names {
     display: block;
 }
 
-.filter-checkbox {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 4px;
-    cursor: pointer;
-}
-
 .filter-checkbox input {
     margin: 0;
 }
 
 .filter-checkbox {
-    display: flex;
-    align-items: center;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: flex-start;
     gap: 8px;
     padding: 7px 4px;
+    margin: 0;
     cursor: pointer;
     white-space: nowrap;
-    line-height: 1.4;
 }
 
 .filter-checkbox input[type="checkbox"] {
     appearance: auto;
     -webkit-appearance: checkbox;
-    width: 16px;
-    height: 16px;
+    display: inline-block !important;
+    width: 16px !important;
+    height: 16px !important;
     min-width: 16px;
-    margin: 0;
-    padding: 0;
     flex: 0 0 16px;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .filter-checkbox span {
-    display: block;
+    display: inline-block !important;
+    margin: 0 !important;
+    padding: 0 !important;
     line-height: 1.4;
 }
