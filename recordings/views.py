@@ -965,13 +965,8 @@ def signbank_list(request):
     )
     sort_fields = {
         "gloss": "gloss",
-        "video": "signbank_id",
-        "handvorm": "handvorm_begin",
-        "locatie": "locatie_begin",
-        "vertaling": "mogelijke_vertaling",
         "categorie": "categorie_1",
         "labels": "labels",
-        "wdb": "in_woordenboek",
         "signbank_id": "signbank_id",
     }
 

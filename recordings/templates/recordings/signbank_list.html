@@ -193,7 +193,16 @@ Signbank | VGT Studio
             </th>
             
             <th>
-                Categorieën
+                <a href="?sort=categorie&dir={% if sort == 'categorie' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    Categorieën
+                    {% if sort == "categorie" %}
+                        {% if direction == "asc" %}
+                            ↑
+                        {% else %}
+                            ↓
+                        {% endif %}
+                    {% endif %}
+                </a>
             </th>
 
             <th>
