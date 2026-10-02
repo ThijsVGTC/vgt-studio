@@ -910,7 +910,22 @@ def signbank_list(request):
     # -------------------------------------------------
     # Label
     # -------------------------------------------------
+    if selected_functional_labels:
+        functional_filter = Q()
 
+        for label in selected_functional_labels:
+            functional_filter |= Q(labels__icontains=label)
+
+        entries = entries.filter(functional_filter)
+
+
+    if selected_internal_labels:
+        internal_filter = Q()
+
+        for label in selected_internal_labels:
+            internal_filter |= Q(labels__icontains=label)
+
+        entries = entries.filter(internal_filter)
     # -------------------------------------------------
     # In woordenboek
     # -------------------------------------------------
