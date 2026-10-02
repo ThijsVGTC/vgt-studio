@@ -180,6 +180,10 @@ Signbank | VGT Studio
             </th>
 
             <th>
+                Variant
+            </th>
+            
+            <th>
                 Categorieën
             </th>
 
@@ -335,6 +339,13 @@ Signbank | VGT Studio
 
                 </td>
 
+                <td>
+                    {% if entry.variants %}
+                        {% for variant in entry.variants %}
+                            <span class="badge">{{ variant }}</span>
+                        {% endfor %}
+                    {% endif %}
+                </td>
 
                 <td class="signbank-badges">
 
