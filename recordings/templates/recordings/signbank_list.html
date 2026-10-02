@@ -139,32 +139,45 @@ Signbank | VGT Studio
         </div>
 
         <div>
-            <label for="in_dictionary">
-                <strong>In woordenboek</strong>
-            </label>
+           <div class="filter-dropdown" id="dictionary-dropdown">
+                <button type="button" class="filter-dropdown-toggle">
+                    In woordenboek
+                </button>
 
-            <select
-                name="in_dictionary"
-                id="in_dictionary"
-            >
-                <option value="">
-                    Alles
-                </option>
+                <div class="filter-dropdown-menu">
 
-                <option
-                    value="yes"
-                    {% if selected_in_dictionary == "yes" %}selected{% endif %}
-                >
-                    Ja
-                </option>
+                    <label class="filter-checkbox">
+                        <input
+                            type="radio"
+                            name="in_dictionary"
+                            value=""
+                            {% if not selected_in_dictionary %}checked{% endif %}
+                        >
+                        <span>Alles</span>
+                    </label>
 
-                <option
-                    value="no"
-                    {% if selected_in_dictionary == "no" %}selected{% endif %}
-                >
-                    Nee
-                </option>
-            </select>
+                    <label class="filter-checkbox">
+                        <input
+                            type="radio"
+                            name="in_dictionary"
+                            value="yes"
+                            {% if selected_in_dictionary == "yes" %}checked{% endif %}
+                        >
+                        <span>Ja</span>
+                    </label>
+
+                    <label class="filter-checkbox">
+                        <input
+                            type="radio"
+                            name="in_dictionary"
+                            value="no"
+                            {% if selected_in_dictionary == "no" %}checked{% endif %}
+                        >
+                        <span>Nee</span>
+                    </label>
+
+                </div>
+            </div>
         </div>
 
 
