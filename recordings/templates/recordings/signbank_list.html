@@ -108,17 +108,34 @@ Signbank | VGT Studio
         </div>
 
         <div>
-            <label for="internal_label">Interne labels</label>
-            <select name="internal_label" id="internal_label" multiple>
-                {% for label in internal_label_options %}
-                    <option
-                        value="{{ label }}"
-                        {% if label in selected_internal_labels %}selected{% endif %}
+            <div class="filter-dropdown" id="internal-label-dropdown">
+                <button type="button" class="filter-dropdown-toggle">
+                    Interne labels
+                </button>
+
+                <div class="filter-dropdown-menu">
+
+                    <input
+                        type="text"
+                        class="filter-dropdown-search internal-label-search"
+                        placeholder="Zoek label..."
+                        autocomplete="off"
                     >
-                        {{ label }}
-                    </option>
-                {% endfor %}
-            </select>
+
+                    {% for label in internal_label_options %}
+                        <label class="filter-checkbox internal-label-option">
+                            <input
+                                type="checkbox"
+                                name="internal_label"
+                                value="{{ label }}"
+                                {% if label in selected_internal_labels %}checked{% endif %}
+                            >
+                            <span>{{ label }}</span>
+                        </label>
+                    {% endfor %}
+
+                </div>
+            </div>
         </div>
 
         <div>
@@ -895,6 +912,27 @@ if (selectAllFunctional) {
     });
 
     updateFunctionalSelectAll();
+}
+
+const internalLabelSearch = document.querySelector(
+    "#internal-label-dropdown .internal-label-search"
+);
+
+if (internalLabelSearch) {
+    internalLabelSearch.addEventListener("input", function () {
+        const search = this.value.trim().toLowerCase();
+
+        document
+            .querySelectorAll("#internal-label-dropdown .internal-label-option")
+            .forEach(function (option) {
+                const text = option.textContent.trim().toLowerCase();
+
+                option.classList.toggle(
+                    "is-hidden",
+                    !text.includes(search)
+                );
+            });
+    });
 }
 </script>
 
