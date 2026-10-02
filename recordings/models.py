@@ -86,6 +86,17 @@ class SignbankEntry(models.Model):
     labels = models.TextField(
         blank=True,
     )
+
+    thumbnail_path = models.CharField(
+        max_length=500,
+        blank=True,
+    )
+
+    video_hash = models.CharField(
+        max_length=64,
+        blank=True,
+    )
+
     opmerkingen = models.JSONField(
         default=list,
         blank=True,
@@ -148,6 +159,15 @@ class SignbankEntry(models.Model):
             f"{prefix}/{self.gloss}-{self.signbank_id}.mp4"
         )
     
+    @property
+    def thumbnail_url(self):
+        if not self.thumbnail_path:
+            return ""
+
+        return f"/media/{self.thumbnail_path}"
+
+
+
     def __str__(self):
         return f"{self.gloss} ({self.signbank_id})"
     
