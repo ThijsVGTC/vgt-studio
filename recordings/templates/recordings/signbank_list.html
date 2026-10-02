@@ -54,7 +54,7 @@ Signbank | VGT Studio
                         autocomplete="off"
                     >
                     {% for category in categories %}
-                        <label class="filter-checkbox">
+                        <label class="filter-checkbox filter-category-option">
                             <input
                                 type="checkbox"
                                 name="category"
@@ -97,6 +97,7 @@ Signbank | VGT Studio
                                 type="checkbox"
                                 name="functional_label"
                                 value="{{ label }}"
+                                class="functional-label-checkbox"
                                 {% if label in selected_functional_labels %}checked{% endif %}
                             >
                             <span>{{ label }}</span>
