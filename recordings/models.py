@@ -298,6 +298,13 @@ class RecordingItem(models.Model):
 
         return self.old_video_url
 
+    @property
+    def signbank_thumbnail_path(self):
+        if self.signbank_entry and self.signbank_entry.thumbnail_path:
+            return self.signbank_entry.thumbnail_path
+
+        return self.thumbnail_path    
+
     def __str__(self):
         return f"{self.gloss_id} ({self.signbank_id})"
 
