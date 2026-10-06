@@ -33,7 +33,7 @@
                 <span class="user-name">
                     {{ user.username }}
                 </span>
-                <form method="post" action="{% url 'logout' %}">
+                <form method="post" action="{% url 'account_logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="logout-button">
                         Uitloggen
