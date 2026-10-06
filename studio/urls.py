@@ -18,10 +18,15 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve
+from django.shortcuts import redirect
+
+def google_login_redirect(request):
+    return redirect("/accounts/google/login/")
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("recordings.urls")),
+    path("accounts/login/", google_login_redirect),
     path("accounts/", include("allauth.urls")),
 ]
 
