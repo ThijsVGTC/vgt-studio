@@ -2056,3 +2056,13 @@ def update_review_status(request, item_id):
             item.review_status = review_status
             item.save(update_fields=["review_status"])
     return redirect(request.META.get("HTTP_REFERER", "recording_list"))
+
+import os
+from django.http import JsonResponse
+
+
+def oauth_debug(request):
+    return JsonResponse({
+        "client_id_loaded": bool(os.environ.get("GOOGLE_OAUTH_CLIENT_ID")),
+        "client_secret_loaded": bool(os.environ.get("GOOGLE_OAUTH_CLIENT_SECRET")),
+    })
