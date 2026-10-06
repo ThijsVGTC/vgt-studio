@@ -1128,3 +1128,63 @@ body {
 .accessibility-controls button:hover {
     opacity: 0.85;
 }
+
+html[data-theme="light"] body,
+html[data-theme="light"] .page,
+html[data-theme="light"] .content,
+html[data-theme="light"] main {
+    background-color: #ffffff !important;
+    color: #1f2937 !important;
+}
+
+html[data-theme="dark"] body,
+html[data-theme="dark"] .page,
+html[data-theme="dark"] .content,
+html[data-theme="dark"] main {
+    background-color: #181818 !important;
+    color: #f3f4f6 !important;
+}
+
+
+/* Tabellen en kaarten */
+html[data-theme="dark"] table,
+html[data-theme="dark"] th,
+html[data-theme="dark"] td,
+html[data-theme="dark"] .card,
+html[data-theme="dark"] .panel {
+    background-color: #242424 !important;
+    color: #f3f4f6 !important;
+    border-color: #444 !important;
+}
+
+
+/* Formuliervelden */
+html[data-theme="dark"] input,
+html[data-theme="dark"] select,
+html[data-theme="dark"] textarea {
+    background-color: #2d2d2d !important;
+    color: #ffffff !important;
+    border-color: #555 !important;
+}
+
+
+/* Tekstgrootte */
+html[data-font-size="normal"] body {
+    font-size: 16px !important;
+}
+
+html[data-font-size="large"] body {
+    font-size: 18px !important;
+}
+
+html[data-font-size="xlarge"] body {
+    font-size: 20px !important;
+}
+
+html[data-font-size="large"] body * {
+    font-size: 1.05em;
+}
+
+html[data-font-size="xlarge"] body * {
+    font-size: 1.1em;
+}
