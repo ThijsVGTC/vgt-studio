@@ -19,15 +19,23 @@ from django.urls import path, include, re_path
 from django.conf import settings
 from django.views.static import serve
 from django.shortcuts import redirect
+from django.http import HttpResponse
 
 def google_login_redirect(request):
     return redirect("/accounts/google/login/")
+
+def logged_out(request):
+    return HttpResponse(
+        '<h1>Je bent uitgelogd</h1>'
+        '<p><a href="/accounts/login/">Opnieuw inloggen met Google</a></p>'
+    )
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("recordings.urls")),
     path("accounts/login/", google_login_redirect),
     path("accounts/", include("allauth.urls")),
+    path("logged-out/", logged_out),
 ]
 
 urlpatterns += [
