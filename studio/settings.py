@@ -149,7 +149,7 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_ADAPTER = "recordings.adapters.VGTStudioSocialAccountAdapter"
 
 LOGIN_REDIRECT_URL = "/"
-LOGOUT_REDIRECT_URL = "/"
+ACCOUNT_LOGOUT_REDIRECT_URL = "/accounts/login/"
 
 # Password validation
 # https://docs.djangoproject.com/en/6.1/ref/settings/#auth-password-validators
@@ -210,7 +210,6 @@ WEBOPNAME_BASE_URL = "http://127.0.0.1:8000/"
 
 LOGIN_URL = "login"
 LOGIN_REDIRECT_URL = "recording_list"
-LOGOUT_REDIRECT_URL = "login"
 WHITENOISE_STATIC_PREFIX = "/static/"
 
 # Login/session 30 dagen bewaren
