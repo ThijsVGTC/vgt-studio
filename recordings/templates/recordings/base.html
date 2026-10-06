@@ -1,5 +1,5 @@
 {% load static %}
-<!DOCTYPE html>
+<html lang="nl" data-theme="light" data-font-size="normal">
 <html lang="nl">
 
 <head>
@@ -39,6 +39,19 @@
                         Uitloggen
                     </button>
                 </form>
+                <div class="accessibility-controls">
+                    <button type="button" id="theme-toggle" aria-label="Wissel tussen lichte en donkere modus">
+                        Donker
+                    </button>
+
+                    <button type="button" id="font-decrease" aria-label="Verklein tekst">
+                        A-
+                    </button>
+
+                    <button type="button" id="font-increase" aria-label="Vergroot tekst">
+                        A+
+                    </button>
+                </div>
             </nav>
             {% endif %}
         </div>
@@ -54,6 +67,72 @@
             VGT Studio
         </div>
     </footer>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const html = document.documentElement;
+
+    const themeToggle = document.getElementById("theme-toggle");
+    const fontDecrease = document.getElementById("font-decrease");
+    const fontIncrease = document.getElementById("font-increase");
+
+    const savedTheme = localStorage.getItem("vgt-theme");
+    const savedFontSize = localStorage.getItem("vgt-font-size");
+
+    if (savedTheme) {
+        html.setAttribute("data-theme", savedTheme);
+    }
+
+    if (savedFontSize) {
+        html.setAttribute("data-font-size", savedFontSize);
+    }
+
+    function updateThemeButton() {
+        const theme = html.getAttribute("data-theme");
+
+        if (theme === "dark") {
+            themeToggle.textContent = "Licht";
+        } else {
+            themeToggle.textContent = "Donker";
+        }
+    }
+
+    themeToggle.addEventListener("click", function () {
+        const currentTheme = html.getAttribute("data-theme");
+        const newTheme = currentTheme === "dark" ? "light" : "dark";
+
+        html.setAttribute("data-theme", newTheme);
+        localStorage.setItem("vgt-theme", newTheme);
+
+        updateThemeButton();
+    });
+
+    const fontSizes = ["normal", "large", "xlarge"];
+
+    fontIncrease.addEventListener("click", function () {
+        const current = html.getAttribute("data-font-size") || "normal";
+        const index = fontSizes.indexOf(current);
+
+        if (index < fontSizes.length - 1) {
+            const newSize = fontSizes[index + 1];
+            html.setAttribute("data-font-size", newSize);
+            localStorage.setItem("vgt-font-size", newSize);
+        }
+    });
+
+    fontDecrease.addEventListener("click", function () {
+        const current = html.getAttribute("data-font-size") || "normal";
+        const index = fontSizes.indexOf(current);
+
+        if (index > 0) {
+            const newSize = fontSizes[index - 1];
+            html.setAttribute("data-font-size", newSize);
+            localStorage.setItem("vgt-font-size", newSize);
+        }
+    });
+
+    updateThemeButton();
+});
+</script>
 </body>
 
 </html>
