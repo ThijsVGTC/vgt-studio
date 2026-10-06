@@ -321,3 +321,16 @@ class AppSettings(models.Model):
     def __str__(self):
 
         return "VGT Studio instellingen"
+
+class AllowedGoogleEmail(models.Model):
+    email = models.EmailField(unique=True)
+    active = models.BooleanField(default=True)
+    note = models.CharField(max_length=255, blank=True)
+
+    class Meta:
+        ordering = ["email"]
+        verbose_name = "Toegelaten Google-account"
+        verbose_name_plural = "Toegelaten Google-accounts"
+
+    def __str__(self):
+        return self.email
