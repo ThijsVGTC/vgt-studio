@@ -130,21 +130,3 @@ MAILERS = {
     },
 }
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "handlers": {
-        "vgt_studio_file": {
-            "level": "ERROR",
-            "class": "logging.FileHandler",
-            "filename": "/home/vlaamseg/vgt-studio-error.log",
-        },
-    },
-    "loggers": {
-        "django": {
-            "handlers": ["vgt_studio_file"],
-            "level": "ERROR",
-            "propagate": True,
-        },
-    },
-}

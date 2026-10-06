@@ -249,3 +249,39 @@ SOCIALACCOUNT_ONLY = True
 ACCOUNT_EMAIL_VERIFICATION = "none"
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+LOGGING = {
+
+    "version": 1,
+
+    "disable_existing_loggers": False,
+
+    "handlers": {
+
+        "vgt_studio_file": {
+
+            "level": "ERROR",
+
+            "class": "logging.FileHandler",
+
+            "filename": "/home/vlaamseg/vgt-studio-error.log",
+
+        },
+
+    },
+
+    "loggers": {
+
+        "django": {
+
+            "handlers": ["vgt_studio_file"],
+
+            "level": "ERROR",
+
+            "propagate": True,
+
+        },
+
+    },
+
+}
