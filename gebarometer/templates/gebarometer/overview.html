@@ -49,7 +49,7 @@
         </a>
 
     </div>
-
+{% if view_mode == "calendar" %}
     <div class="gebarometer-calendar">
 
         <div class="calendar-weekday">Ma</div>
@@ -157,6 +157,100 @@
         {% endfor %}
 
     </div>
+{% endif %}
+
+{% if view_mode == "list" %}
+
+    <div class="gebarometer-list-wrapper">
+
+        <table class="gebarometer-list">
+
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Gloss</th>
+                    <th>Status</th>
+                    <th>Totaal</th>
+                    <th>JA-JA</th>
+                    <th>JA-NEE</th>
+                    <th>NEE</th>
+                    <th>Twijfel</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for week in calendar_weeks %}
+                    {% for day in week %}
+                        {% if day.in_current_month %}
+
+                            {% for item in day.items %}
+
+                                <tr
+                                    class="
+                                        {% if item.result_is_positive is True %}
+                                            gebarometer-list-positive
+                                        {% elif item.result_is_positive is False %}
+                                            gebarometer-list-negative
+                                        {% endif %}
+                                    "
+                                >
+
+                                    <td>
+                                        {{ item.planned_date|date:"d/m/Y" }}
+                                    </td>
+
+                                    <td>
+                                        <a href="{% url 'gebarometer:detail' item.pk %}">
+                                            {% if item.signbank_entry %}
+                                                {{ item.signbank_entry.gloss }}
+                                            {% else %}
+                                                {{ item.historical_gloss }}
+                                            {% endif %}
+                                        </a>
+                                    </td>
+
+                                    <td>
+                                        <span
+                                            class="
+                                                mailchimp-status
+                                                {% if item.mailchimp_status == 'VERSTUURD' %}
+                                                    mailchimp-sent
+                                                {% elif item.mailchimp_status == 'GEPLAND' %}
+                                                    mailchimp-planned
+                                                {% else %}
+                                                    mailchimp-not-sent
+                                                {% endif %}
+                                            "
+                                            title="{{ item.get_mailchimp_status_display }}"
+                                        >
+                                            🐵
+                                        </span>
+
+                                        {{ item.get_mailchimp_status_display }}
+                                    </td>
+
+                                    <td>{{ item.total_votes }}</td>
+                                    <td>{{ item.ja_ja }}</td>
+                                    <td>{{ item.ja_nee }}</td>
+                                    <td>{{ item.nee }}</td>
+                                    <td>{{ item.twijfel }}</td>
+
+                                </tr>
+
+                            {% endfor %}
+
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+{% endif %}
 
 </div>
 {% endblock %}
