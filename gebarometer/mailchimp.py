@@ -421,7 +421,7 @@ class MailChimpClient:
         cookie_line = None
 
         for line in lines:
-            if "-b " in line:
+            if line.lstrip().startswith("-b "):
                 cookie_line = line.strip()
                 break
 
@@ -430,7 +430,6 @@ class MailChimpClient:
                 "Geen -b cookieregel gevonden in de cURL-request."
             )
 
-        # Chrome zet op het einde meestal een \ voor de volgende regel.
         if cookie_line.endswith("\\"):
             cookie_line = cookie_line[:-1].rstrip()
 
@@ -449,29 +448,6 @@ class MailChimpClient:
                 "Geen geldige cookie gevonden na -b."
             ) from exc
 
-        if not cookie:
-            raise MailChimpAPIError(
-                "De Mailchimp-cookie is leeg."
-            )
-
         client = cls(cookie)
-
-        client.session.headers.update(
-            {
-                "accept": (
-                    "text/html,application/xhtml+xml,"
-                    "application/xml;q=0.9,image/avif,"
-                    "image/webp,*/*;q=0.8"
-                ),
-                "accept-language": "nl,en;q=0.9",
-                "cache-control": "no-cache",
-                "pragma": "no-cache",
-                "sec-fetch-dest": "document",
-                "sec-fetch-mode": "navigate",
-                "sec-fetch-site": "same-origin",
-                "sec-fetch-user": "?1",
-                "upgrade-insecure-requests": "1",
-            }
-        )
 
         return client

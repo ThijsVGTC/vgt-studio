@@ -10,7 +10,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         client = MailChimpClient.from_curl_file(
-            "/tmp/mailchimp_curl.txt"
+            "mailchimp_curl.txt"
         )
 
         result = client.test_advanced_report(
