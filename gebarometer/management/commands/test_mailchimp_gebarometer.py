@@ -18,7 +18,7 @@ class Command(BaseCommand):
 
         client = MailChimpClient(cookie)
 
-        result = client.get_page_data()
+        result = client.test_advanced_report("11042816")
 
         self.stdout.write(
             f"Status: {result['status_code']}"

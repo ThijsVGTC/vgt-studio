@@ -350,6 +350,21 @@ class MailChimpClient:
             response.text
         )
 
+    def test_advanced_report(self, report_id):
+        response = self.session.get(
+            self.ADVANCED_REPORT_URL,
+            params={"id": report_id},
+            timeout=30,
+            allow_redirects=False,
+        )
+
+        return {
+            "status_code": response.status_code,
+            "content_type": response.headers.get("content-type"),
+            "location": response.headers.get("location"),
+            "text": response.text[:1000],
+        }
+
     @staticmethod
     def parse_send_date(report):
         raw_send_time = report.get(
