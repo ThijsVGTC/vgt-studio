@@ -43,7 +43,6 @@ class GebarometerItem(models.Model):
         max_length=255,
         null=True,
         blank=True,
-        unique=True,
     )
 
     mailchimp_url = models.URLField(
