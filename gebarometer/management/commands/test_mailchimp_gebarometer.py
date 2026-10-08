@@ -13,19 +13,22 @@ class Command(BaseCommand):
             "/tmp/mailchimp_curl.txt"
         )
 
-        cookie_value = client.session.headers.get("cookie", "")
-
-        if not cookie_value:
-            raise CommandError(
-                "Cookie kon niet uit de cURL gelezen worden."
-            )
-
-        self.stdout.write(
-            self.style.SUCCESS(
-                f"Cookie correct ingelezen ({len(cookie_value)} tekens)."
-            )
+        result = client.test_advanced_report(
+            "11042816"
         )
 
         self.stdout.write(
-            f"Aantal headers: {len(client.session.headers)}"
+            f"Status: {result['status_code']}"
         )
+
+        self.stdout.write(
+            f"Content-Type: {result['content_type']}"
+        )
+
+        self.stdout.write(
+            f"Redirect: {result['location']}"
+        )
+
+        self.stdout.write("")
+        self.stdout.write("Eerste response:")
+        self.stdout.write(result["text"])
