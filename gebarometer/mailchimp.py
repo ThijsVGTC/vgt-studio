@@ -90,8 +90,11 @@ class MailChimpClient:
             return response.json()
         except ValueError as exc:
             raise MailChimpAPIError(
-                "Mailchimp gaf geen geldige JSON terug. "
-                "Mogelijk is de sessiecookie verlopen."
+                "Mailchimp gaf geen JSON terug.\n"
+                f"Status: {response.status_code}\n"
+                f"URL: {response.url}\n"
+                f"Content-Type: {response.headers.get('content-type')}\n"
+                f"Eerste 300 tekens: {response.text[:300]}"
             ) from exc
 
     def get_reports(self):
