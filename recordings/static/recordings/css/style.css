@@ -1505,3 +1505,25 @@ html[data-font-size="xlarge"] body * {
 .gebarometer-list td:nth-child(n+4) {
     text-align: right;
 }
+
+.gebarometer-list-range {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+}
+
+.gebarometer-list-range a {
+    display: inline-block;
+    padding: 8px 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    text-decoration: none;
+    color: inherit;
+    background: white;
+}
+
+.gebarometer-list-range a.active {
+    background: #1f4f59;
+    border-color: #1f4f59;
+    color: white;
+}

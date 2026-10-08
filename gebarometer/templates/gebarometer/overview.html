@@ -161,6 +161,33 @@
 
 {% if view_mode == "list" %}
 
+    <div class="gebarometer-list-range">
+
+        <a
+
+            href="?view=list"
+
+            class="{% if not show_all %}active{% endif %}"
+
+        >
+
+            Standaard
+
+        </a>
+
+        <a
+
+            href="?view=list&range=all"
+
+            class="{% if show_all %}active{% endif %}"
+
+        >
+
+            Alles
+
+        </a>
+
+    </div>
     <div class="gebarometer-list-wrapper">
 
         <table class="gebarometer-list">
