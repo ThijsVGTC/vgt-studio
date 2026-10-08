@@ -28,6 +28,8 @@
         </div>
     </div>
 
+{% if view_mode == "calendar" %}
+
     <div class="gebarometer-month-navigation">
 
         <a
@@ -49,7 +51,7 @@
         </a>
 
     </div>
-{% if view_mode == "calendar" %}
+
     <div class="gebarometer-calendar">
 
         <div class="calendar-weekday">Ma</div>
