@@ -29,6 +29,7 @@ def logged_out(request):
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("", include("recordings.urls")),
+    path("gebarometer/", include("gebarometer.urls")),
     path("accounts/login/", google_login_redirect),
     path("accounts/", include("allauth.urls")),
     path("logged-out/", logged_out),
