@@ -95,6 +95,10 @@ class GebarometerItem(models.Model):
         blank=True,
     )
 
+    internal_remarks = models.TextField(
+        blank=True,
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
     )
