@@ -11,3 +11,4 @@ gspread==6.2.1
 google-auth==2.40.3
 psycopg[binary]
 openpyxl==3.1.5
+beautifulsoup4
