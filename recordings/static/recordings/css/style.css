@@ -1204,15 +1204,17 @@ html[data-font-size="xlarge"] body * {
     gap: 8px;
 }
 
-.gebarometer-view-switch button {
+.gebarometer-view-switch a {
     padding: 8px 14px;
     border: 1px solid #cbd5e1;
     border-radius: 8px;
     background: white;
     cursor: pointer;
+    text-decoration: none;
+    color: inherit;
 }
 
-.gebarometer-view-switch button.active {
+.gebarometer-view-switch a.active {
     background: #1f4f59;
     color: white;
     border-color: #1f4f59;

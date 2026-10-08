@@ -25,6 +25,10 @@ DUTCH_MONTH_NAMES = [
 @login_required
 def gebarometer_overview(request):
     today = date.today()
+    view_mode = request.GET.get("view", "calendar")
+
+    if view_mode not in ("calendar", "list"):
+        view_mode = "calendar"
 
     try:
         year = int(request.GET.get("year", today.year))
@@ -101,6 +105,7 @@ def gebarometer_overview(request):
         next_year += 1
 
     context = {
+        "view_mode": view_mode,
         "year": year,
         "month": month,
         "month_name": DUTCH_MONTH_NAMES[month],

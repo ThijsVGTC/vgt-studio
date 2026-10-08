@@ -12,13 +12,19 @@
         </div>
 
         <div class="gebarometer-view-switch">
-            <button type="button" class="active">
+            <a
+                href="?year={{ year }}&month={{ month }}&view=calendar"
+                class="{% if view_mode == 'calendar' %}active{% endif %}"
+            >
                 Kalender
-            </button>
+            </a>
 
-            <button type="button" disabled>
+            <a
+                href="?year={{ year }}&month={{ month }}&view=list"
+                class="{% if view_mode == 'list' %}active{% endif %}"
+            >
                 Lijst
-            </button>
+            </a>
         </div>
     </div>
 
