@@ -65,8 +65,29 @@ def gebarometer_overview(request):
         .order_by("planned_date", "position", "id")
     )
 
+    two_months_ago_month = today.month - 2
+    two_months_ago_year = today.year
+
+    while two_months_ago_month <= 0:
+        two_months_ago_month += 12
+        two_months_ago_year -= 1
+
+    last_day_of_target_month = calendar.monthrange(
+        two_months_ago_year,
+        two_months_ago_month,
+    )[1]
+
+    two_months_ago = date(
+        two_months_ago_year,
+        two_months_ago_month,
+        min(today.day, last_day_of_target_month),
+    )
+
     list_items = (
         GebarometerItem.objects
+        .filter(
+            planned_date__gte=two_months_ago,
+        )
         .select_related("signbank_entry")
         .order_by("planned_date", "position", "id")
     )
