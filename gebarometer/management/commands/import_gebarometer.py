@@ -114,7 +114,7 @@ class Command(BaseCommand):
             planned_date = value(row, "Datum")
             gloss = text_value(value(row, "Glossary"))
 
-            if not planned_date or not gloss:
+            if not planned_date or not gloss or gloss.startswith("-"):
                 skipped_count += 1
                 continue
 
