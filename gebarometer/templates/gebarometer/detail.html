@@ -98,10 +98,29 @@
         <p>{{ item.remarks|linebreaksbr }}</p>
     {% endif %}
 
-    {% if item.internal_remarks %}
-        <h2>Interne opmerking</h2>
-        <p>{{ item.internal_remarks|linebreaksbr }}</p>
-    {% endif %}
+    <h2>Interne opmerking</h2>
+
+    <form method="post" class="gebarometer-remarks-form">
+
+        {% csrf_token %}
+
+        <textarea
+
+            name="internal_remarks"
+
+            rows="5"
+
+            placeholder="Voeg een interne opmerking toe..."
+
+        >{{ item.internal_remarks }}</textarea>
+
+        <button type="submit">
+
+            Opslaan
+
+        </button>
+
+    </form>
 
 </div>
 {% endblock %}

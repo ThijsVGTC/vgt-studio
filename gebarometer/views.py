@@ -1,7 +1,7 @@
 import calendar
 from datetime import date
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import get_object_or_404, render
+from django.shortcuts import get_object_or_404, render, redirect
 from .models import GebarometerItem
 
 
@@ -124,6 +124,24 @@ def gebarometer_detail(request, pk):
         GebarometerItem.objects.select_related("signbank_entry"),
         pk=pk,
     )
+
+    if request.method == "POST":
+        item.internal_remarks = request.POST.get(
+            "internal_remarks",
+            "",
+        ).strip()
+
+        item.save(
+            update_fields=[
+                "internal_remarks",
+                "updated_at",
+            ]
+        )
+
+        return redirect(
+            "gebarometer:detail",
+            pk=item.pk,
+        )
 
     context = {
         "item": item,
