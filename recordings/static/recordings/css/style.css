@@ -90,11 +90,13 @@ body {
     padding: 9px 14px;
     white-space: nowrap;
     text-decoration: none;
+    color: #1f2937;
 }
 
 .nav-dropdown-menu a:hover,
 .nav-dropdown-menu a:focus {
     background: #eef2f5;
+    color: #1f2937; 
 }
 
 .nav-dropdown:hover .nav-dropdown-menu,
