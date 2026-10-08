@@ -109,6 +109,43 @@ class GebarometerItem(models.Model):
     class Meta:
         ordering = ["planned_date", "position", "id"]
 
+    @property
+    def ja_ja_percentage(self):
+        if not self.total_votes:
+            return 0
+        return round((self.ja_ja / self.total_votes) * 100, 1)
+
+
+    @property
+    def ja_nee_percentage(self):
+        if not self.total_votes:
+            return 0
+        return round((self.ja_nee / self.total_votes) * 100, 1)
+
+
+    @property
+    def nee_percentage(self):
+        if not self.total_votes:
+            return 0
+        return round((self.nee / self.total_votes) * 100, 1)
+
+
+    @property
+    def twijfel_percentage(self):
+        if not self.total_votes:
+            return 0
+        return round((self.twijfel / self.total_votes) * 100, 1)
+
+
+    @property
+    def result_is_positive(self):
+        if not self.total_votes:
+            return None
+
+        positive_votes = self.ja_ja + self.ja_nee
+
+        return (positive_votes / self.total_votes) >= 0.67
+
     def __str__(self):
         gloss = (
             self.signbank_entry.gloss
