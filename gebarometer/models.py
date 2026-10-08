@@ -138,13 +138,23 @@ class GebarometerItem(models.Model):
 
 
     @property
-    def result_is_positive(self):
+    def result_status(self):
         if not self.total_votes:
             return None
 
         positive_votes = self.ja_ja + self.ja_nee
+        positive_percentage = positive_votes / self.total_votes
 
-        return (positive_votes / self.total_votes) >= 0.67
+        if positive_percentage < 0.67:
+            return "negative"
+
+        if self.ja_ja > self.ja_nee:
+            return "positive"
+
+        if self.ja_nee > self.ja_ja:
+            return "warning"
+
+        return "warning"
 
     def __str__(self):
         gloss = (

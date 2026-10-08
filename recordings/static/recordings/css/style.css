@@ -1368,6 +1368,11 @@ html[data-font-size="xlarge"] body * {
     border-color: #86efac;
 }
 
+.gebarometer-card-warning {
+    background: #fef3c7;
+    border-color: #fcd34d;
+}
+
 .gebarometer-card-negative {
     background: #fee2e2;
     border-color: #fca5a5;
@@ -1496,6 +1501,10 @@ html[data-font-size="xlarge"] body * {
 
 .gebarometer-list-positive {
     background: #dcfce7;
+}
+
+.gebarometer-list-warning {
+    background: #fef3c7;
 }
 
 .gebarometer-list-negative {

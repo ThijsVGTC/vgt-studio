@@ -86,13 +86,13 @@
                     <div
                         class="
                             gebarometer-card
-                            {% if item.result_is_positive is True %}
+                            {% if item.result_status == "positive" %}
                                 gebarometer-card-positive
-                            {% elif item.result_is_positive is False %}
+                            {% elif item.result_status == "warning" %}
+                                gebarometer-card-warning
+                            {% elif item.result_status == "negative" %}
                                 gebarometer-card-negative
-                            {% endif %}
-                        "
-                    >
+                            {% endif %}">
 
                             <div class="gebarometer-card-header">
 
@@ -211,9 +211,11 @@
 
                     <tr
                         class="
-                            {% if item.result_is_positive is True %}
+                            {% if item.result_status == "positive" %}
                                 gebarometer-list-positive
-                            {% elif item.result_is_positive is False %}
+                            {% elif item.result_status == "warning" %}
+                                gebarometer-list-warning
+                            {% elif item.result_status == "negative" %}
                                 gebarometer-list-negative
                             {% endif %}
                         "
