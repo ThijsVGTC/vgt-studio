@@ -1,9 +1,7 @@
 import calendar
 from datetime import date
-
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render
-
+from django.shortcuts import get_object_or_404, render
 from .models import GebarometerItem
 
 
@@ -117,5 +115,22 @@ def gebarometer_overview(request):
     return render(
         request,
         "gebarometer/overview.html",
+        context,
+    )
+
+@login_required
+def gebarometer_detail(request, pk):
+    item = get_object_or_404(
+        GebarometerItem.objects.select_related("signbank_entry"),
+        pk=pk,
+    )
+
+    context = {
+        "item": item,
+    }
+
+    return render(
+        request,
+        "gebarometer/detail.html",
         context,
     )

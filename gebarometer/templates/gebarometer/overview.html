@@ -90,13 +90,16 @@
 
                             <div class="gebarometer-card-header">
 
-                                <strong class="gebarometer-gloss">
+                                <a
+                                    href="{% url 'gebarometer:detail' item.pk %}"
+                                    class="gebarometer-gloss"
+                                >
                                     {% if item.signbank_entry %}
                                         {{ item.signbank_entry.gloss }}
                                     {% else %}
                                         {{ item.historical_gloss }}
                                     {% endif %}
-                                </strong>
+                                </a>
 
                                 <span
                                     class="

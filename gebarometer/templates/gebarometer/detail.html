@@ -1,0 +1,107 @@
+{% extends "recordings/base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <a href="{% url 'gebarometer:overview' %}">
+        ← Terug naar Gebarometer
+    </a>
+
+    <h1>
+        {% if item.signbank_entry %}
+            {{ item.signbank_entry.gloss }}
+        {% else %}
+            {{ item.historical_gloss }}
+        {% endif %}
+    </h1>
+
+    <p>
+        {{ item.planned_date|date:"d/m/Y" }}
+    </p>
+
+    <h2>Resultaten</h2>
+
+    <div class="gebarometer-detail-results">
+
+        <div>
+            <strong>Totaal stemmen</strong>
+            <span>{{ item.total_votes }}</span>
+        </div>
+
+        <div>
+            <strong>JA-JA</strong>
+            <span>
+                {{ item.ja_ja }}
+                ({{ item.ja_ja_percentage }}%)
+            </span>
+        </div>
+
+        <div>
+            <strong>JA-NEE</strong>
+            <span>
+                {{ item.ja_nee }}
+                ({{ item.ja_nee_percentage }}%)
+            </span>
+        </div>
+
+        <div>
+            <strong>NEE</strong>
+            <span>
+                {{ item.nee }}
+                ({{ item.nee_percentage }}%)
+            </span>
+        </div>
+
+        <div>
+            <strong>Twijfel</strong>
+            <span>
+                {{ item.twijfel }}
+                ({{ item.twijfel_percentage }}%)
+            </span>
+        </div>
+
+    </div>
+
+    <h2>Provincies</h2>
+
+    <div class="gebarometer-detail-regions">
+        <div>O-VL: <strong>{{ item.oost_vlaanderen }}</strong></div>
+        <div>W-VL: <strong>{{ item.west_vlaanderen }}</strong></div>
+        <div>VLB: <strong>{{ item.vlaams_brabant }}</strong></div>
+        <div>A: <strong>{{ item.antwerpen }}</strong></div>
+        <div>L: <strong>{{ item.limburg }}</strong></div>
+    </div>
+
+    <h2>Mailchimp</h2>
+
+    <p>
+        Status:
+        <strong>{{ item.get_mailchimp_status_display }}</strong>
+    </p>
+
+    {% if item.mailchimp_url %}
+        <p>
+            <a
+                href="{{ item.mailchimp_url }}"
+                target="_blank"
+                rel="noopener noreferrer"
+            >
+                Open Mailchimp-resultaten ↗
+            </a>
+        </p>
+    {% else %}
+        <p>Geen Mailchimp-link beschikbaar.</p>
+    {% endif %}
+
+    {% if item.remarks %}
+        <h2>Opmerking</h2>
+        <p>{{ item.remarks|linebreaksbr }}</p>
+    {% endif %}
+
+    {% if item.internal_remarks %}
+        <h2>Interne opmerking</h2>
+        <p>{{ item.internal_remarks|linebreaksbr }}</p>
+    {% endif %}
+
+</div>
+{% endblock %}

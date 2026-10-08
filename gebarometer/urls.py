@@ -9,7 +9,11 @@ app_name = "gebarometer"
 urlpatterns = [
     path(
         "",
-        views.gebarometer_overview,
-        name="overview",
+        views.gebarometer_overview,name="overview",
+    ),
+    path(
+        "<int:pk>/",
+        views.gebarometer_detail,
+        name="detail",
     ),
 ]
