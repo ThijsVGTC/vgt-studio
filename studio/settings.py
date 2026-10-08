@@ -59,6 +59,7 @@ INSTALLED_APPS = [
     "allauth.socialaccount.providers.google",
 
     'recordings',
+    'gebarometer',
 ]
 
 AUTHENTICATION_BACKENDS = [
