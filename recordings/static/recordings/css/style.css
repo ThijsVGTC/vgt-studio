@@ -1459,3 +1459,49 @@ html[data-font-size="xlarge"] body * {
 .gebarometer-remarks-form button:hover {
     opacity: 0.9;
 }
+
+.gebarometer-list-wrapper {
+    overflow-x: auto;
+}
+
+.gebarometer-list {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.gebarometer-list th {
+    text-align: left;
+    padding: 10px 12px;
+    background: #eef2f5;
+    border-bottom: 1px solid #d8dee6;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.gebarometer-list td {
+    padding: 9px 12px;
+    border-bottom: 1px solid #e5e7eb;
+    font-size: 13px;
+}
+
+.gebarometer-list tbody tr:hover {
+    filter: brightness(0.97);
+}
+
+.gebarometer-list td a {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.gebarometer-list-positive {
+    background: #dcfce7;
+}
+
+.gebarometer-list-negative {
+    background: #fee2e2;
+}
+
+.gebarometer-list td:nth-child(n+4) {
+    text-align: right;
+}
