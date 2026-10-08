@@ -1329,35 +1329,21 @@ html[data-font-size="xlarge"] body * {
     color: #475569;
 }
 
-.gebarometer-results {
+.gebarometer-summary {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 4px;
-}
-
-.result {
-    display: flex;
-    justify-content: space-between;
-    gap: 4px;
-    padding: 3px 5px;
-    border-radius: 5px;
+    gap: 3px 8px;
     font-size: 11px;
 }
 
-.result-ja-ja {
-    background: #dcfce7;
+.gebarometer-summary span {
+    display: flex;
+    justify-content: space-between;
+    gap: 6px;
 }
 
-.result-ja-nee {
-    background: #fef3c7;
-}
-
-.result-nee {
-    background: #fee2e2;
-}
-
-.result-twijfel {
-    background: #e5e7eb;
+.gebarometer-summary strong {
+    font-weight: 700;
 }
 
 .gebarometer-no-results {

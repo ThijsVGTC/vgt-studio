@@ -125,28 +125,11 @@
                                     Totaal: {{ item.total_votes }}
                                 </div>
 
-                                <div class="gebarometer-results">
-
-                                    <div class="result result-ja-ja">
-                                        <span>JA-JA</span>
-                                        <strong>{{ item.ja_ja }}</strong>
-                                    </div>
-
-                                    <div class="result result-ja-nee">
-                                        <span>JA-NEE</span>
-                                        <strong>{{ item.ja_nee }}</strong>
-                                    </div>
-
-                                    <div class="result result-nee">
-                                        <span>NEE</span>
-                                        <strong>{{ item.nee }}</strong>
-                                    </div>
-
-                                    <div class="result result-twijfel">
-                                        <span>Twijfel</span>
-                                        <strong>{{ item.twijfel }}</strong>
-                                    </div>
-
+                                <div class="gebarometer-summary">
+                                    <span>JA-JA: <strong>{{ item.ja_ja }}</strong></span>
+                                    <span>JA-NEE: <strong>{{ item.ja_nee }}</strong></span>
+                                    <span>NEE: <strong>{{ item.nee }}</strong></span>
+                                    <span>Twijfel: <strong>{{ item.twijfel }}</strong></span>
                                 </div>
 
                             {% else %}
