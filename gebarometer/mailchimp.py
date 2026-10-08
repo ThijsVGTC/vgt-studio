@@ -36,6 +36,45 @@ class MailChimpClient:
         "reports/poll-popup-data"
     )
 
+    PAGE_DATA_URL = (
+        "https://us1.admin.mailchimp.com/"
+        "autolyse/index.php/twirp/"
+        "mailchimp.appshell.v1.PageDataService/"
+        "GetPageData"
+    )
+
+    def get_page_data(self):
+        payload = {
+            "appConfig": {},
+            "ixpFlagsCachedAt": 1791491323752,
+        }
+
+        headers = {
+            "content-type": "application/json",
+            "accept": "application/json",
+            "origin": "https://us1.admin.mailchimp.com",
+            "referer": "https://us1.admin.mailchimp.com/",
+        }
+
+        response = self.session.post(
+            self.PAGE_DATA_URL,
+            json=payload,
+            headers=headers,
+            timeout=30,
+            allow_redirects=False,
+        )
+
+        return {
+            "status_code": response.status_code,
+            "content_type": response.headers.get(
+                "content-type"
+            ),
+            "location": response.headers.get(
+                "location"
+            ),
+            "text": response.text[:1000],
+        }
+
     def __init__(self, cookie):
         self.session = requests.Session()
 

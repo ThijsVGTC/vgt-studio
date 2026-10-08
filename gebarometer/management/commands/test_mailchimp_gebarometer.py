@@ -18,59 +18,20 @@ class Command(BaseCommand):
 
         client = MailChimpClient(cookie)
 
-        try:
-            reports = client.get_reports()
-        except MailChimpAPIError as exc:
-            raise CommandError(str(exc)) from exc
+        result = client.get_page_data()
 
         self.stdout.write(
-            self.style.SUCCESS(
-                f"Mailchimp bereikbaar. {len(reports)} campagnes gevonden."
-            )
+            f"Status: {result['status_code']}"
         )
 
-        if not reports:
-            return
-
-        report = reports[0]
-
-        report_id = (
-            report.get("id")
-            or report.get("campaign_id")
-            or report.get("report_id")
+        self.stdout.write(
+            f"Content-Type: {result['content_type']}"
         )
 
-        title = (
-            report.get("title")
-            or report.get("subject")
-            or report.get("campaign_title")
-            or "Onbekende campagne"
+        self.stdout.write(
+            f"Redirect: {result['location']}"
         )
 
         self.stdout.write("")
-        self.stdout.write(f"Eerste campagne: {title}")
-        self.stdout.write(f"Report ID: {report_id}")
-        self.stdout.write(
-            f"Verzenddatum: {client.parse_send_date(report)}"
-        )
-
-        if not report_id:
-            self.stdout.write(
-                self.style.WARNING(
-                    "Geen report_id gevonden in deze campagne."
-                )
-            )
-            return
-
-        try:
-            poll = client.get_poll(report_id)
-        except MailChimpAPIError as exc:
-            raise CommandError(str(exc)) from exc
-
-        self.stdout.write("")
-        self.stdout.write(f"Poll ID: {poll['poll_id']}")
-
-        for option in poll["options"]:
-            self.stdout.write(
-                f"- {option['value']}: {option['votes']} stemmen"
-            )
+        self.stdout.write("Eerste response:")
+        self.stdout.write(result["text"])
