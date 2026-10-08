@@ -1384,3 +1384,50 @@ html[data-font-size="xlarge"] body * {
     background: #fee2e2;
     border-color: #fca5a5;
 }
+
+.gebarometer-detail-results,
+.gebarometer-detail-regions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.gebarometer-detail-results > div,
+.gebarometer-detail-regions > div {
+    border: 1px solid #d8dee6;
+    border-radius: 8px;
+    padding: 14px;
+    background: white;
+}
+
+.gebarometer-detail-results > div {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.gebarometer-detail-results strong {
+    font-size: 13px;
+}
+
+.gebarometer-detail-results span {
+    font-size: 20px;
+    font-weight: 700;
+}
+
+.gebarometer-detail-results > div:nth-child(2) {
+    background: #dcfce7;
+}
+
+.gebarometer-detail-results > div:nth-child(3) {
+    background: #fef3c7;
+}
+
+.gebarometer-detail-results > div:nth-child(4) {
+    background: #fee2e2;
+}
+
+.gebarometer-detail-results > div:nth-child(5) {
+    background: #e5e7eb;
+}
