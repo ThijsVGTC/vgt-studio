@@ -419,24 +419,24 @@ class MailChimpClient:
             curl_command = file.read()
 
         cookie_match = re.search(
-            r"(?:^|\s)-b\s+'([^']*)'",
+
+            r"(?:^|\s)-b\s+(?:'([^']*)'|\"([^\"]*)\")",
+
             curl_command,
+
             re.MULTILINE,
+
         )
 
         if not cookie_match:
-            cookie_match = re.search(
-                r'(?:^|\s)-b\s+"([^"]*)"',
-                curl_command,
-                re.MULTILINE,
-            )
 
-        if not cookie_match:
             raise MailChimpAPIError(
+
                 "Geen cookie gevonden in de cURL-request."
+
             )
 
-        cookie = cookie_match.group(1)
+        cookie = cookie_match.group(1) or cookie_match.group(2)
 
         headers = {}
 
