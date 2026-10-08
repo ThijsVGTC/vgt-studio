@@ -180,68 +180,68 @@
 
             <tbody>
 
-                {% for week in calendar_weeks %}
-                    {% for day in week %}
-                        {% if day.in_current_month %}
+                {% for item in list_items %}
 
-                            {% for item in day.items %}
+                    <tr
+                        class="
+                            {% if item.result_is_positive is True %}
+                                gebarometer-list-positive
+                            {% elif item.result_is_positive is False %}
+                                gebarometer-list-negative
+                            {% endif %}
+                        "
+                    >
 
-                                <tr
-                                    class="
-                                        {% if item.result_is_positive is True %}
-                                            gebarometer-list-positive
-                                        {% elif item.result_is_positive is False %}
-                                            gebarometer-list-negative
-                                        {% endif %}
-                                    "
-                                >
+                        <td>
+                            {{ item.planned_date|date:"d/m/Y" }}
+                        </td>
 
-                                    <td>
-                                        {{ item.planned_date|date:"d/m/Y" }}
-                                    </td>
+                        <td>
+                            <a href="{% url 'gebarometer:detail' item.pk %}">
+                                {% if item.signbank_entry %}
+                                    {{ item.signbank_entry.gloss }}
+                                {% else %}
+                                    {{ item.historical_gloss }}
+                                {% endif %}
+                            </a>
+                        </td>
 
-                                    <td>
-                                        <a href="{% url 'gebarometer:detail' item.pk %}">
-                                            {% if item.signbank_entry %}
-                                                {{ item.signbank_entry.gloss }}
-                                            {% else %}
-                                                {{ item.historical_gloss }}
-                                            {% endif %}
-                                        </a>
-                                    </td>
+                        <td>
+                            <span
+                                class="
+                                    mailchimp-status
+                                    {% if item.mailchimp_status == 'VERSTUURD' %}
+                                        mailchimp-sent
+                                    {% elif item.mailchimp_status == 'GEPLAND' %}
+                                        mailchimp-planned
+                                    {% else %}
+                                        mailchimp-not-sent
+                                    {% endif %}
+                                "
+                                title="{{ item.get_mailchimp_status_display }}"
+                            >
+                                🐵
+                            </span>
 
-                                    <td>
-                                        <span
-                                            class="
-                                                mailchimp-status
-                                                {% if item.mailchimp_status == 'VERSTUURD' %}
-                                                    mailchimp-sent
-                                                {% elif item.mailchimp_status == 'GEPLAND' %}
-                                                    mailchimp-planned
-                                                {% else %}
-                                                    mailchimp-not-sent
-                                                {% endif %}
-                                            "
-                                            title="{{ item.get_mailchimp_status_display }}"
-                                        >
-                                            🐵
-                                        </span>
+                            {{ item.get_mailchimp_status_display }}
+                        </td>
 
-                                        {{ item.get_mailchimp_status_display }}
-                                    </td>
+                        <td>{{ item.total_votes }}</td>
+                        <td>{{ item.ja_ja }}</td>
+                        <td>{{ item.ja_nee }}</td>
+                        <td>{{ item.nee }}</td>
+                        <td>{{ item.twijfel }}</td>
 
-                                    <td>{{ item.total_votes }}</td>
-                                    <td>{{ item.ja_ja }}</td>
-                                    <td>{{ item.ja_nee }}</td>
-                                    <td>{{ item.nee }}</td>
-                                    <td>{{ item.twijfel }}</td>
+                    </tr>
 
-                                </tr>
+                {% empty %}
 
-                            {% endfor %}
+                    <tr>
+                        <td colspan="8">
+                            Geen Gebarometer-items gevonden.
+                        </td>
+                    </tr>
 
-                        {% endif %}
-                    {% endfor %}
                 {% endfor %}
 
             </tbody>

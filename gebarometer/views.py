@@ -55,7 +55,7 @@ def gebarometer_overview(request):
     else:
         next_month_date = date(year, month + 1, 1)
 
-    items = (
+    calendar_items = (
         GebarometerItem.objects
         .filter(
             planned_date__gte=first_day,
@@ -65,9 +65,15 @@ def gebarometer_overview(request):
         .order_by("planned_date", "position", "id")
     )
 
+    list_items = (
+        GebarometerItem.objects
+        .select_related("signbank_entry")
+        .order_by("planned_date", "position", "id")
+    )
+
     items_by_date = {}
 
-    for item in items:
+    for item in calendar_items:
         items_by_date.setdefault(
             item.planned_date,
             [],
@@ -115,6 +121,7 @@ def gebarometer_overview(request):
         "previous_month": previous_month,
         "next_year": next_year,
         "next_month": next_month,
+        "list_items": list_items,
     }
 
     return render(
