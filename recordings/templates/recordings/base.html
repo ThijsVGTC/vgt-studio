@@ -18,19 +18,31 @@
             </a>
             {% if user.is_authenticated %}
             <nav class="main-nav">
-                <a href="{% url 'recording_list' %}">
-                    Opnames
-                </a>
-                <a href="{% url 'video_review_overview' %}">
-                    Videocontrole
-                </a>
+
+                <div class="nav-dropdown">
+                    <a href="{% url 'recording_list' %}" class="nav-dropdown-trigger">
+                        Opnames
+                    </a>
+
+                    <div class="nav-dropdown-menu">
+                        <a href="{% url 'recording_list' %}">
+                            Opnames
+                        </a>
+
+                        <a href="{% url 'video_review_overview' %}">
+                            Videocontrole
+                        </a>
+
+                        <a href="{% url 'signbank_export_preview' %}">
+                            Signbank Export
+                        </a>
+                    </div>
+                </div>
+
                 <a href="{% url 'signbank_list' %}">
                     Signbank
                 </a>
                 <a href="{% url 'gebarometer:overview' %}">Gebarometer</a>
-                <a href="{% url 'signbank_export_preview' %}">
-                    Signbank Export
-                </a>
                 <span class="user-name">
                     {{ user.username }}
                 </span>
