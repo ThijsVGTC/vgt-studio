@@ -419,55 +419,47 @@ class MailChimpClient:
             curl_command = file.read()
 
         cookie_match = re.search(
-
-            r"(?:^|\s)-b\s+(?:'([^']*)'|\"([^\"]*)\")",
-
+            r"""(?:^|\n)\s*-b\s+(?:'([^'\r\n]*)'|"([^"\r\n]*)")""",
             curl_command,
-
             re.MULTILINE,
-
         )
 
         if not cookie_match:
-
             raise MailChimpAPIError(
-
-                "Geen cookie gevonden in de cURL-request."
-
+                "Geen geldige cookie gevonden in de cURL-request."
             )
 
         cookie = cookie_match.group(1) or cookie_match.group(2)
 
-        headers = {}
-
-        for match in re.finditer(
-            r"-H\s+'([^']+)'",
-            curl_command,
-            re.MULTILINE,
-        ):
-            header = match.group(1)
-
-            if ":" not in header:
-                continue
-
-            name, value = header.split(":", 1)
-            headers[name.strip()] = value.strip()
-
-        for match in re.finditer(
-            r'-H\s+"([^"]+)"',
-            curl_command,
-            re.MULTILINE,
-        ):
-            header = match.group(1)
-
-            if ":" not in header:
-                continue
-
-            name, value = header.split(":", 1)
-            headers[name.strip()] = value.strip()
+        # Extra veiligheidscontrole:
+        # een headerregel mag nooit in de cookie terechtkomen.
+        if "\n" in cookie or "\r" in cookie or "-H " in cookie:
+            raise MailChimpAPIError(
+                "De cookie uit de cURL is ongeldig of afgebroken."
+            )
 
         client = cls(cookie)
 
-        client.session.headers.update(headers)
+        client.session.headers.update(
+            {
+                "accept": (
+                    "text/html,application/xhtml+xml,"
+                    "application/xml;q=0.9,image/avif,"
+                    "image/webp,*/*;q=0.8"
+                ),
+                "accept-language": "nl,en;q=0.9",
+                "cache-control": "no-cache",
+                "pragma": "no-cache",
+                "referer": (
+                    "https://us1.admin.mailchimp.com/"
+                    "analytics/reports/overview"
+                ),
+                "sec-fetch-dest": "document",
+                "sec-fetch-mode": "navigate",
+                "sec-fetch-site": "same-origin",
+                "sec-fetch-user": "?1",
+                "upgrade-insecure-requests": "1",
+            }
+        )
 
         return client
