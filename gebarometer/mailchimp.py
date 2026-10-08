@@ -1,5 +1,6 @@
 import json
 import re
+import shlex
 from datetime import datetime
 
 import requests
@@ -411,3 +412,48 @@ class MailChimpClient:
             )
         except ValueError:
             return None
+
+    @classmethod
+    def from_curl_file(cls, file_path):
+        with open(file_path, "r", encoding="utf-8") as file:
+            curl_command = file.read()
+
+        parts = shlex.split(curl_command)
+
+        cookie = None
+        headers = {}
+
+        index = 0
+
+        while index < len(parts):
+            part = parts[index]
+
+            if part in ("-b", "--cookie"):
+                if index + 1 < len(parts):
+                    cookie = parts[index + 1]
+                    index += 2
+                    continue
+
+            if part in ("-H", "--header"):
+                if index + 1 < len(parts):
+                    header = parts[index + 1]
+
+                    if ":" in header:
+                        name, value = header.split(":", 1)
+                        headers[name.strip()] = value.strip()
+
+                    index += 2
+                    continue
+
+            index += 1
+
+        if not cookie:
+            raise MailChimpAPIError(
+                "Geen cookie gevonden in de cURL-request."
+            )
+
+        client = cls(cookie)
+
+        client.session.headers.update(headers)
+
+        return client

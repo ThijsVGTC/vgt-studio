@@ -9,16 +9,13 @@ class Command(BaseCommand):
     help = "Test de Mailchimp-koppeling voor Gebarometer zonder databasewijzigingen."
 
     def handle(self, *args, **options):
-        cookie = os.environ.get("MAILCHIMP_COOKIE")
+        client = MailChimpClient.from_curl_file(
+            "/tmp/mailchimp_curl.txt"
+        )
 
-        if not cookie:
-            raise CommandError(
-                "Environment variable MAILCHIMP_COOKIE ontbreekt."
-            )
-
-        client = MailChimpClient(cookie)
-
-        result = client.test_advanced_report("11042816")
+        result = client.test_advanced_report(
+            "11042816"
+        )
 
         self.stdout.write(
             f"Status: {result['status_code']}"
