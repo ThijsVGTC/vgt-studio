@@ -1431,3 +1431,43 @@ html[data-font-size="xlarge"] body * {
 .gebarometer-detail-results > div:nth-child(5) {
     background: #e5e7eb;
 }
+
+.gebarometer-remarks-form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 700px;
+    margin-bottom: 24px;
+}
+
+.gebarometer-remarks-form textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    font: inherit;
+    resize: vertical;
+    background: white;
+    color: inherit;
+}
+
+.gebarometer-remarks-form textarea:focus {
+    outline: 2px solid #1f4f59;
+    outline-offset: 1px;
+}
+
+.gebarometer-remarks-form button {
+    align-self: flex-start;
+    padding: 9px 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #1f4f59;
+    color: white;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.gebarometer-remarks-form button:hover {
+    opacity: 0.9;
+}
