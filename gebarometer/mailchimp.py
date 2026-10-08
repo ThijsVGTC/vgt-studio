@@ -418,39 +418,53 @@ class MailChimpClient:
         with open(file_path, "r", encoding="utf-8") as file:
             curl_command = file.read()
 
-        parts = shlex.split(curl_command)
+        cookie_match = re.search(
+            r"(?:^|\s)-b\s+'([^']*)'",
+            curl_command,
+            re.MULTILINE,
+        )
 
-        cookie = None
-        headers = {}
+        if not cookie_match:
+            cookie_match = re.search(
+                r'(?:^|\s)-b\s+"([^"]*)"',
+                curl_command,
+                re.MULTILINE,
+            )
 
-        index = 0
-
-        while index < len(parts):
-            part = parts[index]
-
-            if part in ("-b", "--cookie"):
-                if index + 1 < len(parts):
-                    cookie = parts[index + 1]
-                    index += 2
-                    continue
-
-            if part in ("-H", "--header"):
-                if index + 1 < len(parts):
-                    header = parts[index + 1]
-
-                    if ":" in header:
-                        name, value = header.split(":", 1)
-                        headers[name.strip()] = value.strip()
-
-                    index += 2
-                    continue
-
-            index += 1
-
-        if not cookie:
+        if not cookie_match:
             raise MailChimpAPIError(
                 "Geen cookie gevonden in de cURL-request."
             )
+
+        cookie = cookie_match.group(1)
+
+        headers = {}
+
+        for match in re.finditer(
+            r"-H\s+'([^']+)'",
+            curl_command,
+            re.MULTILINE,
+        ):
+            header = match.group(1)
+
+            if ":" not in header:
+                continue
+
+            name, value = header.split(":", 1)
+            headers[name.strip()] = value.strip()
+
+        for match in re.finditer(
+            r'-H\s+"([^"]+)"',
+            curl_command,
+            re.MULTILINE,
+        ):
+            header = match.group(1)
+
+            if ":" not in header:
+                continue
+
+            name, value = header.split(":", 1)
+            headers[name.strip()] = value.strip()
 
         client = cls(cookie)
 
