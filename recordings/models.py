@@ -308,6 +308,87 @@ class RecordingItem(models.Model):
     def __str__(self):
         return f"{self.gloss_id} ({self.signbank_id})"
 
+class RecordingSeries(models.Model):
+    STATUS_CHOICES = [
+        ("ACTIEF", "Actief"),
+        ("ONDERBROKEN", "Onderbroken"),
+        ("VOLTOOID", "Voltooid"),
+    ]
+
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default="ACTIEF",
+    )
+
+    current_index = models.PositiveIntegerField(
+        default=0,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    updated_at = models.DateTimeField(
+        auto_now=True,
+    )
+
+    completed_at = models.DateTimeField(
+        null=True,
+        blank=True,
+    )
+
+    def __str__(self):
+        return f"Opnamereeks {self.pk}"
+
+class RecordingSeriesItem(models.Model):
+    series = models.ForeignKey(
+        RecordingSeries,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+
+    recording_item = models.ForeignKey(
+        RecordingItem,
+        on_delete=models.CASCADE,
+        related_name="series_items",
+    )
+
+    position = models.PositiveIntegerField()
+
+    processed = models.BooleanField(
+        default=False,
+    )
+
+    skipped = models.BooleanField(
+        default=False,
+    )
+
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+    )
+
+    class Meta:
+        ordering = ["position"]
+
+        constraints = [
+            models.UniqueConstraint(
+                fields=["series", "position"],
+                name="unique_recording_series_position",
+            ),
+            models.UniqueConstraint(
+                fields=["series", "recording_item"],
+                name="unique_recording_item_per_series",
+            ),
+        ]
+
+    def __str__(self):
+        return (
+            f"Reeks {self.series_id} - "
+            f"{self.position} - "
+            f"{self.recording_item}"
+        )
+
 class AppSettings(models.Model):
 
     google_sheet_url = models.URLField(
