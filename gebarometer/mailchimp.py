@@ -418,36 +418,54 @@ class MailChimpClient:
         with open(file_path, "r", encoding="utf-8") as file:
             lines = file.readlines()
 
-        cookie_line = None
+        cookie = None
+        headers = {}
 
         for line in lines:
-            if line.lstrip().startswith("-b "):
-                cookie_line = line.strip()
-                break
+            stripped = line.strip()
 
-        if not cookie_line:
+            if stripped.endswith("\\"):
+                stripped = stripped[:-1].rstrip()
+
+            if stripped.startswith("-b "):
+                try:
+                    parts = shlex.split(stripped)
+                    cookie = parts[1]
+                except (ValueError, IndexError) as exc:
+                    raise MailChimpAPIError(
+                        "De Mailchimp-cookie kon niet worden verwerkt."
+                    ) from exc
+
+            elif stripped.startswith("-H "):
+                try:
+                    parts = shlex.split(stripped)
+                except ValueError:
+                    continue
+
+                if len(parts) < 2:
+                    continue
+
+                header = parts[1]
+
+                if ":" not in header:
+                    continue
+
+                name, value = header.split(":", 1)
+
+                name = name.strip()
+                value = value.strip()
+
+                if name.lower() == "cookie":
+                    continue
+
+                headers[name] = value
+
+        if not cookie:
             raise MailChimpAPIError(
-                "Geen -b cookieregel gevonden in de cURL-request."
+                "Geen cookie gevonden in de cURL-request."
             )
 
-        if cookie_line.endswith("\\"):
-            cookie_line = cookie_line[:-1].rstrip()
-
-        try:
-            parts = shlex.split(cookie_line)
-        except ValueError as exc:
-            raise MailChimpAPIError(
-                "De -b cookieregel kon niet worden verwerkt."
-            ) from exc
-
-        try:
-            cookie_index = parts.index("-b")
-            cookie = parts[cookie_index + 1]
-        except (ValueError, IndexError) as exc:
-            raise MailChimpAPIError(
-                "Geen geldige cookie gevonden na -b."
-            ) from exc
-
         client = cls(cookie)
+        client.session.headers.update(headers)
 
         return client
