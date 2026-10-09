@@ -350,11 +350,90 @@ class MailChimpClient:
         return self._parse_contacts(
             response.text
         )
+    @classmethod
+    def from_curl_file(cls, file_path):
+        with open(file_path, "r", encoding="utf-8") as file:
+            lines = file.readlines()
+
+        cookie = None
+        headers = {}
+
+        for line in lines:
+            stripped = line.strip()
+
+            if stripped.endswith("\\"):
+                stripped = stripped[:-1].rstrip()
+
+            if stripped.startswith("-b "):
+                parts = shlex.split(stripped)
+                cookie = parts[1]
+
+            elif stripped.startswith("-H "):
+                try:
+                    parts = shlex.split(stripped)
+                except ValueError:
+                    continue
+
+                if len(parts) < 2:
+                    continue
+
+                header = parts[1]
+
+                if ":" not in header:
+                    continue
+
+                name, value = header.split(":", 1)
+
+                name = name.strip()
+                value = value.strip()
+
+                if name.lower() == "cookie":
+                    continue
+
+                headers[name] = value
+
+        if not cookie:
+            raise MailChimpAPIError(
+                "Geen cookie gevonden in de cURL-request."
+            )
+
+        client = cls(cookie)
+        client.session.headers.update(headers)
+
+        return client
 
     def test_advanced_report(self, report_id):
+        url = (
+            "https://us1.admin.mailchimp.com/"
+            "i/reports/advanced/"
+        )
+
+        headers = {
+            "accept": (
+                "text/html,application/xhtml+xml,"
+                "application/xml;q=0.9,image/avif,"
+                "image/webp,image/apng,*/*;q=0.8"
+            ),
+            "accept-language": (
+                "nl-BE,nl-NL;q=0.9,nl;q=0.8,"
+                "en-US;q=0.7,en;q=0.6"
+            ),
+            "cache-control": "no-cache",
+            "pragma": "no-cache",
+            "referer": (
+                "https://us1.admin.mailchimp.com/"
+                f"reports/advanced?id={report_id}"
+            ),
+            "sec-fetch-dest": "iframe",
+            "sec-fetch-mode": "navigate",
+            "sec-fetch-site": "same-origin",
+            "upgrade-insecure-requests": "1",
+        }
+
         response = self.session.get(
-            self.ADVANCED_REPORT_URL,
+            url,
             params={"id": report_id},
+            headers=headers,
             timeout=30,
             allow_redirects=False,
         )
@@ -363,7 +442,7 @@ class MailChimpClient:
             "status_code": response.status_code,
             "content_type": response.headers.get("content-type"),
             "location": response.headers.get("location"),
-            "text": response.text[:1000],
+            "text": response.text[:2000],
         }
 
     @staticmethod
