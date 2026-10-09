@@ -262,6 +262,51 @@ class MailChimpClient:
 
         return poll
 
+    def get_gebarometer_results(self, report_id):
+        poll = self.get_poll(report_id)
+
+        results = {
+            "poll_id": poll["poll_id"],
+            "ja_ja": 0,
+            "ja_nee": 0,
+            "nee": 0,
+            "twijfel": 0,
+            "total_votes": 0,
+        }
+
+        for option in poll["options"]:
+            label = option["value"].strip()
+            votes = option["votes"]
+
+            if label.startswith(
+                "JA ik ken dit gebaar - JA"
+            ):
+                results["ja_ja"] = votes
+
+            elif label.startswith(
+                "JA ik ken dit gebaar - NEE"
+            ):
+                results["ja_nee"] = votes
+
+            elif label.startswith(
+                "NEE ik ken dit gebaar"
+            ):
+                results["nee"] = votes
+
+            elif label.startswith(
+                "Ik twijfel"
+            ):
+                results["twijfel"] = votes
+
+        results["total_votes"] = (
+            results["ja_ja"]
+            + results["ja_nee"]
+            + results["nee"]
+            + results["twijfel"]
+        )
+
+        return results
+
     def _parse_contacts(self, raw_text):
         fixed = re.sub(
             r"([{,])\s*([a-zA-Z0-9_]+)\s*:",

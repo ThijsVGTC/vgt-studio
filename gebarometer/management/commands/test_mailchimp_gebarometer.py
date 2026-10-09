@@ -11,19 +11,30 @@ class Command(BaseCommand):
             "mailchimp_poll_curl.txt"
         )
 
-        poll = client.get_poll(
+        results = client.get_gebarometer_results(
             "11042816"
         )
 
         self.stdout.write(
-            f"Poll ID: {poll['poll_id']}"
+            f"Poll ID: {results['poll_id']}"
         )
 
-        self.stdout.write("")
+        self.stdout.write(
+            f"JA-JA: {results['ja_ja']}"
+        )
 
-        for option in poll["options"]:
-            self.stdout.write(
-                f"{option['id']} | "
-                f"{option['value']} | "
-                f"{option['votes']} stemmen"
-            )
+        self.stdout.write(
+            f"JA-NEE: {results['ja_nee']}"
+        )
+
+        self.stdout.write(
+            f"NEE: {results['nee']}"
+        )
+
+        self.stdout.write(
+            f"Twijfel: {results['twijfel']}"
+        )
+
+        self.stdout.write(
+            f"Totaal: {results['total_votes']}"
+        )
