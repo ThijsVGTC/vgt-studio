@@ -351,5 +351,15 @@ class SignbankSyncLog(models.Model):
     class Meta:
         ordering = ["-finished_at"]
 
+    @property
+    def duration_seconds(self):
+        if not self.started_at or not self.finished_at:
+            return None
+
+        return round(
+            (self.finished_at - self.started_at).total_seconds(),
+            1,
+        )
+
     def __str__(self):
         return f"Signbank sync {self.finished_at:%Y-%m-%d %H:%M}"

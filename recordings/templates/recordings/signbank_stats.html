@@ -51,6 +51,16 @@
                 <strong>Fouten</strong>
                 <span>{{ last_sync.error_count }}</span>
             </div>
+            <div>
+                <strong>Duur</strong>
+                <span>
+                    {% if last_sync.duration_seconds is not None %}
+                        {{ last_sync.duration_seconds }} sec.
+                    {% else %}
+                        -
+                    {% endif %}
+                </span>
+            </div>
 
         </div>
 
@@ -74,6 +84,7 @@
                     <th>Bijgewerkt</th>
                     <th>Ongewijzigd</th>
                     <th>Fouten</th>
+                    <th>Duur</th>
                 </tr>
             </thead>
 
@@ -95,10 +106,17 @@
                         <td>{{ sync.updated_entries }}</td>
                         <td>{{ sync.unchanged_entries }}</td>
                         <td>{{ sync.error_count }}</td>
+                        <td>
+                            {% if sync.duration_seconds is not None %}
+                                {{ sync.duration_seconds }} sec.
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="7">
+                        <td colspan="8">
                             Nog geen synchronisaties geregistreerd.
                         </td>
                     </tr>
