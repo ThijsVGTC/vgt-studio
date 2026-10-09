@@ -540,3 +540,54 @@ class MailChimpClient:
             )
         except ValueError:
             return None
+
+    def get_campaign_overview(self, campaign_id):
+        url = (
+            "https://us1.admin.mailchimp.com/"
+            "analytics/reports/overview/lazy"
+        )
+
+        response = self.session.get(
+            url,
+            params={"id": campaign_id},
+            timeout=30,
+        )
+
+        self._check_response(response)
+
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise MailChimpAPIError(
+                "De Mailchimp-campagne gaf geen geldige JSON terug."
+            ) from exc
+
+        report_recap = data.get("report_recap", {})
+
+        return {
+            "campaign_id": campaign_id,
+            "report_id": str(
+                data.get("campaignId")
+                or data.get("campaign_id")
+                or ""
+            ),
+            "campaign_name": report_recap.get(
+                "campaign_name",
+                "",
+            ),
+            "send_time": report_recap.get(
+                "send_time",
+            ),
+            "status": report_recap.get(
+                "status",
+                "",
+            ),
+            "has_polls": report_recap.get(
+                "has_polls",
+                False,
+            ),
+            "report_url": report_recap.get(
+                "report_url",
+                "",
+            ),
+        }

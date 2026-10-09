@@ -11,30 +11,34 @@ class Command(BaseCommand):
             "mailchimp_poll_curl.txt"
         )
 
-        results = client.get_gebarometer_results(
-            "11042816"
+        campaign = client.get_campaign_overview(
+            "2bcc06d051"
         )
 
         self.stdout.write(
-            f"Poll ID: {results['poll_id']}"
+            f"Campaign ID: {campaign['campaign_id']}"
         )
 
         self.stdout.write(
-            f"JA-JA: {results['ja_ja']}"
+            f"Report ID: {campaign['report_id']}"
         )
 
         self.stdout.write(
-            f"JA-NEE: {results['ja_nee']}"
+            f"Naam: {campaign['campaign_name']}"
         )
 
         self.stdout.write(
-            f"NEE: {results['nee']}"
+            f"Verzendtijd: {campaign['send_time']}"
         )
 
         self.stdout.write(
-            f"Twijfel: {results['twijfel']}"
+            f"Status: {campaign['status']}"
         )
 
         self.stdout.write(
-            f"Totaal: {results['total_votes']}"
+            f"Heeft poll: {campaign['has_polls']}"
+        )
+
+        self.stdout.write(
+            f"Report URL: {campaign['report_url']}"
         )
