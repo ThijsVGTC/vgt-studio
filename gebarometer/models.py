@@ -39,6 +39,13 @@ class GebarometerItem(models.Model):
         default="NIET_VERSTUURD",
     )
 
+    mailchimp_campaign_id = models.CharField(
+        max_length=255,
+        null=True,
+        blank=True,
+        db_index=True,
+    )
+
     mailchimp_report_id = models.CharField(
         max_length=255,
         null=True,
