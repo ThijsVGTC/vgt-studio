@@ -553,7 +553,14 @@ class MailChimpClient:
             timeout=30,
         )
 
+        if "login.mailchimp.com" in response.url:
+            raise MailChimpAPIError(
+                "Mailchimp-sessie verlopen of geblokkeerd."
+            )
+
         self._check_response(response)
+
+
 
         try:
             data = response.json()
@@ -619,6 +626,11 @@ class MailChimpClient:
             headers=headers,
             timeout=30,
         )
+
+        if "login.mailchimp.com" in response.url:
+            raise MailChimpAPIError(
+                "Mailchimp-sessie verlopen of geblokkeerd."
+            )
 
         self._check_response(response)
 

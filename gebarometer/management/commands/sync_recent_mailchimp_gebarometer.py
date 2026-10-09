@@ -2,7 +2,7 @@ from django.core.management.base import BaseCommand
 
 from gebarometer.mailchimp import MailChimpClient
 from gebarometer.models import GebarometerItem
-
+import time
 
 class Command(BaseCommand):
     help = "Synchroniseer recente Mailchimp-campagnes met Gebarometer."
@@ -23,6 +23,7 @@ class Command(BaseCommand):
 
         for recent in campaigns:
             campaign_id = recent["campaign_id"]
+            time.sleep(2)
 
             try:
                 campaign = client.get_campaign_overview(
@@ -108,13 +109,24 @@ class Command(BaseCommand):
                 )
 
             except Exception as exc:
+                message = str(exc)
+
                 errors += 1
 
                 self.stderr.write(
                     self.style.ERROR(
-                        f"Fout bij {campaign_id}: {exc}"
+                        f"Fout bij {campaign_id}: {message}"
                     )
                 )
+
+                if "sessie verlopen of geblokkeerd" in message:
+                    self.stderr.write(
+                        self.style.ERROR(
+                            "Mailchimp-sessie lijkt verlopen of geblokkeerd. "
+                            "Synchronisatie gestopt."
+                        )
+                    )
+                    break
 
         self.stdout.write("")
         self.stdout.write("Synchronisatie voltooid.")
