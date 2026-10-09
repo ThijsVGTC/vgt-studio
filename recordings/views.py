@@ -2393,6 +2393,51 @@ def recording_series_list(request):
     )
 
 @login_required
+def recording_series_report(request, series_id):
+    recording_series = get_object_or_404(
+        RecordingSeries,
+        id=series_id,
+    )
+
+    items = list(
+        recording_series.items
+        .select_related("recording_item")
+        .order_by("position")
+    )
+
+    total_count = len(items)
+    processed_count = sum(
+        1 for item in items if item.processed
+    )
+    skipped_count = sum(
+        1 for item in items if item.skipped
+    )
+    open_count = total_count - processed_count
+
+    progress_percentage = 0
+
+    if total_count:
+        progress_percentage = round(
+            (processed_count / total_count) * 100,
+            1,
+        )
+
+    context = {
+        "recording_series": recording_series,
+        "total_count": total_count,
+        "processed_count": processed_count,
+        "skipped_count": skipped_count,
+        "open_count": open_count,
+        "progress_percentage": progress_percentage,
+    }
+
+    return render(
+        request,
+        "recordings/recording_series_report.html",
+        context,
+    )
+
+@login_required
 def update_review_status(request, item_id):
     if request.method == "POST":
         item = get_object_or_404(RecordingItem, id=item_id)

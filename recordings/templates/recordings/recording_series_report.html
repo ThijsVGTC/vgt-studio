@@ -1,0 +1,127 @@
+{% extends "recordings/base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h1>
+        Rapport opnamereeks
+        {% if recording_series.name %}
+            — {{ recording_series.name }}
+        {% else %}
+            #{{ recording_series.id }}
+        {% endif %}
+    </h1>
+
+    <div class="recording-series-report-summary">
+
+        <div>
+            <strong>Reeks</strong>
+            <span>#{{ recording_series.id }}</span>
+        </div>
+
+        <div>
+            <strong>Status</strong>
+            <span>{{ recording_series.get_status_display }}</span>
+        </div>
+
+        <div>
+            <strong>Aangemaakt</strong>
+            <span>
+                {{ recording_series.created_at|date:"d/m/Y H:i" }}
+            </span>
+        </div>
+
+        <div>
+            <strong>Voltooid</strong>
+            <span>
+                {% if recording_series.completed_at %}
+                    {{ recording_series.completed_at|date:"d/m/Y H:i" }}
+                {% else %}
+                    -
+                {% endif %}
+            </span>
+        </div>
+
+        <div>
+            <strong>Totaal</strong>
+            <span>{{ total_count }}</span>
+        </div>
+
+        <div>
+            <strong>Verwerkt</strong>
+            <span>{{ processed_count }}</span>
+        </div>
+
+        <div>
+            <strong>Overgeslagen</strong>
+            <span>{{ skipped_count }}</span>
+        </div>
+
+        <div>
+            <strong>Nog te doen</strong>
+            <span>{{ open_count }}</span>
+        </div>
+
+        <div>
+            <strong>Voortgang</strong>
+            <span>{{ progress_percentage }}%</span>
+        </div>
+
+    </div>
+
+    <h2>Items</h2>
+
+    <div class="recording-series-report-table-wrapper">
+        <table class="recording-series-report-table">
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Gloss</th>
+                    <th>Signbank ID</th>
+                    <th>Verwerkt</th>
+                    <th>Overgeslagen</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for series_item in recording_series.items.all %}
+                    <tr>
+                        <td>{{ series_item.position|add:"1" }}</td>
+
+                        <td>
+                            {{ series_item.recording_item.gloss_id }}
+                        </td>
+
+                        <td>
+                            {{ series_item.recording_item.signbank_id }}
+                        </td>
+
+                        <td>
+                            {% if series_item.processed %}
+                                Ja
+                            {% else %}
+                                Nee
+                            {% endif %}
+                        </td>
+
+                        <td>
+                            {% if series_item.skipped %}
+                                Ja
+                            {% else %}
+                                Nee
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="5">
+                            Geen items in deze opnamereeks.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+</div>
+{% endblock %}
