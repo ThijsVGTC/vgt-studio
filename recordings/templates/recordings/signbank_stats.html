@@ -5,13 +5,31 @@
 
     <h1>Signbank Stats</h1>
 
-    <form method="post" action="{% url 'signbank_sync_now' %}" class="signbank-sync-now-form">
+    <form
+        method="post"
+        action="{% url 'signbank_sync_now' %}"
+        class="signbank-sync-now-form"
+        id="signbank-sync-form"
+    >
         {% csrf_token %}
 
-        <button type="submit">
+        <button type="submit" id="signbank-sync-button">
             Nu synchroniseren
         </button>
     </form>
+
+    <script>
+        document
+            .getElementById("signbank-sync-form")
+            .addEventListener("submit", function () {
+                const button = document.getElementById(
+                    "signbank-sync-button"
+                );
+
+                button.disabled = true;
+                button.textContent = "Synchroniseren…";
+            });
+    </script>
 
     {% if last_sync %}
 
