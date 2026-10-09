@@ -148,6 +148,7 @@ def bulk_video_upload(request):
                 save=False,
             )
             matched_item.new_video_status = "WACHT_OP_CONTROLE"
+            matched_item.recording_workflow_status = "TODO"
             matched_item.save(update_fields=["new_video","new_video_status",])
             result["status"] = "success"
             result["item"] = matched_item
@@ -352,6 +353,7 @@ def reject_new_video(request, signbank_id):
     if request.method == "POST":
         item.new_video_status = "AFGEKEURD"
         item.review_status = "OPNAME_AFGEKEURD"
+        item.recording_workflow_status = "REJECTED"
 
         item.video_review_remarks = request.POST.get(
             "video_review_remarks",
@@ -407,6 +409,7 @@ def reject_new_video(request, signbank_id):
             update_fields=[
                 "new_video_status",
                 "review_status",
+                "recording_workflow_status",
                 "video_review_remarks",
                 "rejected_video",
                 "new_video",
@@ -472,12 +475,15 @@ def reopen_rejected_video(request, signbank_id):
         if item.review_status == "OPNAME_AFGEKEURD":
             item.review_status = ""
 
+        item.recording_workflow_status = "TODO"
+
         item.save(
             update_fields=[
                 "new_video",
                 "rejected_video",
                 "new_video_status",
                 "review_status",
+                "recording_workflow_status",
             ]
         )
 
@@ -682,12 +688,14 @@ def signbank_export_item(request, signbank_id):
         item.new_video = None
         item.signbank_exported = True
         item.signbank_exported_at = timezone.now()
+        item.recording_workflow_status = "COMPLETED"
 
         item.save(
             update_fields=[
                 "new_video",
                 "signbank_exported",
                 "signbank_exported_at",
+                "recording_workflow_status",
             ]
         )
 
@@ -814,12 +822,14 @@ def signbank_export_bulk(request):
             item.new_video = None
             item.signbank_exported = True
             item.signbank_exported_at = timezone.now()
+            item.recording_workflow_status = "COMPLETED"
 
             item.save(
                 update_fields=[
                     "new_video",
                     "signbank_exported",
                     "signbank_exported_at",
+                    "recording_workflow_status",
                 ]
             )
 
