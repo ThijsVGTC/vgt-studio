@@ -39,9 +39,21 @@
                     </div>
                 </div>
 
-                <a href="{% url 'signbank_list' %}">
-                    Signbank
-                </a>
+                <div class="nav-dropdown">
+                    <a href="{% url 'signbank_list' %}" class="nav-dropdown-trigger">
+                        Signbank
+                    </a>
+
+                    <div class="nav-dropdown-menu">
+                        <a href="{% url 'signbank_list' %}">
+                            Signbank
+                        </a>
+
+                        <a href="{% url 'signbank_stats' %}">
+                            Stats
+                        </a>
+                    </div>
+                </div>
                 <a href="{% url 'gebarometer:overview' %}">Gebarometer</a>
                 <span class="user-name">
                     {{ user.username }}
