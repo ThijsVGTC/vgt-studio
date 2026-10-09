@@ -255,6 +255,15 @@ class Command(BaseCommand):
             self.stdout.write(f"Bijgewerkt:  {updated_count}")
             self.stdout.write(f"Ongewijzigd: {unchanged_count}")
             self.stdout.write(f"Fouten:      {error_count}")
+            SignbankSyncLog.objects.create(
+                started_at=started_at,
+                total_entries=total,
+                created_entries=created_count,
+                updated_entries=updated_count,
+                unchanged_entries=unchanged_count,
+                error_count=error_count,
+                successful=(error_count == 0),
+            )
 
         finally:
             connection.close()
