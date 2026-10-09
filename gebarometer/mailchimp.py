@@ -591,3 +591,58 @@ class MailChimpClient:
                 "",
             ),
         }
+    def get_recent_campaigns(self, seed_campaign_id):
+        url = (
+            "https://us1.admin.mailchimp.com/"
+            "analytics/reports/overview/lazy"
+        )
+
+        response = self.session.get(
+            url,
+            params={"id": seed_campaign_id},
+            timeout=30,
+        )
+
+        self._check_response(response)
+
+        try:
+            data = response.json()
+        except ValueError as exc:
+            raise MailChimpAPIError(
+                "De lijst met recente Mailchimp-campagnes "
+                "gaf geen geldige JSON terug."
+            ) from exc
+
+        recent_reports = (
+            data
+            .get("header_data", {})
+            .get("recent_reports", [])
+        )
+
+        campaigns = []
+
+        for report in recent_reports:
+            campaign_id = report.get("campaignID")
+
+            if not campaign_id:
+                continue
+
+            campaigns.append(
+                {
+                    "campaign_id": campaign_id,
+                    "campaign_name": report.get(
+                        "campaignName",
+                        "",
+                    ),
+                    "publish_time": report.get(
+                        "publishTime",
+                        "",
+                    ),
+                    "url": report.get(
+                        "url",
+                        "",
+                    ),
+                }
+            )
+
+        return campaigns
