@@ -1578,3 +1578,30 @@ html[data-font-size="xlarge"] body * {
     border-color: #1f4f59;
     color: white;
 }
+
+.signbank-sync-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+    margin: 20px 0 30px;
+}
+
+.signbank-sync-summary > div {
+    padding: 16px;
+    border: 1px solid #d8dee6;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.signbank-sync-summary strong {
+    display: block;
+    margin-bottom: 6px;
+    font-size: 0.85rem;
+    color: #5f6b76;
+}
+
+.signbank-sync-summary span {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+}
