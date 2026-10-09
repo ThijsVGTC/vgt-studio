@@ -46,13 +46,21 @@
                         </td>
 
                         <td>
-                            {{ recording_series.current_index|add:"1" }}
+                            {{ recording_series.processed_count }}
                             /
-                            {{ recording_series.items.count }}
+                            {{ recording_series.total_count }}
+                            verwerkt
+
+                            {% if recording_series.skipped_count %}
+                                <br>
+                                <small>
+                                    {{ recording_series.skipped_count }} overgeslagen
+                                </small>
+                            {% endif %}
                         </td>
 
                         <td>
-                            {{ recording_series.items.count }}
+                            {{ recording_series.total_count }}
                         </td>
 
                         <td>

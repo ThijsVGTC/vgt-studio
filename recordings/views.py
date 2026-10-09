@@ -1370,13 +1370,35 @@ def resume_recording_series(request, series_id):
         series_item.recording_item.signbank_id
         for series_item in series_items
     ]
-
     current_index = recording_series.current_index
 
     # Veiligheid voor het geval de opgeslagen positie
     # buiten de reeks zou vallen.
     if current_index >= len(signbank_ids):
         current_index = len(signbank_ids) - 1
+
+    # Zoek vanaf de huidige positie naar het eerste
+    # item dat nog niet verwerkt is.
+    resume_index = None
+
+    for index in range(current_index, len(series_items)):
+        if not series_items[index].processed:
+            resume_index = index
+            break
+
+    # Indien vanaf de huidige positie alles verwerkt is,
+    # zoek dan vanaf het begin nog naar een openstaand item.
+    if resume_index is None:
+        for index in range(0, current_index):
+            if not series_items[index].processed:
+                resume_index = index
+                break
+
+    # Als werkelijk alles verwerkt is, blijf op het laatste item.
+    if resume_index is None:
+        resume_index = len(signbank_ids) - 1
+
+    current_index = resume_index
 
     # Bestaande sessieflow opnieuw opbouwen
     request.session["recording_series"] = signbank_ids
@@ -2260,21 +2282,51 @@ def recording_series_complete(request):
     )
 
 @login_required
+
 def recording_series_list(request):
+
     series = (
+
         RecordingSeries.objects
+
         .prefetch_related("items")
+
         .order_by("-created_at")
+
     )
 
+    for recording_series in series:
+
+        items = list(recording_series.items.all())
+
+        recording_series.total_count = len(items)
+
+        recording_series.processed_count = sum(
+
+            1 for item in items if item.processed
+
+        )
+
+        recording_series.skipped_count = sum(
+
+            1 for item in items if item.skipped
+
+        )
+
     context = {
+
         "series": series,
+
     }
 
     return render(
+
         request,
+
         "recordings/recording_series_list.html",
+
         context,
+
     )
 
 @login_required
