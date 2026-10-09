@@ -1351,6 +1351,103 @@ def start_recording_series(request):
     )
 
 @login_required
+def resume_recording_series(request, series_id):
+    recording_series = get_object_or_404(
+        RecordingSeries,
+        id=series_id,
+    )
+
+    series_items = list(
+        recording_series.items
+        .select_related("recording_item")
+        .order_by("position")
+    )
+
+    if not series_items:
+        return redirect("recording_series_list")
+
+    signbank_ids = [
+        series_item.recording_item.signbank_id
+        for series_item in series_items
+    ]
+
+    current_index = recording_series.current_index
+
+    # Veiligheid voor het geval de opgeslagen positie
+    # buiten de reeks zou vallen.
+    if current_index >= len(signbank_ids):
+        current_index = len(signbank_ids) - 1
+
+    # Bestaande sessieflow opnieuw opbouwen
+    request.session["recording_series"] = signbank_ids
+    request.session["recording_series_index"] = current_index
+    request.session["recording_series_db_id"] = recording_series.id
+    request.session["recording_series_filters"] = {}
+    request.session["opnamereeks_actief"] = True
+
+    # Reeks opnieuw actief maken
+    recording_series.status = "ACTIEF"
+    recording_series.current_index = current_index
+    recording_series.save(
+        update_fields=[
+            "status",
+            "current_index",
+            "updated_at",
+        ]
+    )
+
+    return redirect(
+        "recording_detail",
+        signbank_id=signbank_ids[current_index],
+    )
+
+@login_required
+def restart_recording_series(request, series_id):
+    recording_series = get_object_or_404(
+        RecordingSeries,
+        id=series_id,
+    )
+
+    series_items = list(
+        recording_series.items
+        .select_related("recording_item")
+        .order_by("position")
+    )
+
+    if not series_items:
+        return redirect("recording_series_list")
+
+    signbank_ids = [
+        series_item.recording_item.signbank_id
+        for series_item in series_items
+    ]
+
+    # Reeks opnieuw vanaf het begin starten
+    recording_series.status = "ACTIEF"
+    recording_series.current_index = 0
+    recording_series.completed_at = None
+    recording_series.save(
+        update_fields=[
+            "status",
+            "current_index",
+            "completed_at",
+            "updated_at",
+        ]
+    )
+
+    # Bestaande sessieflow opnieuw opbouwen
+    request.session["recording_series"] = signbank_ids
+    request.session["recording_series_index"] = 0
+    request.session["recording_series_db_id"] = recording_series.id
+    request.session["recording_series_filters"] = {}
+    request.session["opnamereeks_actief"] = True
+
+    return redirect(
+        "recording_detail",
+        signbank_id=signbank_ids[0],
+    )
+
+@login_required
 def import_urls(request):
     message = ""
     if request.method == "POST":

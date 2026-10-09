@@ -57,17 +57,47 @@
 
                         <td>
                             {% if recording_series.status == "ONDERBROKEN" %}
-                                <span>
+                                <a
+                                    href="{% url 'resume_recording_series' recording_series.id %}"
+                                >
                                     Hervatten
-                                </span>
+                                </a>
+
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'restart_recording_series' recording_series.id %}"
+                                >
+                                    Herstarten
+                                </a>
+
                             {% elif recording_series.status == "ACTIEF" %}
-                                <span>
-                                    Actief
-                                </span>
+                                <a
+                                    href="{% url 'resume_recording_series' recording_series.id %}"
+                                >
+                                    Verdergaan
+                                </a>
+
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'restart_recording_series' recording_series.id %}"
+                                >
+                                    Herstarten
+                                </a>
+
                             {% else %}
                                 <span>
                                     Bekijken
                                 </span>
+
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'restart_recording_series' recording_series.id %}"
+                                >
+                                    Herstarten
+                                </a>
                             {% endif %}
                         </td>
 
