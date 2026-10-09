@@ -1074,6 +1074,23 @@ def signbank_list(request):
 @login_required
 def recording_list(request):
     items = RecordingItem.objects.all()
+    selected_workflow_status = request.GET.get(
+        "workflow_status",
+        ""
+    )
+
+    if selected_workflow_status:
+        if selected_workflow_status != "ALL":
+            items = items.filter(
+                recording_workflow_status=selected_workflow_status
+            )
+    else:
+        items = items.filter(
+            recording_workflow_status__in=[
+                "TODO",
+                "REJECTED",
+            ]
+        )
     selected_status = request.GET.get("status", "")
     selected_recording_by = request.GET.get("recording_by", "")
     selected_recording_date = request.GET.get("recording_date", "")
@@ -1193,6 +1210,7 @@ def recording_list(request):
             "selected_recording_by": selected_recording_by,
             "selected_recording_date": selected_recording_date,
             "selected_review_status": selected_review_status,
+            "selected_workflow_status": selected_workflow_status,
             "variants": variants,
             "selected_variant": selected_variant,
             "search_query": search_query,

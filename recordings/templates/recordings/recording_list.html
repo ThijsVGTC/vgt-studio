@@ -42,6 +42,34 @@ Opnames | VGT Studio
             </div>
 
             <div>
+                <label for="workflow_status">
+                    <strong>Workflow</strong>
+                </label><br>
+
+                <select name="workflow_status" id="workflow_status">
+                    <option value="" {% if not selected_workflow_status %}selected{% endif %}>
+                        Nog te doen + afgekeurd
+                    </option>
+
+                    <option value="TODO" {% if selected_workflow_status == "TODO" %}selected{% endif %}>
+                        Nog te doen
+                    </option>
+
+                    <option value="REJECTED" {% if selected_workflow_status == "REJECTED" %}selected{% endif %}>
+                        Afgekeurd
+                    </option>
+
+                    <option value="COMPLETED" {% if selected_workflow_status == "COMPLETED" %}selected{% endif %}>
+                        Voltooid
+                    </option>
+
+                    <option value="ALL" {% if selected_workflow_status == "ALL" %}selected{% endif %}>
+                        Alles
+                    </option>
+                </select>
+            </div>
+
+            <div>
                 <label for="status"><strong>Status</strong></label><br>
                 <select name="status" id="status">
                     <option value="">Alle statussen</option>
