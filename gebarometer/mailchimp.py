@@ -602,9 +602,21 @@ class MailChimpClient:
             "analytics/reports/overview/lazy"
         )
 
+        headers = {
+            "accept": "application/json",
+            "referer": (
+                "https://us1.admin.mailchimp.com/"
+                f"analytics/reports/overview?id={seed_campaign_id}"
+            ),
+            "sec-fetch-dest": "empty",
+            "sec-fetch-mode": "cors",
+            "sec-fetch-site": "same-origin",
+        }
+
         response = self.session.get(
             url,
             params={"id": seed_campaign_id},
+            headers=headers,
             timeout=30,
         )
 
