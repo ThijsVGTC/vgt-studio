@@ -274,7 +274,19 @@ class RecordingItem(models.Model):
     recording_date = models.CharField(max_length=100,blank=True)
     remarks = models.TextField(blank=True)
     review_status = models.CharField(max_length=20,choices=REVIEW_CHOICES,blank=True,default="",)
-    
+    RECORDING_WORKFLOW_STATUS_CHOICES = [
+        ("TODO", "Nog te doen"),
+        ("REJECTED", "Afgekeurd"),
+        ("COMPLETED", "Voltooid"),
+    ]
+
+    recording_workflow_status = models.CharField(
+        max_length=20,
+        choices=RECORDING_WORKFLOW_STATUS_CHOICES,
+        default="TODO",
+        db_index=True,
+    )
+
     @property
     def filename(self):
 
