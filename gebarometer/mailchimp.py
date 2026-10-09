@@ -575,6 +575,10 @@ class MailChimpClient:
                 "campaign_name",
                 "",
             ),
+            "list_name": report_recap.get(
+                "list_name",
+                "",
+            ),
             "send_time": report_recap.get(
                 "send_time",
             ),
@@ -591,6 +595,7 @@ class MailChimpClient:
                 "",
             ),
         }
+    
     def get_recent_campaigns(self, seed_campaign_id):
         url = (
             "https://us1.admin.mailchimp.com/"
