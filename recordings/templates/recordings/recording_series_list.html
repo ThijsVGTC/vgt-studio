@@ -79,6 +79,15 @@
                                     Herstarten
                                 </a>
 
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'recording_series_report' recording_series.id %}"
+                                >
+                                    Rapport
+                                </a>
+
+
                             {% elif recording_series.status == "ACTIEF" %}
                                 <a
                                     href="{% url 'resume_recording_series' recording_series.id %}"
@@ -94,6 +103,14 @@
                                     Herstarten
                                 </a>
 
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'recording_series_report' recording_series.id %}"
+                                >
+                                    Rapport
+                                </a>
+
                             {% else %}
                                 <span>
                                     Bekijken
@@ -105,6 +122,14 @@
                                     href="{% url 'restart_recording_series' recording_series.id %}"
                                 >
                                     Herstarten
+                                </a>
+
+                                &nbsp;|&nbsp;
+
+                                <a
+                                    href="{% url 'recording_series_report' recording_series.id %}"
+                                >
+                                    Rapport
                                 </a>
                             {% endif %}
                         </td>
