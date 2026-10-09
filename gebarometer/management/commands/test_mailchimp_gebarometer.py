@@ -1,16 +1,14 @@
-import os
+from django.core.management.base import BaseCommand
 
-from django.core.management.base import BaseCommand, CommandError
-
-from gebarometer.mailchimp import MailChimpClient, MailChimpAPIError
+from gebarometer.mailchimp import MailChimpClient
 
 
 class Command(BaseCommand):
-    help = "Test de Mailchimp-koppeling voor Gebarometer zonder databasewijzigingen."
+    help = "Test de Mailchimp-pollkoppeling zonder databasewijzigingen."
 
     def handle(self, *args, **options):
         client = MailChimpClient.from_curl_file(
-            "mailchimp_curl.txt"
+            "mailchimp_poll_curl.txt"
         )
 
         result = client.test_advanced_report(
@@ -19,10 +17,6 @@ class Command(BaseCommand):
 
         self.stdout.write(
             f"Status: {result['status_code']}"
-        )
-
-        self.stdout.write(
-            f"URL: {result['url']}"
         )
 
         self.stdout.write(
