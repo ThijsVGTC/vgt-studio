@@ -469,3 +469,37 @@ class MailChimpClient:
         client.session.headers.update(headers)
 
         return client
+
+    def test_curl_url(self, file_path):
+        with open(file_path, "r", encoding="utf-8") as file:
+            first_line = file.readline().strip()
+
+        match = re.search(
+            r"--url\s+'([^']+)'",
+            first_line,
+        )
+
+        if not match:
+            raise MailChimpAPIError(
+                "Kon de URL niet uit de cURL lezen."
+            )
+
+        url = match.group(1)
+
+        response = self.session.get(
+            url,
+            timeout=30,
+            allow_redirects=False,
+        )
+
+        return {
+            "url": url,
+            "status_code": response.status_code,
+            "content_type": response.headers.get(
+                "content-type"
+            ),
+            "location": response.headers.get(
+                "location"
+            ),
+            "text": response.text[:1000],
+        }
