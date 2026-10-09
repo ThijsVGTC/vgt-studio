@@ -286,7 +286,7 @@ Opnames | VGT Studio
                     <input type="checkbox" id="select-all-recordings" title="Alle resultaten in deze lijst selecteren">
                 </th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=gloss_id&direction={% if sort == 'gloss_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&workflow_status={{ selected_workflow_status|urlencode }}&sort=gloss_id&direction={% if sort == 'gloss_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Gloss ID
                         {% if sort == "gloss_id" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
@@ -294,7 +294,7 @@ Opnames | VGT Studio
                     </a>
                 </th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=signbank_id&direction={% if sort == 'signbank_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&workflow_status={{ selected_workflow_status|urlencode }}&sort=signbank_id&direction={% if sort == 'signbank_id' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Signbank ID
                         {% if sort == "signbank_id" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
@@ -306,7 +306,7 @@ Opnames | VGT Studio
                 <th>Status</th>
                 <th>Wie opname?</th>
                 <th>
-                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&sort=recording_date&direction={% if sort == 'recording_date' and direction == 'asc' %}desc{% else %}asc{% endif %}">
+                    <a href="?q={{ search_query|urlencode }}&status={{ selected_status|urlencode }}&recording_by={{ selected_recording_by|urlencode }}&recording_date={{ selected_recording_date|urlencode }}&review_status={{ selected_review_status|urlencode }}&variant={{ selected_variant|urlencode }}&workflow_status={{ selected_workflow_status|urlencode }}&sort=recording_date&direction={% if sort == 'recording_date' and direction == 'asc' %}desc{% else %}asc{% endif %}">
                         Wanneer opname?
                         {% if sort == "recording_date" %}
                             {% if direction == "asc" %}▲{% else %}▼{% endif %}
