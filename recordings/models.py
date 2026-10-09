@@ -315,6 +315,11 @@ class RecordingSeries(models.Model):
         ("VOLTOOID", "Voltooid"),
     ]
 
+    name = models.CharField(
+        max_length=255,
+        blank=True,
+    )
+
     status = models.CharField(
         max_length=20,
         choices=STATUS_CHOICES,
@@ -339,6 +344,8 @@ class RecordingSeries(models.Model):
     )
 
     def __str__(self):
+        if self.name:
+            return self.name
         return f"Opnamereeks {self.pk}"
 
 class RecordingSeriesItem(models.Model):
