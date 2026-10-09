@@ -18,6 +18,8 @@ from django.contrib import messages
 from django.utils import timezone
 from django.urls import reverse
 from .thumbnail_utils import ( generate_thumbnail_for_item,)
+from django.core.management import call_command
+from django.http import HttpResponseNotAllowed
 
 # Create your views here.
 
@@ -2073,3 +2075,12 @@ def signbank_stats(request):
         "recordings/signbank_stats.html",
         context,
     )
+
+@login_required
+def signbank_sync_now(request):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    call_command("sync_signbank")
+
+    return redirect("signbank_stats")

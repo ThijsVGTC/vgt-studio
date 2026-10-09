@@ -5,6 +5,14 @@
 
     <h1>Signbank Stats</h1>
 
+    <form method="post" action="{% url 'signbank_sync_now' %}" class="signbank-sync-now-form">
+        {% csrf_token %}
+
+        <button type="submit">
+            Nu synchroniseren
+        </button>
+    </form>
+
     {% if last_sync %}
 
         <div class="signbank-sync-summary">

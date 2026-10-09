@@ -31,4 +31,5 @@ urlpatterns = [
     path("opnamereeks/voltooid/",views.recording_series_complete,name="recording_series_complete",),
     path("opnamereeks/stop/",views.stop_opnamereeks,name="stop_opnamereeks"),
     path("signbank/stats/",views.signbank_stats,name="signbank_stats",),
+    path("signbank/stats/sync-now/",views.signbank_sync_now,name="signbank_sync_now",),
 ]
