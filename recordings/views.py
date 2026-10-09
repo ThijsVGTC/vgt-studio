@@ -2118,18 +2118,68 @@ def stop_opnamereeks(request):
     request.session.pop("recording_series_filters", None)
     return redirect("recording_list")
 
-@login_required
 def go_to_next_recording_item(request):
-    series = request.session.get("recording_series", [])
-    index = request.session.get("recording_series_index", 0)
+    series = request.session.get(
+        "recording_series",
+        [],
+    )
+
+    index = request.session.get(
+        "recording_series_index",
+        0,
+    )
+
     next_index = index + 1
-    if next_index >= len(series):
-        return redirect("recording_series_complete")
-    request.session["recording_series_index"] = next_index
-    next_signbank_id = series[next_index]
+
+    # Normaal volgend item
+    if next_index < len(series):
+        request.session[
+            "recording_series_index"
+        ] = next_index
+
+        next_signbank_id = series[next_index]
+
+        return redirect(
+            "recording_detail",
+            signbank_id=next_signbank_id,
+        )
+
+    # Einde van de reeks bereikt.
+    # Controleer of er nog onverwerkte items zijn.
+    recording_series_db_id = request.session.get(
+        "recording_series_db_id"
+    )
+
+    if recording_series_db_id:
+        next_unprocessed = (
+            RecordingSeriesItem.objects
+            .filter(
+                series_id=recording_series_db_id,
+                processed=False,
+            )
+            .order_by("position")
+            .first()
+        )
+
+        if next_unprocessed:
+            next_index = next_unprocessed.position
+
+            request.session[
+                "recording_series_index"
+            ] = next_index
+
+            return redirect(
+                "recording_detail",
+                signbank_id=(
+                    next_unprocessed
+                    .recording_item
+                    .signbank_id
+                ),
+            )
+
+    # Alles is verwerkt
     return redirect(
-        "recording_detail",
-        signbank_id=next_signbank_id,
+        "recording_series_complete"
     )
 
 @login_required
@@ -2257,12 +2307,25 @@ def recording_series_complete(request):
     )
 
     if recording_series_db_id:
-        RecordingSeries.objects.filter(
+        recording_series = get_object_or_404(
+            RecordingSeries,
             id=recording_series_db_id,
-        ).update(
-            status="VOLTOOID",
-            completed_at=timezone.now(),
         )
+
+        has_unprocessed_items = recording_series.items.filter(
+            processed=False
+        ).exists()
+
+        if not has_unprocessed_items:
+            recording_series.status = "VOLTOOID"
+            recording_series.completed_at = timezone.now()
+            recording_series.save(
+                update_fields=[
+                    "status",
+                    "completed_at",
+                    "updated_at",
+                ]
+            )
     filters = request.session.get(
         "recording_series_filters",
         {}
