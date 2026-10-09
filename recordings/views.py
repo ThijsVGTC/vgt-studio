@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
-from .models import RecordingItem, AppSettings, SignbankEntry, SignbankSyncLog
+from .models import RecordingItem, AppSettings, SignbankEntry, SignbankSyncLog, RecordingSeries, RecordingSeriesItem
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
@@ -1292,10 +1292,43 @@ def start_recording_series(request):
     if not signbank_ids:
         request.session["opnamereeks_actief"] = False
         return redirect("recording_list")
-    
     signbank_ids = [int(signbank_id) for signbank_id in signbank_ids]
+
+    # Permanente opnamereeks aanmaken
+    recording_series = RecordingSeries.objects.create(
+        status="ACTIEF",
+        current_index=0,
+    )
+
+    recording_items = RecordingItem.objects.in_bulk(
+        signbank_ids,
+        field_name="signbank_id",
+    )
+
+    series_items = []
+
+    for position, signbank_id in enumerate(signbank_ids):
+        recording_item = recording_items.get(signbank_id)
+
+        if recording_item is None:
+            continue
+
+        series_items.append(
+            RecordingSeriesItem(
+                series=recording_series,
+                recording_item=recording_item,
+                position=position,
+            )
+        )
+
+    RecordingSeriesItem.objects.bulk_create(series_items)
+
+    # Bestaande sessieflow behouden
     request.session["recording_series"] = signbank_ids
     request.session["recording_series_index"] = 0
+
+    # Koppeling met de permanente reeks
+    request.session["recording_series_db_id"] = recording_series.id
     request.session["recording_series_filters"]={
         "status": request.POST.get("status", ""),
         "recording_by": request.POST.get("recording_by", ""),
@@ -1772,11 +1805,24 @@ def recording_detail(request, signbank_id):
         )
         if signbank_id in series:
             current_index = series.index(signbank_id)
+
             request.session[
                 "recording_series_index"
             ] = current_index
-            has_previous_recording = current_index > 0
 
+            # Huidige positie ook permanent bewaren
+            recording_series_db_id = request.session.get(
+                "recording_series_db_id"
+            )
+
+            if recording_series_db_id:
+                RecordingSeries.objects.filter(
+                    id=recording_series_db_id
+                ).update(
+                    current_index=current_index
+                )
+
+            has_previous_recording = current_index > 0
     total_count = 0
     approved_count = 0
     skipped_count = 0
@@ -1930,6 +1976,17 @@ def update_video_source(request,signbank_id,):
 
 @login_required
 def stop_opnamereeks(request):
+    recording_series_db_id = request.session.get(
+        "recording_series_db_id"
+    )
+
+    if recording_series_db_id:
+        RecordingSeries.objects.filter(
+            id=recording_series_db_id,
+            status="ACTIEF",
+        ).update(
+            status="ONDERBROKEN"
+        )
     request.session["opnamereeks_actief"] = False
     request.session.pop("recording_series", None)
     request.session.pop("recording_series_index", None)
@@ -2026,6 +2083,17 @@ def skip_recording_existing_video(request, signbank_id):
 
 @login_required
 def recording_series_complete(request):
+    recording_series_db_id = request.session.get(
+        "recording_series_db_id"
+    )
+
+    if recording_series_db_id:
+        RecordingSeries.objects.filter(
+            id=recording_series_db_id,
+        ).update(
+            status="VOLTOOID",
+            completed_at=timezone.now(),
+        )
     filters = request.session.get(
         "recording_series_filters",
         {}
@@ -2034,6 +2102,7 @@ def recording_series_complete(request):
     request.session.pop("recording_series", None)
     request.session.pop("recording_series_index", None)
     request.session.pop("recording_series_filters", None)
+    request.session.pop("recording_series_db_id", None)
 
     return render(
         request,
@@ -2041,6 +2110,24 @@ def recording_series_complete(request):
     {
         "filters": filters,
     }
+    )
+
+@login_required
+def recording_series_list(request):
+    series = (
+        RecordingSeries.objects
+        .prefetch_related("items")
+        .order_by("-created_at")
+    )
+
+    context = {
+        "series": series,
+    }
+
+    return render(
+        request,
+        "recordings/recording_series_list.html",
+        context,
     )
 
 @login_required

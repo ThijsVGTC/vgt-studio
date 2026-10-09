@@ -1,0 +1,86 @@
+{% extends "recordings/base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h1>Opnamereeksen</h1>
+
+    <div class="recording-series-list-wrapper">
+
+        <table class="recording-series-list">
+
+            <thead>
+                <tr>
+                    <th>Reeks</th>
+                    <th>Status</th>
+                    <th>Aangemaakt</th>
+                    <th>Voortgang</th>
+                    <th>Aantal items</th>
+                    <th>Actie</th>
+                </tr>
+            </thead>
+
+            <tbody>
+
+                {% for recording_series in series %}
+
+                    <tr>
+
+                        <td>
+                            #{{ recording_series.id }}
+                        </td>
+
+                        <td>
+                            {{ recording_series.get_status_display }}
+                        </td>
+
+                        <td>
+                            {{ recording_series.created_at|date:"d/m/Y H:i" }}
+                        </td>
+
+                        <td>
+                            {{ recording_series.current_index|add:"1" }}
+                            /
+                            {{ recording_series.items.count }}
+                        </td>
+
+                        <td>
+                            {{ recording_series.items.count }}
+                        </td>
+
+                        <td>
+                            {% if recording_series.status == "ONDERBROKEN" %}
+                                <span>
+                                    Hervatten
+                                </span>
+                            {% elif recording_series.status == "ACTIEF" %}
+                                <span>
+                                    Actief
+                                </span>
+                            {% else %}
+                                <span>
+                                    Bekijken
+                                </span>
+                            {% endif %}
+                        </td>
+
+                    </tr>
+
+                {% empty %}
+
+                    <tr>
+                        <td colspan="6">
+                            Nog geen opnamereeksen gevonden.
+                        </td>
+                    </tr>
+
+                {% endfor %}
+
+            </tbody>
+
+        </table>
+
+    </div>
+
+</div>
+{% endblock %}
