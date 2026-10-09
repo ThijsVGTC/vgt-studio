@@ -13,12 +13,16 @@ class Command(BaseCommand):
             "mailchimp_curl.txt"
         )
 
-        result = client.test_advanced_report(
-            "11042816"
+        result = client.test_curl_url(
+            "mailchimp_curl.txt"
         )
 
         self.stdout.write(
             f"Status: {result['status_code']}"
+        )
+
+        self.stdout.write(
+            f"URL: {result['url']}"
         )
 
         self.stdout.write(
