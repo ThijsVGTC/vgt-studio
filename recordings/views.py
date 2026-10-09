@@ -2126,16 +2126,33 @@ def go_to_previous_recording_item(request):
         signbank_id=previous_signbank_id,
     )
 
+
 @login_required
 def approve_recording(request, signbank_id):
     item = get_object_or_404(
         RecordingItem,
         signbank_id=signbank_id,
     )
+
     if request.method == "POST":
         item.review_status = "OPGENOMEN"
         item.save(update_fields=["review_status"])
+
+        recording_series_db_id = request.session.get(
+            "recording_series_db_id"
+        )
+
+        if recording_series_db_id:
+            RecordingSeriesItem.objects.filter(
+                series_id=recording_series_db_id,
+                recording_item=item,
+            ).update(
+                processed=True,
+                skipped=False,
+            )
+
         return go_to_next_recording_item(request)
+
     return redirect(
         "recording_detail",
         signbank_id=signbank_id,
@@ -2162,6 +2179,20 @@ def skip_recording_with_remark(request, signbank_id):
                 "remarks",
             ]
         )
+
+        recording_series_db_id = request.session.get(
+            "recording_series_db_id"
+        )
+
+        if recording_series_db_id:
+            RecordingSeriesItem.objects.filter(
+                series_id=recording_series_db_id,
+                recording_item=item,
+            ).update(
+                skipped=True,
+                processed=True,
+            )
+
         return go_to_next_recording_item(request)
     return redirect(
         "recording_detail",
@@ -2174,10 +2205,23 @@ def skip_recording_existing_video(request, signbank_id):
         RecordingItem,
         signbank_id=signbank_id,
     )
-
     if request.method == "POST":
         item.review_status = "OVER-AL_VIDEO"
         item.save(update_fields=["review_status"])
+
+        recording_series_db_id = request.session.get(
+            "recording_series_db_id"
+        )
+
+        if recording_series_db_id:
+            RecordingSeriesItem.objects.filter(
+                series_id=recording_series_db_id,
+                recording_item=item,
+            ).update(
+                skipped=True,
+                processed=True,
+            )
+
         return go_to_next_recording_item(request)
     return redirect(
         "recording_detail",
