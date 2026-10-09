@@ -11,22 +11,19 @@ class Command(BaseCommand):
             "mailchimp_poll_curl.txt"
         )
 
-        result = client.test_advanced_report(
+        poll = client.get_poll(
             "11042816"
         )
 
         self.stdout.write(
-            f"Status: {result['status_code']}"
-        )
-
-        self.stdout.write(
-            f"Content-Type: {result['content_type']}"
-        )
-
-        self.stdout.write(
-            f"Redirect: {result['location']}"
+            f"Poll ID: {poll['poll_id']}"
         )
 
         self.stdout.write("")
-        self.stdout.write("Eerste response:")
-        self.stdout.write(result["text"])
+
+        for option in poll["options"]:
+            self.stdout.write(
+                f"{option['id']} | "
+                f"{option['value']} | "
+                f"{option['votes']} stemmen"
+            )
