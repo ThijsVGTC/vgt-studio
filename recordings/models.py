@@ -334,3 +334,22 @@ class AllowedGoogleEmail(models.Model):
 
     def __str__(self):
         return self.email
+
+class SignbankSyncLog(models.Model):
+    started_at = models.DateTimeField()
+    finished_at = models.DateTimeField(auto_now_add=True)
+
+    total_entries = models.PositiveIntegerField(default=0)
+    created_entries = models.PositiveIntegerField(default=0)
+    updated_entries = models.PositiveIntegerField(default=0)
+    unchanged_entries = models.PositiveIntegerField(default=0)
+    error_count = models.PositiveIntegerField(default=0)
+
+    successful = models.BooleanField(default=True)
+    error_message = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ["-finished_at"]
+
+    def __str__(self):
+        return f"Signbank sync {self.finished_at:%Y-%m-%d %H:%M}"
