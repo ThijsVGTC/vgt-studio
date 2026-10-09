@@ -6,7 +6,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from recordings.models import SignbankEntry
+from recordings.models import SignbankEntry, SignbankSyncLog
 
 
 SIGNBANK_DB_PATH = os.environ.get(
@@ -26,6 +26,7 @@ class Command(BaseCommand):
         )
 
     def handle(self, *args, **options):
+        started_at = timezone.now()
         dry_run = options["dry_run"]
 
         if not os.path.exists(SIGNBANK_DB_PATH):
