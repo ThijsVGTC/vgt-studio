@@ -13,8 +13,8 @@ class Command(BaseCommand):
             "mailchimp_curl.txt"
         )
 
-        result = client.test_curl_url(
-            "mailchimp_curl.txt"
+        result = client.test_advanced_report(
+            "11042816"
         )
 
         self.stdout.write(
