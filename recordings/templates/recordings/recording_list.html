@@ -127,6 +127,19 @@ Opnames | VGT Studio
                 value="{{ signbank_id }}"
             >
         {% endfor %}
+        <div style="margin-bottom: 10px;">
+            <label for="recording_series_name">
+                Naam opnamereeks
+            </label>
+
+            <input
+                type="text"
+                id="recording_series_name"
+                name="recording_series_name"
+                maxlength="255"
+                placeholder="Bijv. Heropnames oktober"
+            >
+        </div>
         <button type="submit">
             START OPNAMEREEKS
         </button>

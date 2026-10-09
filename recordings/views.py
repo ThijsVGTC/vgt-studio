@@ -1295,7 +1295,13 @@ def start_recording_series(request):
     signbank_ids = [int(signbank_id) for signbank_id in signbank_ids]
 
     # Permanente opnamereeks aanmaken
+    recording_series_name = request.POST.get(
+        "recording_series_name",
+        "",
+    ).strip()
+
     recording_series = RecordingSeries.objects.create(
+        name=recording_series_name,
         status="ACTIEF",
         current_index=0,
     )

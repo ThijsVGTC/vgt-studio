@@ -11,6 +11,7 @@
 
             <thead>
                 <tr>
+                    <th>Naam</th>
                     <th>Reeks</th>
                     <th>Status</th>
                     <th>Aangemaakt</th>
@@ -25,7 +26,13 @@
                 {% for recording_series in series %}
 
                     <tr>
-
+                        <td>
+                            {% if recording_series.name %}
+                                <strong>{{ recording_series.name }}</strong>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
                         <td>
                             #{{ recording_series.id }}
                         </td>
@@ -69,7 +76,7 @@
                 {% empty %}
 
                     <tr>
-                        <td colspan="6">
+                        <td colspan="7">
                             Nog geen opnamereeksen gevonden.
                         </td>
                     </tr>
