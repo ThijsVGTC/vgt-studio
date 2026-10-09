@@ -1,0 +1,112 @@
+{% extends "recordings/base.html" %}
+
+{% block content %}
+<div class="container">
+
+    <h1>Signbank Stats</h1>
+
+    {% if last_sync %}
+
+        <div class="signbank-sync-summary">
+
+            <div>
+                <strong>Laatste synchronisatie</strong>
+                <span>
+                    {{ last_sync.finished_at|date:"d/m/Y H:i" }}
+                </span>
+            </div>
+
+            <div>
+                <strong>Status</strong>
+                <span>
+                    {% if last_sync.successful %}
+                        Succesvol
+                    {% else %}
+                        Mislukt
+                    {% endif %}
+                </span>
+            </div>
+
+            <div>
+                <strong>Totaal</strong>
+                <span>{{ last_sync.total_entries }}</span>
+            </div>
+
+            <div>
+                <strong>Nieuw</strong>
+                <span>{{ last_sync.created_entries }}</span>
+            </div>
+
+            <div>
+                <strong>Bijgewerkt</strong>
+                <span>{{ last_sync.updated_entries }}</span>
+            </div>
+
+            <div>
+                <strong>Ongewijzigd</strong>
+                <span>{{ last_sync.unchanged_entries }}</span>
+            </div>
+
+            <div>
+                <strong>Fouten</strong>
+                <span>{{ last_sync.error_count }}</span>
+            </div>
+
+        </div>
+
+    {% else %}
+
+        <p>Nog geen synchronisaties geregistreerd.</p>
+
+    {% endif %}
+
+    <h2>Synchronisatiegeschiedenis</h2>
+
+    <div class="signbank-sync-history">
+
+        <table>
+            <thead>
+                <tr>
+                    <th>Datum</th>
+                    <th>Status</th>
+                    <th>Totaal</th>
+                    <th>Nieuw</th>
+                    <th>Bijgewerkt</th>
+                    <th>Ongewijzigd</th>
+                    <th>Fouten</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                {% for sync in sync_logs %}
+                    <tr>
+                        <td>
+                            {{ sync.finished_at|date:"d/m/Y H:i" }}
+                        </td>
+                        <td>
+                            {% if sync.successful %}
+                                Succesvol
+                            {% else %}
+                                Mislukt
+                            {% endif %}
+                        </td>
+                        <td>{{ sync.total_entries }}</td>
+                        <td>{{ sync.created_entries }}</td>
+                        <td>{{ sync.updated_entries }}</td>
+                        <td>{{ sync.unchanged_entries }}</td>
+                        <td>{{ sync.error_count }}</td>
+                    </tr>
+                {% empty %}
+                    <tr>
+                        <td colspan="7">
+                            Nog geen synchronisaties geregistreerd.
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+    </div>
+
+</div>
+{% endblock %}

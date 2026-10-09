@@ -10,7 +10,7 @@ from urllib.parse import urlparse
 
 from django.shortcuts import get_object_or_404, render, redirect
 from django.conf import settings
-from .models import RecordingItem, AppSettings, SignbankEntry
+from .models import RecordingItem, AppSettings, SignbankEntry, SignbankSyncLog
 from django.contrib.auth.decorators import login_required
 from django.db.models import Count, Q
 from django.core.paginator import Paginator
@@ -2057,3 +2057,19 @@ def update_review_status(request, item_id):
             item.save(update_fields=["review_status"])
     return redirect(request.META.get("HTTP_REFERER", "recording_list"))
 
+@login_required
+def signbank_stats(request):
+    sync_logs = SignbankSyncLog.objects.all()[:50]
+
+    last_sync = sync_logs[0] if sync_logs else None
+
+    context = {
+        "last_sync": last_sync,
+        "sync_logs": sync_logs,
+    }
+
+    return render(
+        request,
+        "recordings/signbank_stats.html",
+        context,
+    )

@@ -30,4 +30,5 @@ urlpatterns = [
     path("opnamereeks/vorige/",views.go_to_previous_recording_item,name="previous_recording_item",),
     path("opnamereeks/voltooid/",views.recording_series_complete,name="recording_series_complete",),
     path("opnamereeks/stop/",views.stop_opnamereeks,name="stop_opnamereeks"),
+    path("signbank/stats/",views.signbank_stats,name="signbank_stats",),
 ]
