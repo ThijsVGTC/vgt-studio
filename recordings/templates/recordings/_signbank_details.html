@@ -1,0 +1,206 @@
+{% load static %}
+
+<div class="signbank-details">
+
+    <h2>Signbankgegevens</h2>
+
+    <p>
+        <strong>Gloss:</strong>
+        {{ entry.gloss|default:"-" }}
+    </p>
+
+    <p>
+        <strong>Signbank ID:</strong>
+        {{ entry.signbank_id }}
+    </p>
+
+    <p>
+        <strong>In woordenboek:</strong>
+        {% if entry.in_woordenboek %}
+            Ja
+        {% else %}
+            Nee
+        {% endif %}
+    </p>
+
+    <hr>
+
+    <h3>Handvorm</h3>
+
+    <div style="display:flex; gap:40px; flex-wrap:wrap;">
+
+        <div>
+            <strong>Begin</strong><br>
+
+            {% if entry.handvorm_begin_image %}
+                <img
+                    src="{% static entry.handvorm_begin_image %}"
+                    alt="{{ entry.handvorm_begin }}"
+                    title="{{ entry.handvorm_begin }}"
+                    style="max-width:100px; height:auto;"
+                >
+                <br>
+            {% endif %}
+
+            {{ entry.handvorm_begin|default:"-" }}
+        </div>
+
+        <div>
+            <strong>Einde</strong><br>
+
+            {% if entry.handvorm_einde_image %}
+                <img
+                    src="{% static entry.handvorm_einde_image %}"
+                    alt="{{ entry.handvorm_einde }}"
+                    title="{{ entry.handvorm_einde }}"
+                    style="max-width:100px; height:auto;"
+                >
+                <br>
+            {% endif %}
+
+            {{ entry.handvorm_einde|default:"-" }}
+        </div>
+
+    </div>
+
+    <hr>
+
+    <h3>Locatie</h3>
+
+    <p>
+        <strong>Begin:</strong>
+        {{ entry.locatie_begin|default:"-" }}
+    </p>
+
+    <p>
+        <strong>Einde:</strong>
+        {{ entry.locatie_einde|default:"-" }}
+    </p>
+
+    <hr>
+
+    <h3>Mogelijke vertaling</h3>
+
+    {% if entry.mogelijke_vertaling %}
+        <p>{{ entry.mogelijke_vertaling|linebreaksbr }}</p>
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Categorieën</h3>
+
+    <ul>
+        {% if entry.categorie_1 %}<li>{{ entry.categorie_1 }}</li>{% endif %}
+        {% if entry.categorie_2 %}<li>{{ entry.categorie_2 }}</li>{% endif %}
+        {% if entry.categorie_3 %}<li>{{ entry.categorie_3 }}</li>{% endif %}
+        {% if entry.categorie_4 %}<li>{{ entry.categorie_4 }}</li>{% endif %}
+        {% if entry.categorie_5 %}<li>{{ entry.categorie_5 }}</li>{% endif %}
+    </ul>
+
+    <hr>
+
+    <h3>Varianten</h3>
+
+    {% if entry.variant_badges %}
+        {% for variant in entry.variant_badges %}
+            <span title="{{ variant.name }}">
+                {{ variant.short }}
+            </span>
+        {% endfor %}
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Labels</h3>
+
+    {% if entry.functional_labels %}
+        <p>
+            <strong>Functionele labels:</strong>
+
+            {% for label in entry.functional_labels %}
+                <span title="{{ label.name }}">
+                    {{ label.short }}
+                </span>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if entry.internal_labels %}
+        <p>
+            <strong>Interne labels:</strong>
+
+            {% for label in entry.internal_labels %}
+                <span>
+                    {{ label }}
+                </span>
+            {% endfor %}
+        </p>
+    {% endif %}
+
+    {% if not entry.functional_labels and not entry.internal_labels %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Opmerkingen</h3>
+
+    {% if entry.opmerkingen %}
+        {% for opmerking in entry.opmerkingen %}
+            <div>
+                {% if opmerking.role %}
+                    <strong>{{ opmerking.role }}</strong><br>
+                {% endif %}
+
+                {{ opmerking.text|default:"-"|linebreaksbr }}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Etymologie</h3>
+
+    {% if entry.etymologie %}
+        {% for ety in entry.etymologie %}
+            <div>
+                {{ ety.text|default:"-"|linebreaksbr }}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <h3>Bronnen</h3>
+
+    {% if entry.bronnen %}
+        {% for bron in entry.bronnen %}
+            <div>
+                {{ bron.text|default:"-"|linebreaksbr }}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>-</p>
+    {% endif %}
+
+    <hr>
+
+    <p>
+        <strong>Laatste wijziging in Signbank:</strong>
+        {{ entry.signbank_last_updated|default:"-" }}
+    </p>
+
+    <p>
+        <strong>Laatst gesynchroniseerd:</strong>
+        {{ entry.synced_at|default:"-" }}
+    </p>
+
+</div>

@@ -1,0 +1,20 @@
+{% extends "recordings/base.html" %}
+
+{% block content %}
+
+<div class="page-header">
+    <div>
+        <h1>{{ entry.gloss|default:"Signbank-entry" }}</h1>
+        <p>Signbank ID: {{ entry.signbank_id }}</p>
+    </div>
+
+    <div>
+        <a href="{% url 'recordings:signbank_list' %}">
+            ← Terug naar Signbank
+        </a>
+    </div>
+</div>
+
+{% include "recordings/_signbank_details.html" %}
+
+{% endblock %}

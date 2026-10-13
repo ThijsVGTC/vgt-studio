@@ -862,6 +862,21 @@ def signbank_export_bulk(request):
     )
 
 @login_required
+def signbank_detail(request, signbank_id):
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    return render(
+        request,
+        "recordings/signbank_detail.html",
+        {
+            "entry": entry,
+        },
+    )
+
+@login_required
 def signbank_list(request):
     entries = SignbankEntry.objects.all()
 
@@ -1080,6 +1095,8 @@ def signbank_list(request):
             "internal_label_options": internal_label_options,
         },
     )
+
+
 
 @login_required
 def recording_list(request):
