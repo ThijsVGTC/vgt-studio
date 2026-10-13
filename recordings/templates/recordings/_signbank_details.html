@@ -2,218 +2,234 @@
 
 <div class="signbank-details">
 
-    <h2>Signbankgegevens</h2>
+    <div class="detail_wrapper">
 
-    <p>
-        <strong>Gloss:</strong>
-        {{ entry.gloss|default:"-" }}
-    </p>
+        <div class="detail_video">
 
-    <p>
-        <strong>Signbank ID:</strong>
-        {{ entry.signbank_id }}
-    </p>
-
-    {% if entry.video_url %}
-        <div style="margin: 20px 0 30px 0;">
-            <video
-                controls
-                preload="metadata"
-                style="max-width: 520px; width: 100%; height: auto;"
-            >
+            {% if entry.video_url %}
+            <video controls preload="metadata" style="width:100%; max-width:100%; height:auto;">
                 <source src="{{ entry.video_url }}" type="video/mp4">
                 Je browser ondersteunt deze video niet.
             </video>
-        </div>
-    {% endif %}
-
-    <p>
-        <strong>In woordenboek:</strong>
-        {% if entry.in_woordenboek %}
-            Ja
-        {% else %}
-            Nee
-        {% endif %}
-    </p>
-
-    <hr>
-
-    <h3>Handvorm</h3>
-
-    <div style="display:flex; gap:40px; flex-wrap:wrap;">
-
-        <div>
-            <strong>Begin</strong><br>
-
-            {% if entry.handvorm_begin_image %}
-                <img
-                    src="{% static entry.handvorm_begin_image %}"
-                    alt="{{ entry.handvorm_begin }}"
-                    title="{{ entry.handvorm_begin }}"
-                    style="max-width:100px; height:auto;"
-                >
-                <br>
+            {% else %}
+            <p>Geen video beschikbaar.</p>
             {% endif %}
 
-            {{ entry.handvorm_begin|default:"-" }}
         </div>
 
-        <div>
-            <strong>Einde</strong><br>
+        <div class="detail_inhoud">
 
-            {% if entry.handvorm_einde_image %}
-                <img
-                    src="{% static entry.handvorm_einde_image %}"
-                    alt="{{ entry.handvorm_einde }}"
-                    title="{{ entry.handvorm_einde }}"
-                    style="max-width:100px; height:auto;"
-                >
-                <br>
+            <h2>Signbankgegevens</h2>
+
+            <p>
+                <strong>Gloss:</strong><br>
+                {{ entry.gloss|default:"-" }}
+            </p>
+
+            <p>
+                <strong>Signbank ID:</strong><br>
+                {{ entry.signbank_id }}
+            </p>
+
+            <p>
+                <strong>In woordenboek:</strong><br>
+                {% if entry.in_woordenboek %}
+                Ja
+                {% else %}
+                Nee
+                {% endif %}
+            </p>
+
+            {% if entry.video_url %}
+            <div style="margin: 20px 0 30px 0;">
+                <video controls preload="metadata" style="max-width: 520px; width: 100%; height: auto;">
+                    <source src="{{ entry.video_url }}" type="video/mp4">
+                    Je browser ondersteunt deze video niet.
+                </video>
+            </div>
             {% endif %}
 
-            {{ entry.handvorm_einde|default:"-" }}
-        </div>
+            <p>
+                <strong>In woordenboek:</strong>
+                {% if entry.in_woordenboek %}
+                Ja
+                {% else %}
+                Nee
+                {% endif %}
+            </p>
 
-    </div>
+            <hr>
 
-    <hr>
+            <h3>Handvorm</h3>
 
-    <h3>Locatie</h3>
+            <div style="display:flex; gap:40px; flex-wrap:wrap;">
 
-    <p>
-        <strong>Begin:</strong>
-        {{ entry.locatie_begin|default:"-" }}
-    </p>
+                <div>
+                    <strong>Begin</strong><br>
 
-    <p>
-        <strong>Einde:</strong>
-        {{ entry.locatie_einde|default:"-" }}
-    </p>
+                    {% if entry.handvorm_begin_image %}
+                    <img src="{% static entry.handvorm_begin_image %}" alt="{{ entry.handvorm_begin }}"
+                        title="{{ entry.handvorm_begin }}" style="max-width:100px; height:auto;">
+                    <br>
+                    {% endif %}
 
-    <hr>
+                    {{ entry.handvorm_begin|default:"-" }}
+                </div>
 
-    <h3>Mogelijke vertaling</h3>
+                <div>
+                    <strong>Einde</strong><br>
 
-    {% if entry.mogelijke_vertaling %}
-        <p>{{ entry.mogelijke_vertaling|linebreaksbr }}</p>
-    {% else %}
-        <p>-</p>
-    {% endif %}
+                    {% if entry.handvorm_einde_image %}
+                    <img src="{% static entry.handvorm_einde_image %}" alt="{{ entry.handvorm_einde }}"
+                        title="{{ entry.handvorm_einde }}" style="max-width:100px; height:auto;">
+                    <br>
+                    {% endif %}
 
-    <hr>
+                    {{ entry.handvorm_einde|default:"-" }}
+                </div>
 
-    <h3>Categorieën</h3>
+            </div>
 
-    <ul>
-        {% if entry.categorie_1 %}<li>{{ entry.categorie_1 }}</li>{% endif %}
-        {% if entry.categorie_2 %}<li>{{ entry.categorie_2 }}</li>{% endif %}
-        {% if entry.categorie_3 %}<li>{{ entry.categorie_3 }}</li>{% endif %}
-        {% if entry.categorie_4 %}<li>{{ entry.categorie_4 }}</li>{% endif %}
-        {% if entry.categorie_5 %}<li>{{ entry.categorie_5 }}</li>{% endif %}
-    </ul>
+            <hr>
 
-    <hr>
+            <h3>Locatie</h3>
 
-    <h3>Varianten</h3>
+            <p>
+                <strong>Begin:</strong>
+                {{ entry.locatie_begin|default:"-" }}
+            </p>
 
-    {% if entry.variant_badges %}
-        {% for variant in entry.variant_badges %}
+            <p>
+                <strong>Einde:</strong>
+                {{ entry.locatie_einde|default:"-" }}
+            </p>
+
+            <hr>
+
+            <h3>Mogelijke vertaling</h3>
+
+            {% if entry.mogelijke_vertaling %}
+            <p>{{ entry.mogelijke_vertaling|linebreaksbr }}</p>
+            {% else %}
+            <p>-</p>
+            {% endif %}
+
+            <hr>
+
+            <h3>Categorieën</h3>
+
+            <ul>
+                {% if entry.categorie_1 %}<li>{{ entry.categorie_1 }}</li>{% endif %}
+                {% if entry.categorie_2 %}<li>{{ entry.categorie_2 }}</li>{% endif %}
+                {% if entry.categorie_3 %}<li>{{ entry.categorie_3 }}</li>{% endif %}
+                {% if entry.categorie_4 %}<li>{{ entry.categorie_4 }}</li>{% endif %}
+                {% if entry.categorie_5 %}<li>{{ entry.categorie_5 }}</li>{% endif %}
+            </ul>
+
+            <hr>
+
+            <h3>Varianten</h3>
+
+            {% if entry.variant_badges %}
+            {% for variant in entry.variant_badges %}
             <span title="{{ variant.name }}">
                 {{ variant.short }}
             </span>
-        {% endfor %}
-    {% else %}
-        <p>-</p>
-    {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>-</p>
+            {% endif %}
 
-    <hr>
+            <hr>
 
-    <h3>Labels</h3>
+            <h3>Labels</h3>
 
-    {% if entry.functional_labels %}
-        <p>
-            <strong>Functionele labels:</strong>
+            {% if entry.functional_labels %}
+            <p>
+                <strong>Functionele labels:</strong>
 
-            {% for label in entry.functional_labels %}
+                {% for label in entry.functional_labels %}
                 <span title="{{ label.name }}">
                     {{ label.short }}
                 </span>
-            {% endfor %}
-        </p>
-    {% endif %}
+                {% endfor %}
+            </p>
+            {% endif %}
 
-    {% if entry.internal_labels %}
-        <p>
-            <strong>Interne labels:</strong>
+            {% if entry.internal_labels %}
+            <p>
+                <strong>Interne labels:</strong>
 
-            {% for label in entry.internal_labels %}
+                {% for label in entry.internal_labels %}
                 <span>
                     {{ label }}
                 </span>
-            {% endfor %}
-        </p>
-    {% endif %}
+                {% endfor %}
+            </p>
+            {% endif %}
 
-    {% if not entry.functional_labels and not entry.internal_labels %}
-        <p>-</p>
-    {% endif %}
+            {% if not entry.functional_labels and not entry.internal_labels %}
+            <p>-</p>
+            {% endif %}
 
-    <hr>
+            <hr>
 
-    <h3>Opmerkingen</h3>
+            <h3>Opmerkingen</h3>
 
-    {% if entry.opmerkingen %}
-        {% for opmerking in entry.opmerkingen %}
+            {% if entry.opmerkingen %}
+            {% for opmerking in entry.opmerkingen %}
             <div>
                 {% if opmerking.role %}
-                    <strong>{{ opmerking.role }}</strong><br>
+                <strong>{{ opmerking.role }}</strong><br>
                 {% endif %}
 
                 {{ opmerking.text|default:"-"|linebreaksbr }}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>-</p>
-    {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>-</p>
+            {% endif %}
 
-    <hr>
+            <hr>
 
-    <h3>Etymologie</h3>
+            <h3>Etymologie</h3>
 
-    {% if entry.etymologie %}
-        {% for ety in entry.etymologie %}
+            {% if entry.etymologie %}
+            {% for ety in entry.etymologie %}
             <div>
                 {{ ety.text|default:"-"|linebreaksbr }}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>-</p>
-    {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>-</p>
+            {% endif %}
 
-    <hr>
+            <hr>
 
-    <h3>Bronnen</h3>
+            <h3>Bronnen</h3>
 
-    {% if entry.bronnen %}
-        {% for bron in entry.bronnen %}
+            {% if entry.bronnen %}
+            {% for bron in entry.bronnen %}
             <div>
                 {{ bron.text|default:"-"|linebreaksbr }}
             </div>
-        {% endfor %}
-    {% else %}
-        <p>-</p>
-    {% endif %}
+            {% endfor %}
+            {% else %}
+            <p>-</p>
+            {% endif %}
 
-    <hr>
+            <hr>
 
-    <p>
-        <strong>Laatste wijziging in Signbank:</strong>
-        {{ entry.signbank_last_updated|default:"-" }}
-    </p>
+            <p>
+                <strong>Laatste wijziging in Signbank:</strong>
+                {{ entry.signbank_last_updated|default:"-" }}
+            </p>
 
-    <p>
-        <strong>Laatst gesynchroniseerd:</strong>
-        {{ entry.synced_at|default:"-" }}
-    </p>
+            <p>
+                <strong>Laatst gesynchroniseerd:</strong>
+                {{ entry.synced_at|default:"-" }}
+            </p>
 
+        </div>
+    </div>
 </div>
