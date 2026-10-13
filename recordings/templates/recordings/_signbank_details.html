@@ -4,7 +4,7 @@
 
     <div class="detail_wrapper">
 
-        <div class="detail_video">
+        <div class="detail_video" style="align-self: flex-start;">
 
             {% if entry.video_url %}
             <video controls preload="metadata" style="width:100%; max-width:100%; height:auto;">
@@ -39,15 +39,6 @@
                 Nee
                 {% endif %}
             </p>
-
-            {% if entry.video_url %}
-            <div style="margin: 20px 0 30px 0;">
-                <video controls preload="metadata" style="max-width: 520px; width: 100%; height: auto;">
-                    <source src="{{ entry.video_url }}" type="video/mp4">
-                    Je browser ondersteunt deze video niet.
-                </video>
-            </div>
-            {% endif %}
 
             <p>
                 <strong>In woordenboek:</strong>
