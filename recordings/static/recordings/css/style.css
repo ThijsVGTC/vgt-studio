@@ -325,15 +325,17 @@ tr:hover td {
 }
 
 .detail_video {
-    width: 62%;
+    width: 50%;
     display: inline-block;
+    vertical-align: top;
     padding: 20px;
 }
 
 .detail_inhoud {
-    width: 35%;
+    width: 47%;
     padding: 20px;
     display: inline-block;
+    vertical-align: top;
 }
 
 .recording-progress {
