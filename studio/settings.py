@@ -41,6 +41,8 @@ DEBUG = False
 
 ALLOWED_HOSTS = [
     "studio.vgt.be",
+    "localhost",
+    "127.0.0.1",
 ]
 
 
@@ -103,7 +105,7 @@ WSGI_APPLICATION = 'studio.wsgi.application'
 CSRF_TRUSTED_ORIGINS = [
 
     "https://studio.vgt.be",
-
+    "http://localhost:8000",
 ]
 
 
