@@ -12,7 +12,9 @@ https://docs.djangoproject.com/en/6.1/ref/settings/
 import os
 from pathlib import Path
 
-ENV_FILE = "/home/vlaamseg/.vgt_studio_env"
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+ENV_FILE = BASE_DIR / ".vgt_studio_env"
 
 if os.path.exists(ENV_FILE):
     with open(ENV_FILE) as f:
@@ -25,8 +27,7 @@ if os.path.exists(ENV_FILE):
             key, value = line.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip())
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
-BASE_DIR = Path(__file__).resolve().parent.parent
+
 
 
 # Quick-start development settings - unsuitable for production
@@ -39,7 +40,7 @@ SECRET_KEY = 'django-insecure-6*z-#eyw3o3k@h2xscfjy$_maznvfy(rd=rd7wrr6=rv#(c&zc
 DEBUG = False
 
 ALLOWED_HOSTS = [
-    "studio.vlaamsegebarentaal.be",
+    "studio.vgt.be",
 ]
 
 
@@ -101,7 +102,7 @@ WSGI_APPLICATION = 'studio.wsgi.application'
 
 CSRF_TRUSTED_ORIGINS = [
 
-    "https://studio.vlaamsegebarentaal.be",
+    "https://studio.vgt.be",
 
 ]
 
@@ -194,7 +195,10 @@ MEDIA_URL = "/media/"
 
 MEDIA_ROOT = BASE_DIR / "media"
 
-SIGNBANK_GLOSSVIDEO_ROOT = "/home/vlaamseg/signbank/writable/glossvideo"
+SIGNBANK_GLOSSVIDEO_ROOT = os.getenv(
+    "SIGNBANK_GLOSSVIDEO_ROOT",
+    "/data/signbank/glossvideo",
+)
 
 
 # Email
@@ -236,10 +240,9 @@ SESSION_COOKIE_PATH = "/"
 
 CSRF_COOKIE_PATH = "/"
 
-GOOGLE_SERVICE_ACCOUNT_FILE = (
-
-    "/home/vlaamseg/private/google-service-account.json"
-
+GOOGLE_SERVICE_ACCOUNT_FILE = os.getenv(
+    "GOOGLE_SERVICE_ACCOUNT_FILE",
+    "/app/private/google-service-account.json",
 )
 
 VGT_STUDIO_GOOGLE_ALLOWED_DOMAINS = [
@@ -259,15 +262,10 @@ LOGGING = {
 
     "handlers": {
 
-        "vgt_studio_file": {
-
-            "level": "ERROR",
-
-            "class": "logging.FileHandler",
-
-            "filename": "/home/vlaamseg/vgt-studio-error.log",
-
-        },
+		"vgt_studio_file": {
+			"level": "ERROR",
+			"class": "logging.StreamHandler",
+		},
 
     },
 

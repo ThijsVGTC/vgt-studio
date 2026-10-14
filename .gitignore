@@ -15,9 +15,11 @@ db.sqlite3
 .env.*
 credentials.json
 service_account.json
+.vgt_studio_env
 
 # macOS
 .DS_Store
 
 # Generated
 staticfiles/
+media/
