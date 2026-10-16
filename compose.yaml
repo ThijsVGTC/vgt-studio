@@ -9,6 +9,7 @@ services:
     volumes:
       - ./db.sqlite3:/app/db.sqlite3
       - ./media:/app/media
+      - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
     environment:
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
       GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}

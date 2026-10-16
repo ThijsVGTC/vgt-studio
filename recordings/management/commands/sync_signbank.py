@@ -11,7 +11,7 @@ from recordings.models import SignbankEntry, SignbankSyncLog
 
 SIGNBANK_DB_PATH = os.environ.get(
     "SIGNBANK_DB_PATH",
-    "/home/vlaamseg/signbank/signbank.db",
+    "/app/signbank/signbank.db",
 )
 
 
