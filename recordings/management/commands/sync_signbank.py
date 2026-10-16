@@ -499,6 +499,13 @@ class Command(BaseCommand):
         Zet een machine_value uit dictionary_gloss om
         naar een leesbare Nederlandse waarde via dictionary_fieldchoice.
         """
+        if not hasattr(self, "_fieldchoice_cache"):
+            self._fieldchoice_cache = {}
+
+        cache_key = (field_name, str(value))
+
+        if cache_key in self._fieldchoice_cache:
+            return self._fieldchoice_cache[cache_key]
         if value is None or str(value).strip() == "":
             return ""
 
