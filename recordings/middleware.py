@@ -11,6 +11,7 @@ class LoginRequiredMiddleware:
             "/accounts/",
             "/logged-out/",
             "/admin/",
+            "/signbank/cron-sync/",
         )
 
         if (
