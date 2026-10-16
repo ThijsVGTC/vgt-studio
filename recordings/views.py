@@ -2366,7 +2366,7 @@ def skip_recording_with_remark(request, signbank_id):
         remark = request.POST.get("remark", "").strip()
         item.review_status = "OVER-OPM"
         if remark:
-            if item.remark.strip():
+            if item.remarks.strip():
                 item.remarks = f"{item.remarks.rstrip()}\n{remark}"
             else:
                 item.remarks = remark
