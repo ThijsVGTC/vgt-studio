@@ -10,6 +10,7 @@ services:
       - ./data:/app/data
       - ./media:/app/media
       - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
+      - /var/www/vhosts/vlaamsegebarentaal.be/signbank/writable/glossvideo:/app/signbank/writable/glossvideo:rw
       - ./sync_locks:/app/sync_locks
     environment:
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}

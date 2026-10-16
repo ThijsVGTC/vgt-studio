@@ -106,7 +106,7 @@ WSGI_APPLICATION = 'studio.wsgi.application'
 CSRF_TRUSTED_ORIGINS = [
 
     "https://studio.vgt.be",
-    "studio.vlaamsegebarentaal.be",
+    "https://studio.vlaamsegebarentaal.be",
     "http://localhost:8000",
 ]
 
@@ -201,7 +201,7 @@ MEDIA_ROOT = BASE_DIR / "media"
 
 SIGNBANK_GLOSSVIDEO_ROOT = os.getenv(
     "SIGNBANK_GLOSSVIDEO_ROOT",
-    "/data/signbank/glossvideo",
+    "/app/signbank/writable/glossvideo",
 )
 
 

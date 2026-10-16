@@ -661,17 +661,37 @@ def signbank_export_item(request, signbank_id):
         # Bestaande Signbank-video vervangen
         # -------------------------------------------------
 
-        if target_path.exists():
-            target_path.unlink()
+        # Nieuwe video eerst volledig kopiëren naar een tijdelijk bestand.
+        # Pas daarna de bestaande Signbank-video vervangen.
 
-        # -------------------------------------------------
-        # Nieuwe video naar Signbank verplaatsen
-        # -------------------------------------------------
+        import os
+        import shutil
+        import tempfile
 
-        shutil.move(
-            str(source_path),
-            str(target_path),
-        )
+        temp_path = None
+
+        try:
+            with tempfile.NamedTemporaryFile(
+                dir=target_dir,
+                prefix=f".{filename}.",
+                suffix=".tmp",
+                delete=False,
+            ) as temp_file:
+                temp_path = Path(temp_file.name)
+
+                with source_path.open("rb") as source_file:
+                    shutil.copyfileobj(source_file, temp_file)
+
+                temp_file.flush()
+                os.fsync(temp_file.fileno())
+
+            # Atomair vervangen op hetzelfde bestandssysteem.
+            os.replace(temp_path, target_path)
+            temp_path = None
+
+        finally:
+            if temp_path is not None:
+                temp_path.unlink(missing_ok=True)
 
         thumbnail_success, thumbnail_message = (
             generate_thumbnail_for_item(
@@ -698,6 +718,12 @@ def signbank_export_item(request, signbank_id):
                 "recording_workflow_status",
             ]
         )
+
+        # Bronvideo pas verwijderen nadat de export
+
+        # en de database-update geslaagd zijn.
+
+        source_path.unlink(missing_ok=True)
 
         messages.success(
             request,
@@ -800,13 +826,33 @@ def signbank_export_bulk(request):
                 exist_ok=True,
             )
 
-            if target_path.exists():
-                target_path.unlink()
+            import os
+            import tempfile
 
-            shutil.move(
-                str(source_path),
-                str(target_path),
-            )
+            temp_path = None
+
+            try:
+                with tempfile.NamedTemporaryFile(
+                    dir=target_dir,
+                    prefix=f".{filename}.",
+                    suffix=".tmp",
+                    delete=False,
+                ) as temp_file:
+                    temp_path = Path(temp_file.name)
+
+                    with source_path.open("rb") as source_file:
+                        shutil.copyfileobj(source_file, temp_file)
+
+                    temp_file.flush()
+                    os.fsync(temp_file.fileno())
+
+                # Bestaande video pas vervangen als de kopie klaar is.
+                os.replace(temp_path, target_path)
+                temp_path = None
+
+            finally:
+                if temp_path is not None:
+                    temp_path.unlink(missing_ok=True)
 
             thumbnail_success, _ = (
                 generate_thumbnail_for_item(
@@ -832,6 +878,10 @@ def signbank_export_bulk(request):
                     "recording_workflow_status",
                 ]
             )
+
+            # Bronvideo pas verwijderen nadat de export
+            # en de database-update geslaagd zijn.
+            source_path.unlink(missing_ok=True)
 
             success_count += 1
 
