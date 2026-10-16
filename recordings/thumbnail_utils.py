@@ -60,10 +60,16 @@ def generate_thumbnail_for_item(
 
         else:
 
-            if not item.video_url:
+            video_url = (
+                item.old_video_url
+                if hasattr(item, "old_video_url")
+                else item.video_url
+            )
+
+            if not video_url:
                 return (
                     False,
-                    "Geen oude video-URL beschikbaar.",
+                    "Geen video-URL beschikbaar.",
                 )
 
             sha256 = hashlib.sha256()
@@ -76,7 +82,7 @@ def generate_thumbnail_for_item(
                 temp_path = temp_file.name
 
                 response = requests.get(
-                    item.video_url,
+                    video_url,
                     stream=True,
                     timeout=120,
                 )

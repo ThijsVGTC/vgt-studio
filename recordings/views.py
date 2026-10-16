@@ -6,6 +6,7 @@ import gspread
 import shutil
 import os
 import secrets
+import logging
 
 from pathlib import PurePosixPath, Path
 from urllib.parse import urlparse
@@ -25,6 +26,7 @@ from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseForbid
 from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
+logger = logging.getLogger(__name__)
 
 @login_required
 def bulk_video_upload(request):
@@ -153,6 +155,19 @@ def bulk_video_upload(request):
             matched_item.new_video_status = "WACHT_OP_CONTROLE"
             matched_item.recording_workflow_status = "TODO"
             matched_item.save(update_fields=["new_video","new_video_status",])
+            # Thumbnail automatisch genereren voor de nieuwe opnamevideo
+            thumbnail_success, thumbnail_message = generate_thumbnail_for_item(
+                matched_item,
+                source_path=matched_item.new_video.path,
+                force=True,
+            )
+
+            if not thumbnail_success:
+                logger.warning(
+                    "Thumbnail genereren mislukt voor opname %s: %s",
+                    matched_item.id,
+                    thumbnail_message,
+                )
             result["status"] = "success"
             result["item"] = matched_item
             result["message"] = "Video gekoppeld."
