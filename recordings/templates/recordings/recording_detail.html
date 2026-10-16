@@ -47,23 +47,25 @@ detail-pagina {{ item.gloss_id }}
         {{ item.signbank_id }}
     </p>
 
-{% if opnamereeks_actief %}
- {% if has_previous_recording %}
-        <div class="series-navigation">
-            <a href="{% url 'previous_recording_item' %}" class="previous-recording-button">
-                ← VORIGE IN REEKS
-            </a>
-        </div>
-    {% endif %}
+    {% if opnamereeks_actief %}
+
 
     <div id="recording-controls">
         <div id="start-controls">
             <button class="startbutton" type="button" id="start-recording">START OPNAME</button>
             <button type="button" onclick="openRemarkModal()">OVERSLAAN MET OPMERKING</button>
-            <form method="post" action="{% url 'skip_recording_existing_video' item.signbank_id %}" style="display: inline;">
+            <form method="post" action="{% url 'skip_recording_existing_video' item.signbank_id %}"
+                style="display: inline;">
                 {% csrf_token %}
                 <button type="submit">OVERSLAAN - AL VIDEO</button>
             </form>
+            {% if has_previous_recording %}
+                <button type="button"
+                        class="previous-recording-button"
+                        onclick="window.location.href='{% url 'previous_recording_item' %}'">
+                    ← VORIGE IN REEKS
+                </button>
+            {% endif %}
         </div>
         <div id="stop-controls" style="display: none;">
             <button class="stopbutton" type="button" id="stop-recording">STOP OPNAME</button>
@@ -77,12 +79,14 @@ detail-pagina {{ item.gloss_id }}
         </div>
     </div>
 
-    <div id="remark-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
+    <div id="remark-modal"
+        style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5);">
         <div style=" background: white; max-width: 500px; margin: 100px auto; padding: 25px;">
             <h2>Overslaan met opmerking</h2>
             <form method="post" action="{% url 'skip_recording_with_remark' item.signbank_id %}">
                 {% csrf_token %}
-                <textarea name="remark" rows="6" style="width: 100%;" placeholder="Typ hier de opmerking..." required></textarea>
+                <textarea name="remark" rows="6" style="width: 100%;" placeholder="Typ hier de opmerking..."
+                    required></textarea>
                 <br><br>
                 <button type="submit">
                     OPSLAAN EN VOLGENDE
@@ -94,7 +98,7 @@ detail-pagina {{ item.gloss_id }}
         </div>
     </div>
 
-{% endif %}
+    {% endif %}
 
     <div class="detail_wrapper">
         <div class="detail_video">
@@ -108,37 +112,31 @@ detail-pagina {{ item.gloss_id }}
             {% endif %}
             {% if item.rejected_video %}
 
-                <div class="rejected-video">
+            <div class="rejected-video">
 
-                    <h3>Afgekeurde opname</h3>
+                <h3>Afgekeurde opname</h3>
 
-                    <video
-                        controls
-                        style="width: 100%; max-width: 700px;"
-                    >
-                        <source
-                            src="{{ item.rejected_video.url }}"
-                            type="video/mp4"
-                        >
+                <video controls style="width: 100%; max-width: 700px;">
+                    <source src="{{ item.rejected_video.url }}" type="video/mp4">
 
-                        Je browser ondersteunt deze video niet.
-                    </video>
+                    Je browser ondersteunt deze video niet.
+                </video>
 
-                    {% if item.video_review_remarks %}
+                {% if item.video_review_remarks %}
 
-                        <div class="video-review-comment">
+                <div class="video-review-comment">
 
-                            <strong>Reden afkeuring</strong>
+                    <strong>Reden afkeuring</strong>
 
-                            <p>
-                                {{ item.video_review_remarks|linebreaksbr }}
-                            </p>
-
-                        </div>
-
-                    {% endif %}
+                    <p>
+                        {{ item.video_review_remarks|linebreaksbr }}
+                    </p>
 
                 </div>
+
+                {% endif %}
+
+            </div>
 
             {% endif %}
             <hr>
@@ -146,10 +144,7 @@ detail-pagina {{ item.gloss_id }}
         <div class="detail_inhoud">
             <div class="video-source-edit">
                 <h3>Video-bron corrigeren</h3>
-                <form
-                    method="post"
-                    action="{% url 'update_video_source' item.signbank_id %}"
-                >
+                <form method="post" action="{% url 'update_video_source' item.signbank_id %}">
                     {% csrf_token %}
                     <p>
                         <label for="gloss_id">
@@ -158,14 +153,8 @@ detail-pagina {{ item.gloss_id }}
 
                         <br>
 
-                        <input
-                            type="text"
-                            id="gloss_id"
-                            name="gloss_id"
-                            value="{{ item.gloss_id }}"
-                            required
-                            style="width: 100%;"
-                        >
+                        <input type="text" id="gloss_id" name="gloss_id" value="{{ item.gloss_id }}" required
+                            style="width: 100%;">
                     </p>
 
                     <p>
@@ -175,14 +164,8 @@ detail-pagina {{ item.gloss_id }}
 
                         <br>
 
-                        <input
-                            type="url"
-                            id="old_video_url"
-                            name="old_video_url"
-                            value="{{ item.old_video_url }}"
-                            required
-                            style="width: 100%;"
-                        >
+                        <input type="url" id="old_video_url" name="old_video_url" value="{{ item.old_video_url }}"
+                            required style="width: 100%;">
                     </p>
 
                     <button type="submit">
@@ -223,33 +206,33 @@ detail-pagina {{ item.gloss_id }}
 
 
 
-{% if opnamereeks_actief %}
+    {% if opnamereeks_actief %}
     <a href="{% url 'stop_opnamereeks' %}">
         ← Opnamereeks beëindigen
     </a>
-{% else %}
+    {% else %}
     <a href="{% url 'recording_list' %}">
         ← Terug naar overzicht
     </a>
-{% endif %}
+    {% endif %}
 </div>
 
 <script>
     const startControls = document.getElementById("start-controls");
     const stopControls = document.getElementById("stop-controls");
     const approvalControls = document.getElementById("approval-controls");
-    
+
     document
         .getElementById("start-recording")
-        .addEventListener("click", function() {
+        .addEventListener("click", function () {
             startControls.style.display = "none";
             stopControls.style.display = "block";
             approvalControls.style.display = "none";
         });
-    
+
     document
         .getElementById("stop-recording")
-        .addEventListener("click", function() {
+        .addEventListener("click", function () {
             startControls.style.display = "none";
             stopControls.style.display = "none";
             approvalControls.style.display = "block";
@@ -257,7 +240,7 @@ detail-pagina {{ item.gloss_id }}
 
     document
         .getElementById("retry-recording")
-        .addEventListener("click", function() {
+        .addEventListener("click", function () {
             startControls.style.display = "block";
             stopControls.style.display = "none";
             approvalControls.style.display = "none";
@@ -268,7 +251,7 @@ detail-pagina {{ item.gloss_id }}
     }
 
     function closeRemarkModal() {
-    document.getElementById("remark-modal").style.display = "none";
+        document.getElementById("remark-modal").style.display = "none";
     }
 
 </script>
