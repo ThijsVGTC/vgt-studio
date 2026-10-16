@@ -1,6 +1,8 @@
 import os
 import sqlite3
 from datetime import datetime
+import fcntl
+from pathlib import Path
 
 from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
@@ -43,7 +45,28 @@ class Command(BaseCommand):
                 self.style.WARNING("DRY RUN - er wordt niets opgeslagen.")
             )
 
-        connection = self.open_signbank_database()
+        lock_path = Path("/app/sync_locks/signbank_sync.lock")
+        lock_path.parent.mkdir(parents=True, exist_ok=True)
+
+        lock_file = open(lock_path, "a+")
+
+        try:
+            fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
+        except BlockingIOError:
+            lock_file.close()
+            self.stdout.write(
+                self.style.WARNING(
+                    "Signbank-synchronisatie is al bezig. Deze uitvoering wordt overgeslagen."
+                )
+            )
+            return
+
+        try:
+            connection = self.open_signbank_database()
+        except Exception:
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+            lock_file.close()
+            raise
 
         try:
             gloss_content_type_id = self.get_gloss_content_type_id(connection)
@@ -267,6 +290,8 @@ class Command(BaseCommand):
 
         finally:
             connection.close()
+            fcntl.flock(lock_file, fcntl.LOCK_UN)
+            lock_file.close()
 
     def open_signbank_database(self):
         """
@@ -531,13 +556,17 @@ class Command(BaseCommand):
         ).fetchone()
 
         if not row:
-            return str(value)
+            result = str(value)
+        else:
+            result = (
+                self.clean(row["dutch_name"])
+                or self.clean(row["english_name"])
+                or str(value)
+            )
 
-        return (
-            self.clean(row["dutch_name"])
-            or self.clean(row["english_name"])
-            or str(value)
-        )
+        self._fieldchoice_cache[cache_key] = result
+
+        return result
 
     def parse_signbank_datetime(self, value):
         if not value:

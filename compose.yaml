@@ -10,6 +10,24 @@ services:
       - ./db.sqlite3:/app/db.sqlite3
       - ./media:/app/media
       - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
+      - ./sync_locks:/app/sync_locks
     environment:
       GOOGLE_OAUTH_CLIENT_ID: ${GOOGLE_OAUTH_CLIENT_ID}
       GOOGLE_OAUTH_CLIENT_SECRET: ${GOOGLE_OAUTH_CLIENT_SECRET}
+  signbank_sync:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./db.sqlite3:/app/db.sqlite3
+      - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
+      - ./sync_locks:/app/sync_locks
+    command:
+      - /bin/sh
+      - -c
+      - |
+        while true; do
+          python -c 'import datetime, time; now = datetime.datetime.now(); wait = 1800 - (now.minute % 30 * 60 + now.second); time.sleep(wait)'
+          python manage.py sync_signbank
+        done
