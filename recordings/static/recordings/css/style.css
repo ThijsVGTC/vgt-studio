@@ -1618,30 +1618,50 @@ html[data-font-size="xlarge"] body * {
 
 /* Signbank: eerste twee kolommen vastzetten */
 
-.signbank-sticky-columns {
-    --gloss-column-width: 180px;
+/* Signbank: GLOSS en Video vastzetten */
+
+.signbank-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
 }
 
+.signbank-sticky-columns {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Eerste kolom: GLOSS */
 .signbank-sticky-columns th:first-child,
 .signbank-sticky-columns td:first-child {
     position: sticky;
     left: 0;
     z-index: 2;
-    background: var(--surface-color, #fff);
-    min-width: var(--gloss-column-width);
+    width: 180px;
+    min-width: 180px;
+    max-width: 180px;
+    box-sizing: border-box;
+    background: #fff;
 }
 
+/* Tweede kolom: Video */
 .signbank-sticky-columns th:nth-child(2),
 .signbank-sticky-columns td:nth-child(2) {
     position: sticky;
-    left: var(--gloss-column-width);
+    left: 180px;
     z-index: 2;
-    background: var(--surface-color, #fff);
+    background: #fff;
 }
 
+/* Tabelkop boven de inhoud */
 .signbank-sticky-columns thead th:first-child,
 .signbank-sticky-columns thead th:nth-child(2) {
-    z-index: 3;
+    z-index: 4;
+}
+
+/* Scheidingslijn na Video */
+.signbank-sticky-columns th:nth-child(2),
+.signbank-sticky-columns td:nth-child(2) {
+    box-shadow: 3px 0 5px -3px rgba(0, 0, 0, 0.25);
 }
 
 /* Signbank: instellingen voor zichtbare kolommen */
