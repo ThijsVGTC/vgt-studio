@@ -731,11 +731,6 @@ tr:hover td {
     color: #1f2937;
 }
 
-.signbank-table-wrapper {
-    width: 100%;
-    overflow-x: auto;
-}
-
 .signbank-table {
     min-width: 1250px;
 }
@@ -1722,4 +1717,12 @@ html[data-font-size="xlarge"] body * {
 
 #column-settings-panel input[type="checkbox"] {
     cursor: pointer;
+}
+
+/* Sticky kolommen GLOSS en Video */
+
+.signbank-table.signbank-sticky-columns {
+
+    overflow: visible;
+
 }
