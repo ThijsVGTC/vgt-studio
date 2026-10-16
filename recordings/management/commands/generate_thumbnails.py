@@ -1,3 +1,6 @@
+from pathlib import Path
+from django.conf import settings
+
 from django.core.management.base import BaseCommand
 
 from recordings.models import SignbankEntry
@@ -33,10 +36,13 @@ class Command(BaseCommand):
         )
 
         if options["missing"]:
-
-            items = items.filter(
-                thumbnail_path=""
-            )
+            items = [
+                item for item in items
+                if not item.thumbnail_path
+                or not (
+                    Path(settings.MEDIA_ROOT) / item.thumbnail_path
+                ).exists()
+            ]
 
         if options["limit"]:
 
