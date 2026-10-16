@@ -331,6 +331,14 @@ tr:hover td {
     padding: 20px;
 }
 
+.detail_video video {
+    max-height: calc(100dvh - 180px);
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
+
 .detail_inhoud {
     width: 47%;
     padding: 20px;
@@ -1608,10 +1616,3 @@ html[data-font-size="xlarge"] body * {
     font-weight: 600;
 }
 
-.detail-video video {
-    max-height: calc(100dvh - 180px);
-    max-width: 100%;
-    width: auto;
-    height: auto;
-    object-fit: contain;
-}
