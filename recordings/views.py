@@ -514,7 +514,11 @@ def signbank_export_preview(request):
     
     for item in items:
 
-        gloss = (item.gloss_id or "").strip()
+        gloss = (
+            (item.signbank_entry.gloss or "").strip()
+            if item.signbank_entry
+            else ""
+        )
 
         if len(gloss) < 2:
             export_items.append({
@@ -609,7 +613,11 @@ def signbank_export_item(request, signbank_id):
         )
         return redirect("signbank_export_preview")
 
-    gloss = (item.gloss_id or "").strip()
+    gloss = (
+        (item.signbank_entry.gloss or "").strip()
+        if item.signbank_entry
+        else ""
+    )
 
     if len(gloss) < 2:
         messages.error(
@@ -789,7 +797,11 @@ def signbank_export_bulk(request):
 
     for item in items:
 
-        gloss = (item.gloss_id or "").strip()
+        gloss = (
+            (item.signbank_entry.gloss or "").strip()
+            if item.signbank_entry
+            else ""
+        )
 
         if len(gloss) < 2 or not item.new_video:
             error_count += 1
