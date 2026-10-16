@@ -7,7 +7,7 @@ services:
     ports:
       - "${VGT_STUDIO_PORT:-32769}:8000"
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - ./data:/app/data
       - ./media:/app/media
       - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
       - ./sync_locks:/app/sync_locks
@@ -20,7 +20,7 @@ services:
       dockerfile: Dockerfile
     restart: unless-stopped
     volumes:
-      - ./db.sqlite3:/app/db.sqlite3
+      - ./data:/app/data
       - /var/www/vhosts/vlaamsegebarentaal.be/signbank:/app/signbank:ro
       - ./sync_locks:/app/sync_locks
     command:
