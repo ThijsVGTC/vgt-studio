@@ -37,4 +37,5 @@ urlpatterns = [
     path("opnamereeksen/<int:series_id>/rapport/",views.recording_series_report,name="recording_series_report",),
     path("signbank/stats/",views.signbank_stats,name="signbank_stats",),
     path("signbank/stats/sync-now/",views.signbank_sync_now,name="signbank_sync_now",),
+    path("signbank/cron-sync/", views.signbank_cron_sync, name="signbank_cron_sync"),
 ]

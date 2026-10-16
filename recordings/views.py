@@ -4,6 +4,8 @@ import re
 import requests
 import gspread
 import shutil
+import os
+import secrets
 
 from pathlib import PurePosixPath, Path
 from urllib.parse import urlparse
@@ -19,7 +21,8 @@ from django.utils import timezone
 from django.urls import reverse
 from .thumbnail_utils import ( generate_thumbnail_for_item,)
 from django.core.management import call_command
-from django.http import HttpResponseNotAllowed
+from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseForbidden
+from django.views.decorators.csrf import csrf_exempt
 
 # Create your views here.
 
@@ -2585,3 +2588,22 @@ def signbank_sync_now(request):
     call_command("sync_signbank")
 
     return redirect("signbank_stats")
+
+
+@csrf_exempt
+def signbank_cron_sync(request):
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    expected_token = os.environ.get("SIGNBANK_CRON_TOKEN", "")
+    provided_token = request.headers.get("X-Cron-Token", "")
+
+    if (
+        not expected_token
+        or not secrets.compare_digest(provided_token, expected_token)
+    ):
+        return HttpResponseForbidden("Ongeldige toegangssleutel.")
+
+    call_command("sync_signbank")
+
+    return HttpResponse("Signbank-synchronisatie voltooid.")
