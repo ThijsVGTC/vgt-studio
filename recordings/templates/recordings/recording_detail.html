@@ -68,12 +68,12 @@ detail-pagina {{ item.gloss_id }}
             {% if opnamereeks_actief %}
                 <button type="button" class="stop-recording-series"
                     onclick="window.location.href='{% url 'stop_opnamereeks' %}'">
-                    ← Opnamereeks beëindigen
+                    OPNAMEREEKS BEËINDIGEN
                 </button>
             {% else %}
                 <button type="button" class="back-to-overview"
                     onclick="window.location.href='{% url 'recording_list' %}'">
-                    ← Terug naar overzicht
+                    TERUG NAAR OVERZICHT
                 </button>
             {% endif %}
         </div>
