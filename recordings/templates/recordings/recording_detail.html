@@ -60,10 +60,20 @@ detail-pagina {{ item.gloss_id }}
                 <button type="submit">OVERSLAAN - AL VIDEO</button>
             </form>
             {% if has_previous_recording %}
-                <button type="button"
-                        class="previous-recording-button"
-                        onclick="window.location.href='{% url 'previous_recording_item' %}'">
-                    ← VORIGE IN REEKS
+            <button type="button" class="previous-recording-button"
+                onclick="window.location.href='{% url 'previous_recording_item' %}'">
+                ← VORIGE IN REEKS
+            </button>
+            {% endif %}
+            {% if opnamereeks_actief %}
+                <button type="button" class="stop-recording-series"
+                    onclick="window.location.href='{% url 'stop_opnamereeks' %}'">
+                    ← Opnamereeks beëindigen
+                </button>
+            {% else %}
+                <button type="button" class="back-to-overview"
+                    onclick="window.location.href='{% url 'recording_list' %}'">
+                    ← Terug naar overzicht
                 </button>
             {% endif %}
         </div>
@@ -203,18 +213,6 @@ detail-pagina {{ item.gloss_id }}
             </div>
         </div>
     </div>
-
-
-
-    {% if opnamereeks_actief %}
-    <a href="{% url 'stop_opnamereeks' %}">
-        ← Opnamereeks beëindigen
-    </a>
-    {% else %}
-    <a href="{% url 'recording_list' %}">
-        ← Terug naar overzicht
-    </a>
-    {% endif %}
 </div>
 
 <script>
