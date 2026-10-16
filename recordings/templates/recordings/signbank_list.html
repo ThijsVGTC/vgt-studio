@@ -221,9 +221,38 @@ Signbank | VGT Studio
     </button>
 </div>
 
+<div class="signbank-column-settings">
+
+    <button
+        type="button"
+        id="toggle-column-settings"
+        aria-expanded="false"
+        aria-controls="column-settings-panel"
+    >
+        ⚙ Kolommen kiezen
+    </button>
+
+    <div id="column-settings-panel" hidden>
+
+        <strong>Zichtbare kolommen</strong>
+
+        <label><input type="checkbox" data-column="3" checked> Handvorm</label>
+        <label><input type="checkbox" data-column="4" checked> Locatie</label>
+        <label><input type="checkbox" data-column="5" checked> Mogelijke vertaling</label>
+        <label><input type="checkbox" data-column="6" checked> Variant</label>
+        <label><input type="checkbox" data-column="7" checked> Categorieën</label>
+        <label><input type="checkbox" data-column="8" checked> Labels</label>
+        <label><input type="checkbox" data-column="9" checked> Intern</label>
+        <label><input type="checkbox" data-column="10" checked> Info</label>
+        <label><input type="checkbox" data-column="11" checked> WDB</label>
+
+    </div>
+
+</div>
+
 <div class="signbank-table-wrapper">
 
-<table class="signbank-table">
+<table class="signbank-table signbank-sticky-columns">
 
     <thead>
 
@@ -955,6 +984,99 @@ if (internalLabelSearch) {
             });
     });
 }
+// Signbank: kolommen tonen en verbergen
+const columnSettingsButton = document.getElementById(
+    "toggle-column-settings"
+);
+
+const columnSettingsPanel = document.getElementById(
+    "column-settings-panel"
+);
+
+const signbankTable = document.querySelector(
+    ".signbank-table"
+);
+
+if (columnSettingsButton && columnSettingsPanel && signbankTable) {
+
+    const columnCheckboxes = columnSettingsPanel.querySelectorAll(
+        'input[data-column]'
+    );
+
+    const storageKey = "vgt-studio-signbank-columns";
+
+    // Instellingen openen en sluiten
+    columnSettingsButton.addEventListener("click", function () {
+        const isHidden = columnSettingsPanel.hidden;
+
+        columnSettingsPanel.hidden = !isHidden;
+
+        columnSettingsButton.setAttribute(
+            "aria-expanded",
+            String(isHidden)
+        );
+    });
+
+    // Kolom zichtbaar of verborgen maken
+    function setColumnVisibility(columnNumber, visible) {
+
+        // GLOSS en Video blijven altijd zichtbaar
+        if (columnNumber <= 2) return;
+
+        const rows = signbankTable.querySelectorAll("tr");
+
+        rows.forEach(function (row) {
+            const cell = row.children[columnNumber - 1];
+
+            if (cell && cell.tagName !== "TD" || !cell) {
+                if (!cell || cell.tagName !== "TH") return;
+            }
+
+            if (cell && !cell.hasAttribute("colspan")) {
+                cell.style.display = visible ? "" : "none";
+            }
+        });
+    }
+
+    // Opgeslagen voorkeuren ophalen
+    let savedColumns = {};
+
+    try {
+        savedColumns = JSON.parse(
+            localStorage.getItem(storageKey) || "{}"
+        ) || {};
+    } catch (error) {
+        savedColumns = {};
+    }
+
+    // Voorkeuren toepassen
+    columnCheckboxes.forEach(function (checkbox) {
+
+        const columnNumber = Number(checkbox.dataset.column);
+
+        if (Object.prototype.hasOwnProperty.call(
+            savedColumns,
+            columnNumber
+        )) {
+            checkbox.checked = savedColumns[columnNumber];
+        }
+
+        setColumnVisibility(columnNumber, checkbox.checked);
+
+        checkbox.addEventListener("change", function () {
+
+            setColumnVisibility(columnNumber, checkbox.checked);
+
+            savedColumns[columnNumber] = checkbox.checked;
+
+            localStorage.setItem(
+                storageKey,
+                JSON.stringify(savedColumns)
+            );
+        });
+    });
+}
+
 </script>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
