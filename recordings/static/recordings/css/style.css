@@ -1607,3 +1607,11 @@ html[data-font-size="xlarge"] body * {
     font-size: 1.1rem;
     font-weight: 600;
 }
+
+.detail-video video {
+    max-height: calc(100dvh - 180px);
+    max-width: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+}
