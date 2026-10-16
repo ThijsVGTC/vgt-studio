@@ -22,3 +22,11 @@ credentials.json
 service_account.json
 
 .DS_Store
+.php-ini
+.php-version
+VGTSTUDIO.zip
+index.html
+.git
+.env
+db.sqlite3
+media/
