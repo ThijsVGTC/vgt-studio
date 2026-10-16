@@ -121,7 +121,15 @@ Signbank | VGT Studio
                         placeholder="Zoek label..."
                         autocomplete="off"
                     >
-
+                        <label class="filter-checkbox internal-label-option">
+                            <input
+                                type="checkbox"
+                                name="internal_label"
+                                value="__geen_label__"
+                                {% if "__geen_label__" in selected_internal_labels %}checked{% endif %}
+                            >
+                            <span>Geen label</span>
+                        </label>            
                     {% for label in internal_label_options %}
                         <label class="filter-checkbox internal-label-option">
                             <input

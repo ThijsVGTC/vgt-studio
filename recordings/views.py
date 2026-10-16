@@ -1030,7 +1030,28 @@ def signbank_list(request):
         internal_filter = Q()
 
         for label in selected_internal_labels:
-            internal_filter |= Q(labels__icontains=label)
+            if label == "__geen_label__":
+                functional_only = {
+                    "expliciet",
+                    "verouderd",
+                    "beledigend",
+                    "neologisme",
+                    "negatief",
+                }
+
+                ids_without_internal_labels = [
+                    entry.pk
+                    for entry in SignbankEntry.objects.only("id", "labels").iterator()
+                    if all(
+                        label.strip().lower() in functional_only
+                        for label in (entry.labels or "").split(";")
+                        if label.strip()
+                    )
+                ]
+
+                internal_filter |= Q(pk__in=ids_without_internal_labels)
+            else:
+                internal_filter |= Q(labels__icontains=label)
 
         entries = entries.filter(internal_filter)
 
