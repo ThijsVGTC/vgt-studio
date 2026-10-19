@@ -329,7 +329,7 @@ Signbank | VGT Studio
                 <td class="signbank-gloss">
 
                     <a
-                        href="https://vlaamsegebarentaal.be/signbank/dictionary/gloss/{{ entry.signbank_id }}/"
+                        href="{% url 'signbank_detail' entry.signbank_id %}"
                         target="_blank"
                     >
                         {{ entry.gloss }}
