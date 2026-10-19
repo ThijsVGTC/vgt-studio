@@ -275,4 +275,23 @@ class SignbankService:
 
             raise
 
+        # De wijziging in de Signbank-master is geslaagd.
+        # Werk nu ook de lokale VGT Studio-database bij.
+        from django.core.management import call_command
+        from django.core.management.base import CommandError
+
+        try:
+            call_command(
+                "sync_signbank",
+                signbank_id=signbank_id,
+                verbosity=0,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                f"De GLOSS is gewijzigd in Signbank, maar de synchronisatie "
+                f"naar VGT Studio is mislukt voor Signbank ID {signbank_id}. "
+                "De Signbank-master is niet teruggedraaid. "
+                "Synchroniseer dit gebaar opnieuw."
+            ) from exc
+
         return self.get_gloss(signbank_id)

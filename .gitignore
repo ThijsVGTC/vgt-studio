@@ -22,4 +22,5 @@ service_account.json
 
 # Generated
 staticfiles/
-media/
+media//data/signbank/
+/sync_locks/

@@ -5,7 +5,11 @@ from pathlib import Path
 from unittest.mock import patch
 
 from recordings.services.signbank_service import SignbankService
+import os
+import django
 
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "studio.settings")
+django.setup()
 
 class TestGlossUpdate(unittest.TestCase):
 
@@ -193,11 +197,21 @@ class TestGlossUpdate(unittest.TestCase):
             service.video_root = str(video_root)
 
             with self.assertRaises(sqlite3.IntegrityError):
-                service.update_gloss(
-                    1063,
-                    "BEELD-B",
-                    "AFBEELDING-B",
-                )
+                with patch(
+                    "recordings.models.SignbankEntry.objects.filter"
+                ) as mock_filter:
+                    service.update_gloss(
+                        1063,
+                        "BEELD-B",
+                        "AFBEELDING-B",
+                    )
+
+                    mock_filter.assert_called_once_with(
+                        signbank_id=1063
+                    )
+                    mock_filter.return_value.update.assert_called_once_with(
+                        gloss="AFBEELDING-B"
+                    )
 
             with sqlite3.connect(db_path) as conn:
                 gloss = conn.execute("""
@@ -210,6 +224,74 @@ class TestGlossUpdate(unittest.TestCase):
             self.assertTrue(old_video.exists())
             self.assertEqual(old_video.read_bytes(), b"testvideo")
             self.assertFalse(new_video.exists())
+
+    def test_local_database_failure(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            db_path = root / "signbank.db"
+            video_root = root / "glossvideo"
+
+            with sqlite3.connect(db_path) as conn:
+                conn.execute("""
+                    CREATE TABLE dictionary_gloss (
+                        id INTEGER PRIMARY KEY,
+                        annotation_idgloss TEXT UNIQUE,
+                        subhndsh INTEGER,
+                        final_subhndsh INTEGER,
+                        locprim INTEGER,
+                        final_loc INTEGER,
+                        semField TEXT,
+                        semField1 TEXT,
+                        semField2 TEXT,
+                        semField3 TEXT,
+                        semField4 TEXT,
+                        inWeb INTEGER,
+                        lastUpdated TEXT
+                    )
+                """)
+                conn.execute("""
+                    INSERT INTO dictionary_gloss
+                    (id, annotation_idgloss)
+                    VALUES (1063, 'BEELD-B')
+                """)
+
+            old_video = video_root / "BE" / "BEELD-B-1063.mp4"
+            new_video = video_root / "AF" / "AFBEELDING-B-1063.mp4"
+
+            old_video.parent.mkdir(parents=True)
+            old_video.write_bytes(b"testvideo")
+
+            service = SignbankService()
+            service.db_path = str(db_path)
+            service.video_root = str(video_root)
+
+            with patch(
+                "recordings.models.SignbankEntry.objects.filter"
+            ) as mock_filter:
+                mock_filter.return_value.update.side_effect = RuntimeError(
+                    "Lokale database niet bereikbaar"
+                )
+
+                with self.assertRaises(RuntimeError):
+                    service.update_gloss(
+                        1063,
+                        "BEELD-B",
+                        "AFBEELDING-B",
+                    )
+
+            with sqlite3.connect(db_path) as conn:
+                gloss = conn.execute("""
+                    SELECT annotation_idgloss
+                    FROM dictionary_gloss
+                    WHERE id = 1063
+                """).fetchone()[0]
+
+            # De masterwijziging is al voltooid.
+            self.assertEqual(gloss, "AFBEELDING-B")
+
+            # De video staat op de nieuwe locatie.
+            self.assertFalse(old_video.exists())
+            self.assertTrue(new_video.exists())
 
 if __name__ == "__main__":
     unittest.main()

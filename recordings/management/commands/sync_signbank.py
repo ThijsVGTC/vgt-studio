@@ -26,10 +26,17 @@ class Command(BaseCommand):
             action="store_true",
             help="Lees Signbank en toon resultaat zonder Studio-database te wijzigen.",
         )
+        parser.add_argument(
+            "--signbank-id",
+            type=int,
+            default=None,
+            help="Synchroniseer uitsluitend het opgegeven Signbank ID.",
+        )
 
     def handle(self, *args, **options):
         started_at = timezone.now()
         dry_run = options["dry_run"]
+        signbank_id = options["signbank_id"]
 
         if not os.path.exists(SIGNBANK_DB_PATH):
             raise CommandError(
@@ -45,7 +52,12 @@ class Command(BaseCommand):
                 self.style.WARNING("DRY RUN - er wordt niets opgeslagen.")
             )
 
-        lock_path = Path("/app/sync_locks/signbank_sync.lock")
+        lock_path = Path(
+            os.environ.get(
+                "SIGNBANK_SYNC_LOCK_PATH",
+                "/app/sync_locks/signbank_sync.lock",
+            )
+        )
         lock_path.parent.mkdir(parents=True, exist_ok=True)
 
         lock_file = open(lock_path, "a+")
@@ -88,9 +100,11 @@ class Command(BaseCommand):
                     g.inWeb,
                     g.lastUpdated
                 FROM dictionary_gloss g
+                WHERE (? IS NULL OR g.id = ?)
                 ORDER BY g.id
-                """
-            ).fetchall()
+                """,
+                (signbank_id, signbank_id),
+                ).fetchall()
 
             total = len(rows)
 
