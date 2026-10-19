@@ -942,6 +942,40 @@ def signbank_export_bulk(request):
     )
 
 @login_required
+def signbank_update_gloss(request, signbank_id):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    new_gloss = request.POST.get("new_gloss", "").strip()
+
+    if not new_gloss:
+        messages.error(request, "De GLOSS mag niet leeg zijn.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+
+    try:
+        SignbankService().update_gloss(
+            signbank_id,
+            entry.gloss,
+            new_gloss,
+        )
+        messages.success(
+            request,
+            f"GLOSS succesvol gewijzigd naar {new_gloss}.",
+        )
+    except Exception as exc:
+        logger.exception("GLOSS-wijziging mislukt")
+        messages.error(request, f"GLOSS wijzigen mislukt: {exc}")
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_detail(request, signbank_id):
     entry = get_object_or_404(
         SignbankEntry,

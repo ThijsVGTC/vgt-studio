@@ -24,7 +24,41 @@
             <p>
                 <strong>Gloss:</strong><br>
                 {{ entry.gloss|default:"-" }}
+
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary"
+                        onclick="document.getElementById('gloss-edit-form').hidden = false;">
+                    ✏️ Bewerken
+                </button>
             </p>
+
+            <form id="gloss-edit-form"
+                method="post"
+                action="{% url 'signbank_update_gloss' entry.signbank_id %}"
+                hidden
+                onsubmit="return confirm('Ben je zeker dat je deze GLOSS wilt wijzigen? De Signbank-master en de videobestandsnaam worden aangepast.');">
+
+                {% csrf_token %}
+
+                <label for="new-gloss">Nieuwe GLOSS</label>
+
+                <input type="text"
+                    id="new-gloss"
+                    name="new_gloss"
+                    value="{{ entry.gloss }}"
+                    class="form-control"
+                    required>
+
+                <button type="submit" class="btn btn-primary">
+                    Opslaan
+                </button>
+
+                <button type="button"
+                        class="btn btn-secondary"
+                        onclick="document.getElementById('gloss-edit-form').hidden = true;">
+                    Annuleren
+                </button>
+            </form>
 
             <p>
                 <strong>Signbank ID:</strong><br>
