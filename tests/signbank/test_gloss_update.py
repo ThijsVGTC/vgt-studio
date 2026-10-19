@@ -57,11 +57,20 @@ class TestGlossUpdate(unittest.TestCase):
             service.db_path = str(db_path)
             service.video_root = str(video_root)
 
-            service.update_gloss(
-                1063,
-                "BEELD-B",
-                "AFBEELDING-B",
-            )
+            with patch(
+                "django.core.management.call_command"
+            ) as mock_sync:
+                service.update_gloss(
+                    1063,
+                    "BEELD-B",
+                    "AFBEELDING-B",
+                )
+
+                mock_sync.assert_called_once_with(
+                    "sync_signbank",
+                    signbank_id=1063,
+                    verbosity=0,
+                )
 
             # Controleer de database.
             with sqlite3.connect(db_path) as conn:
@@ -266,9 +275,9 @@ class TestGlossUpdate(unittest.TestCase):
             service.video_root = str(video_root)
 
             with patch(
-                "recordings.models.SignbankEntry.objects.filter"
-            ) as mock_filter:
-                mock_filter.return_value.update.side_effect = RuntimeError(
+                "django.core.management.call_command"
+            ) as mock_sync:
+                mock_sync.side_effect = RuntimeError(
                     "Lokale database niet bereikbaar"
                 )
 

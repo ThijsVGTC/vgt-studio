@@ -66,6 +66,13 @@ class Command(BaseCommand):
             fcntl.flock(lock_file, fcntl.LOCK_EX | fcntl.LOCK_NB)
         except BlockingIOError:
             lock_file.close()
+
+            if signbank_id is not None:
+                raise CommandError(
+                    f"Signbank ID {signbank_id} kon niet worden "
+                    "gesynchroniseerd omdat er al een synchronisatie loopt."
+                )
+
             self.stdout.write(
                 self.style.WARNING(
                     "Signbank-synchronisatie is al bezig. Deze uitvoering wordt overgeslagen."
@@ -301,6 +308,11 @@ class Command(BaseCommand):
                 error_count=error_count,
                 successful=(error_count == 0),
             )
+            if error_count > 0:
+                raise CommandError(
+                    f"Signbank-synchronisatie mislukt: "
+                    f"{error_count} van {total} entries konden niet worden verwerkt."
+                )
 
         finally:
             connection.close()
