@@ -229,21 +229,6 @@ class SignbankService:
                 if existing:
                     raise ValueError(
                         f"De GLOSS '{new_gloss}' bestaat al in Signbank."
-                )
-
-                existing = conn.execute(
-                    """
-                    SELECT id
-                    FROM dictionary_gloss
-                    WHERE annotation_idgloss = ?
-                    AND id != ?
-                    """,
-                    (new_gloss, signbank_id),
-                ).fetchone()
-
-                if existing:
-                    raise ValueError(
-                        f"De GLOSS '{new_gloss}' bestaat al in Signbank."
                     )
 
                 # Verplaats de video voordat de database wordt opgeslagen.
