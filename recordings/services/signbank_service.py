@@ -247,6 +247,118 @@ class SignbankService:
 
         return [dict(row) for row in rows]
 
+    def add_translation(self, signbank_id, new_text, signbank_user_id):
+        """
+        Voeg een Nederlandse vertaling toe aan een bestaand gebaar.
+        """
+
+        new_text = new_text.strip()
+
+        if not new_text or len(new_text) > 100:
+            raise ValueError("Een vertaling moet 1 tot 100 tekens bevatten.")
+
+        with self.write_connection() as conn:
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden.")
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            # Zoek een bestaand keyword.
+            keyword = conn.execute(
+                "SELECT id FROM dictionary_keyword WHERE text = ?",
+                (new_text,),
+            ).fetchone()
+
+            if keyword:
+                keyword_id = keyword["id"]
+            else:
+                cursor = conn.execute(
+                    "INSERT INTO dictionary_keyword (text) VALUES (?)",
+                    (new_text,),
+                )
+                keyword_id = cursor.lastrowid
+
+            # Voorkom dubbele vertalingen bij hetzelfde gebaar.
+            existing = conn.execute(
+                """
+                SELECT id
+                FROM dictionary_translation
+                WHERE gloss_id = ?
+                AND translation_id = ?
+                AND language_id = 2
+                """,
+                (signbank_id, keyword_id),
+            ).fetchone()
+
+            if existing:
+                raise ValueError("Deze vertaling bestaat al bij dit gebaar.")
+
+            # Bepaal de volgende positie.
+            next_index = conn.execute(
+                """
+                SELECT COALESCE(MAX("index"), -1) + 1
+                FROM dictionary_translation
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            ).fetchone()[0]
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_translation
+                    (gloss_id, translation_id, language_id, "index")
+                VALUES (?, ?, 2, ?)
+                """,
+                (signbank_id, keyword_id, next_index),
+            )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
     def update_translation(self, signbank_id, translation_row_id, new_text, signbank_user_id):
         """
         Wijzig één vertaling van een gebaar zonder gedeelde keywords

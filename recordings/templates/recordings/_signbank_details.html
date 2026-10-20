@@ -291,11 +291,25 @@
                 <p>Geen mogelijke vertalingen beschikbaar.</p>
                 {% endfor %}
 
-                <button type="button"
-                        class="btn btn-primary"
-                        disabled>
-                    + Vertaling toevoegen
-                </button>
+                <form method="post"
+                    action="{% url 'signbank_add_translation' signbank_id=entry.signbank_id %}"
+                    style="display:flex; gap:10px; margin-top:15px;">
+
+                    {% csrf_token %}
+
+                    <input type="text"
+                        name="new_text"
+                        class="form-control"
+                        placeholder="Nieuwe vertaling..."
+                        maxlength="100"
+                        required
+                        style="flex:1;">
+
+                    <button type="submit" class="btn btn-primary">
+                        + Vertaling toevoegen
+                    </button>
+
+                </form>
 
             </div>
 
