@@ -8,7 +8,7 @@ from django.core.management.base import BaseCommand, CommandError
 from django.utils import timezone
 from django.utils.dateparse import parse_datetime
 
-from recordings.models import SignbankEntry, SignbankSyncLog
+from recordings.models import SignbankEntry, SignbankSyncLog, RecordingItem
 
 
 SIGNBANK_DB_PATH = os.environ.get(
@@ -273,7 +273,15 @@ class Command(BaseCommand):
                             updated_count += 1
                         else:
                             unchanged_count += 1
-
+                        # Koppel bestaande opnames automatisch aan Signbank.
+                        # Alleen ontbrekende koppelingen worden aangevuld.
+                        RecordingItem.objects.filter(
+                            signbank_id=entry.signbank_id,
+                            signbank_entry__isnull=True,
+                        ).update(
+                            signbank_entry=entry
+                        )
+                    
                 except Exception as exc:
                     error_count += 1
 
@@ -282,7 +290,7 @@ class Command(BaseCommand):
                             f"Fout bij Signbank ID {row['id']}: {exc}"
                         )
                     )
-
+                    
             if dry_run:
                 self.stdout.write(
                     self.style.SUCCESS(
