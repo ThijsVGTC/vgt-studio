@@ -24,7 +24,30 @@ class SignbankService:
             "SIGNBANK_VIDEO_ROOT",
             "/app/signbank/writable/glossvideo",
         )
+    def get_label_choices(self):
+        """
+        Haal alle beschikbare labels op uit de Signbank-master.
+        """
 
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT id, name
+                FROM tagging_tag
+                WHERE name IS NOT NULL
+                AND TRIM(name) != ''
+                ORDER BY name COLLATE NOCASE
+                """
+            ).fetchall()
+
+        return [
+            {
+                "id": row["id"],
+                "name": row["name"],
+            }
+            for row in rows
+        ]
+    
     def get_video_path(self, gloss, signbank_id):
         """
         Bepaal het videopad volgens de mapstructuur van Signbank 2.0.
