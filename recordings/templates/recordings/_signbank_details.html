@@ -25,37 +25,28 @@
                 <strong>Gloss:</strong><br>
                 {{ entry.gloss|default:"-" }}
 
-                <button type="button"
-                        class="btn btn-sm btn-outline-primary"
-                        onclick="document.getElementById('gloss-edit-form').hidden = false;">
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                    onclick="document.getElementById('gloss-edit-form').hidden = false;">
                     ✏️ Bewerken
                 </button>
             </p>
 
-            <form id="gloss-edit-form"
-                method="post"
-                action="{% url 'signbank_update_gloss' entry.signbank_id %}"
-                hidden
+            <form id="gloss-edit-form" method="post" action="{% url 'signbank_update_gloss' entry.signbank_id %}" hidden
                 onsubmit="return confirm('Ben je zeker dat je deze GLOSS wilt wijzigen? De Signbank-master en de videobestandsnaam worden aangepast.');">
 
                 {% csrf_token %}
 
                 <label for="new-gloss">Nieuwe GLOSS</label>
 
-                <input type="text"
-                    id="new-gloss"
-                    name="new_gloss"
-                    value="{{ entry.gloss }}"
-                    class="form-control"
+                <input type="text" id="new-gloss" name="new_gloss" value="{{ entry.gloss }}" class="form-control"
                     required>
 
                 <button type="submit" class="btn btn-primary">
                     Opslaan
                 </button>
 
-                <button type="button"
-                        class="btn btn-secondary"
-                        onclick="document.getElementById('gloss-edit-form').hidden = true;">
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('gloss-edit-form').hidden = true;">
                     Annuleren
                 </button>
             </form>
@@ -67,21 +58,48 @@
 
             <p>
                 <strong>In woordenboek:</strong><br>
+
                 {% if entry.in_woordenboek %}
                 Ja
                 {% else %}
                 Nee
                 {% endif %}
+
+                <button type="button" class="btn btn-sm btn-outline-primary"
+                    onclick="document.getElementById('woordenboek-edit-form').hidden = false;">
+                    ✏️ Bewerken
+                </button>
             </p>
 
-            <p>
-                <strong>In woordenboek:</strong>
-                {% if entry.in_woordenboek %}
-                Ja
-                {% else %}
-                Nee
-                {% endif %}
-            </p>
+            <form id="woordenboek-edit-form" method="post"
+                action="{% url 'signbank_update_woordenboek' entry.signbank_id %}" hidden>
+
+                {% csrf_token %}
+
+                <label for="in-woordenboek">In woordenboek</label>
+
+                <select id="in-woordenboek" name="in_woordenboek" class="form-control">
+
+                    <option value="1" {% if entry.in_woordenboek %}selected{% endif %}>
+                        Ja
+                    </option>
+
+                    <option value="0" {% if not entry.in_woordenboek %}selected{% endif %}>
+                        Nee
+                    </option>
+
+                </select>
+
+                <button type="submit" class="btn btn-primary">
+                    Opslaan
+                </button>
+
+                <button type="button" class="btn btn-secondary"
+                    onclick="document.getElementById('woordenboek-edit-form').hidden = true;">
+                    Annuleren
+                </button>
+
+            </form>
 
             <hr>
 

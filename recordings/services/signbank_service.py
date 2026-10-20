@@ -328,3 +328,69 @@ class SignbankService:
             ) from exc
 
         return self.get_gloss(signbank_id)
+    
+    def update_in_woordenboek(self, signbank_id, in_woordenboek, signbank_user_id):
+        """
+        Wijzig 'In woordenboek' in de Signbank-master.
+        Registreer de gebruiker en wijzigingsdatum.
+        """
+
+        if not isinstance(in_woordenboek, bool):
+            raise ValueError("Ongeldige waarde voor 'In woordenboek'.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            row = conn.execute(
+                "SELECT inWeb FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if row is None:
+                raise ValueError("Gebaar niet gevonden in Signbank.")
+
+            if bool(row["inWeb"]) == in_woordenboek:
+                return
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET inWeb = ?, lastUpdated = ?
+                WHERE id = ?
+                """,
+                (int(in_woordenboek), updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
