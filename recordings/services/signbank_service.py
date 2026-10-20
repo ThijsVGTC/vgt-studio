@@ -1,7 +1,7 @@
 import os
 import sqlite3
 from contextlib import contextmanager
-
+from django.utils import timezone
 
 class SignbankService:
     """
@@ -243,10 +243,11 @@ class SignbankService:
                     UPDATE dictionary_gloss
                     SET 
                         idgloss = ?,
-                        annotation_idgloss = ?
+                        annotation_idgloss = ?,
+                        lastUpdated = ?
                     WHERE id = ?
                     """,
-                    (new_gloss, new_gloss, signbank_id),
+                    (new_gloss, new_gloss, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), signbank_id),
                 )
 
         except Exception:
