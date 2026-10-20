@@ -1329,6 +1329,68 @@ def signbank_add_translation(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_delete_source(request, signbank_id, source_id):
+    if not request.user.is_staff:
+        messages.error(
+            request,
+            "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().delete_source(
+            signbank_id=signbank_id,
+            source_row_id=source_id,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Bron succesvol verwijderd.",
+        )
+
+    except Exception as exc:
+        logger.exception("Bron verwijderen mislukt")
+        messages.error(
+            request,
+            f"Bron verwijderen mislukt: {exc}",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_update_source(request, signbank_id, source_id):
     if not request.user.is_staff:
         messages.error(

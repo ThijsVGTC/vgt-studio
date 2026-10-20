@@ -926,7 +926,89 @@ class SignbankService:
             signbank_id=signbank_id,
             verbosity=0,
         )
+    def delete_source(self, signbank_id, source_row_id, signbank_user_id):
+        """
+        Verwijder één bron bij het geselecteerde gebaar.
+        Andere gebaren en gedeelde keywords blijven behouden.
+        """
 
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            # Controleer of de bron bij dit gebaar hoort.
+            source = conn.execute(
+                """
+                SELECT id
+                FROM dictionary_source
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (source_row_id, signbank_id),
+            ).fetchone()
+
+            if source is None:
+                raise ValueError("Bron niet gevonden bij dit gebaar.")
+
+            # Controleer de Signbank-gebruiker.
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            # Verwijder uitsluitend de koppeling.
+            # Het gedeelde keyword blijft bestaan.
+            conn.execute(
+                """
+                DELETE FROM dictionary_source
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (source_row_id, signbank_id),
+            )
+
+            # Registreer de wijzigingsdatum.
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            # Registreer wie de wijziging uitvoerde.
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        # Synchroniseer het gewijzigde gebaar naar VGT Studio.
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+        
     def get_translations(self, signbank_id):
         """
         Haal de afzonderlijke vertalingen van een gebaar op.
