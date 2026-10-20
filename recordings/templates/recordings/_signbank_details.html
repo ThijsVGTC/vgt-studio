@@ -280,11 +280,20 @@
 
                     </form>
 
-                    <button type="button"
-                            class="btn btn-sm btn-outline-danger"
-                            disabled>
-                        ✕
-                    </button>
+                    <form method="post"
+                        action="{% url 'signbank_delete_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
+                        onsubmit="return confirm('Weet je zeker dat je deze vertaling wilt verwijderen?');"
+                        style="margin:0;">
+
+                        {% csrf_token %}
+
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-danger"
+                                title="Vertaling verwijderen">
+                            ✕
+                        </button>
+
+                    </form>
 
                 </div>
                 {% empty %}
