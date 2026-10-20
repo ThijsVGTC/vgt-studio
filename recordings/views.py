@@ -958,12 +958,39 @@ def signbank_update_gloss(request, signbank_id):
         return redirect("signbank_detail", signbank_id=signbank_id)
 
     from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    # Gebruik eerst de expliciete koppeling met het Google-account.
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    # Zonder expliciete koppeling alleen automatisch koppelen
+    # wanneer het e-mailadres uniek is in Signbank.
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een "
+            "Signbank-gebruiker. De GLOSS is niet gewijzigd.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
 
     try:
         SignbankService().update_gloss(
             signbank_id,
             entry.gloss,
             new_gloss,
+            signbank_user_id=signbank_user.signbank_id,
         )
         messages.success(
             request,

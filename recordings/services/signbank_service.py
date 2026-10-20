@@ -1,6 +1,7 @@
 import os
 import sqlite3
 from contextlib import contextmanager
+from zoneinfo import ZoneInfo
 from django.utils import timezone
 
 class SignbankService:
@@ -173,7 +174,7 @@ class SignbankService:
 
             return dict(row)
 
-    def update_gloss(self, signbank_id, old_gloss, new_gloss):
+    def update_gloss(self, signbank_id, old_gloss, new_gloss, signbank_user_id=None):
         """
         Wijzig een GLOSS in de Signbank-master en verplaats
         de bijbehorende video.
@@ -247,8 +248,37 @@ class SignbankService:
                         lastUpdated = ?
                     WHERE id = ?
                     """,
-                    (new_gloss, new_gloss, timezone.now().strftime("%Y-%m-%d %H:%M:%S.%f"), signbank_id),
+                    (new_gloss, new_gloss, timezone.localtime(timezone.now(),timezone=ZoneInfo("Europe/Brussels"),).strftime("%Y-%m-%d %H:%M:%S.%f"), signbank_id),
                 )
+                if signbank_user_id is not None:
+                    # Controleer of de gebruiker in de Signbank-master bestaat.
+                    user_exists = conn.execute(
+                        "SELECT 1 FROM auth_user WHERE id = ?",
+                        (signbank_user_id,),
+                    ).fetchone()
+
+                    if user_exists is None:
+                        raise ValueError(
+                            f"Signbank-gebruiker {signbank_user_id} bestaat niet."
+                        )
+
+                    # Registreer de gebruiker die deze GLOSS heeft gewijzigd.
+                    conn.execute(
+                        """
+                        DELETE FROM dictionary_gloss_lastUpdater
+                        WHERE gloss_id = ?
+                        """,
+                        (signbank_id,),
+                    )
+
+                    conn.execute(
+                        """
+                        INSERT INTO dictionary_gloss_lastUpdater
+                            (gloss_id, user_id)
+                        VALUES (?, ?)
+                        """,
+                        (signbank_id, signbank_user_id),
+                    )
 
         except Exception:
             if video_moved:

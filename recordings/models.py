@@ -463,3 +463,48 @@ class SignbankSyncLog(models.Model):
 
     def __str__(self):
         return f"Signbank sync {self.finished_at:%Y-%m-%d %H:%M}"
+
+class SignbankUser(models.Model):
+    signbank_id = models.PositiveIntegerField(
+        unique=True,
+        db_index=True,
+    )
+
+    username = models.CharField(
+        max_length=150,
+    )
+
+    email = models.EmailField(
+        blank=True,
+        db_index=True,
+    )
+
+    first_name = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+
+    last_name = models.CharField(
+        max_length=150,
+        blank=True,
+    )
+
+    is_active = models.BooleanField(
+        default=True,
+    )
+
+    studio_user = models.OneToOneField(
+        "auth.User",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="signbank_identity",
+    )
+
+    class Meta:
+        ordering = ["username"]
+        verbose_name = "Signbank-gebruiker"
+        verbose_name_plural = "Signbank-gebruikers"
+
+    def __str__(self):
+        return f"{self.username} ({self.signbank_id})"
