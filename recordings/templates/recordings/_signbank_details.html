@@ -855,16 +855,73 @@
             <hr>
 
             <h3>Bronnen</h3>
+            <div class="signbank-sources">
 
-            {% if entry.bronnen %}
-            {% for bron in entry.bronnen %}
-            <div>
-                {{ bron.text|default:"-"|linebreaksbr }}
+                {% for source in sources %}
+                <div class="source-item"
+                    style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+
+                    <input type="text"
+                        class="form-control"
+                        value="{{ source.text }}"
+                        maxlength="100"
+                        readonly
+                        style="flex:1;">
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-primary"
+                            disabled>
+                        Opslaan
+                    </button>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            disabled>
+                        ✕
+                    </button>
+
+                </div>
+                {% empty %}
+                <p>Geen bronnen beschikbaar.</p>
+                {% endfor %}
+
+                <form method="post"
+                    action="{% url 'signbank_add_source' signbank_id=entry.signbank_id %}"
+                    style="display:flex; gap:10px; margin-top:15px;">
+
+                    {% csrf_token %}
+
+                    <input type="text"
+                        name="new_text"
+                        class="form-control"
+                        placeholder="Nieuwe bron..."
+                        maxlength="100"
+                        required
+                        style="flex:1;">
+
+                    <button type="submit" class="btn btn-primary">
+                        + Bron toevoegen
+                    </button>
+
+                </form>
+
+                    <input type="text"
+                        class="form-control"
+                        placeholder="Nieuwe bron..."
+                        maxlength="100"
+                        disabled
+                        style="flex:1;">
+
+                    <button type="button"
+                            class="btn btn-primary"
+                            disabled>
+                        + Bron toevoegen
+                    </button>
+
+                </div>
+
             </div>
-            {% endfor %}
-            {% else %}
-            <p>-</p>
-            {% endif %}
+
 
             <hr>
 

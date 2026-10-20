@@ -678,6 +678,143 @@ class SignbankService:
             verbosity=0,
         )
 
+    def get_sources(self, signbank_id):
+        """
+        Haal de afzonderlijke bronnen van een gebaar op.
+        """
+
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT
+                    s.id,
+                    s.source_id,
+                    s."index",
+                    k.text
+                FROM dictionary_source s
+                INNER JOIN dictionary_keyword k
+                    ON k.id = s.source_id
+                WHERE s.gloss_id = ?
+                ORDER BY s."index", s.id
+                """,
+                (signbank_id,),
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+    
+    def add_source(self, signbank_id, new_text, signbank_user_id):
+        """
+        Voeg een nieuwe bron toe aan een bestaand gebaar.
+        """
+
+        new_text = new_text.strip()
+
+        if not new_text or len(new_text) > 100:
+            raise ValueError("Een bron moet 1 tot 100 tekens bevatten.")
+
+        with self.write_connection() as conn:
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden.")
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            # Zoek een bestaand keyword of maak een nieuw aan.
+            keyword = conn.execute(
+                "SELECT id FROM dictionary_keyword WHERE text = ?",
+                (new_text,),
+            ).fetchone()
+
+            if keyword:
+                keyword_id = keyword["id"]
+            else:
+                cursor = conn.execute(
+                    "INSERT INTO dictionary_keyword (text) VALUES (?)",
+                    (new_text,),
+                )
+                keyword_id = cursor.lastrowid
+
+            # Voorkom dubbele bronnen bij dezelfde gloss.
+            existing = conn.execute(
+                """
+                SELECT id
+                FROM dictionary_source
+                WHERE gloss_id = ?
+                AND source_id = ?
+                """,
+                (signbank_id, keyword_id),
+            ).fetchone()
+
+            if existing:
+                raise ValueError("Deze bron bestaat al bij dit gebaar.")
+
+            # Bepaal de volgende positie.
+            next_index = conn.execute(
+                """
+                SELECT COALESCE(MAX("index"), -1) + 1
+                FROM dictionary_source
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            ).fetchone()[0]
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_source
+                    (gloss_id, source_id, "index")
+                VALUES (?, ?, ?)
+                """,
+                (signbank_id, keyword_id, next_index),
+            )
+
+            # Registreer de wijziging in Signbank.
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        # Synchroniseer de gewijzigde gloss met VGT Studio.
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+        
     def get_translations(self, signbank_id):
         """
         Haal de afzonderlijke vertalingen van een gebaar op.
