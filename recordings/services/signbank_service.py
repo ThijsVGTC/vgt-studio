@@ -1191,6 +1191,89 @@ class SignbankService:
             verbosity=0,
         )
 
+    def delete_opmerking(self, signbank_id, opmerking_id, signbank_user_id):
+        """
+        Verwijder één Signbank-opmerking.
+        Andere opmerkingen blijven behouden.
+        """
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            opmerking = conn.execute(
+                """
+                SELECT id, role
+                FROM dictionary_definition
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (opmerking_id, signbank_id),
+            ).fetchone()
+
+            if opmerking is None:
+                raise ValueError("Opmerking niet gevonden bij dit gebaar.")
+
+            # Etymologie mag niet via opmerkingen worden verwijderd.
+            if (opmerking["role"] or "").lower() in {"ety", "oldety"}:
+                raise ValueError(
+                    "Etymologie kan niet via opmerkingen worden verwijderd."
+                )
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            # Verwijder uitsluitend deze opmerking.
+            conn.execute(
+                """
+                DELETE FROM dictionary_definition
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (opmerking_id, signbank_id),
+            )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
     def get_translations(self, signbank_id):
         """
         Haal de afzonderlijke vertalingen van een gebaar op.

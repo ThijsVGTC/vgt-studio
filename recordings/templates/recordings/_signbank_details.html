@@ -847,12 +847,30 @@
                                     {% endif %}
                                 </small>
 
-                                <button type="submit"
-                                        class="btn btn-sm btn-outline-primary">
-                                    Opslaan
-                                </button>
+                                <div style="display:flex; gap:8px; align-items:center;">
+
+                                    <button type="submit"
+                                            class="btn btn-sm btn-outline-primary">
+                                        Opslaan
+                                    </button>
+
+                                    <button type="submit"
+                                            form="delete-signbank-comment-{{ comment.id }}"
+                                            class="btn btn-sm btn-outline-danger"
+                                            onclick="return confirm('Weet je zeker dat je deze opmerking definitief wilt verwijderen?');">
+                                        Verwijderen
+                                    </button>
+
+                                </div>
 
                             </div>
+
+                        </form>
+                        <form id="delete-signbank-comment-{{ comment.id }}"
+                            method="post"
+                            action="{% url 'signbank_delete_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+
+                            {% csrf_token %}
 
                         </form>
                         {% else %}
