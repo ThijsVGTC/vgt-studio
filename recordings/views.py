@@ -1003,6 +1003,68 @@ def signbank_update_gloss(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_update_handvormen(request, signbank_id):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    handvorm_begin = request.POST.get("handvorm_begin", "0")
+    handvorm_einde = request.POST.get("handvorm_einde", "0")
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    # Zoek de gekoppelde Signbank-gebruiker.
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    # Alleen terugvallen op e-mail als die uniek is.
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een "
+            "Signbank-gebruiker. De handvormen zijn niet gewijzigd.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().update_handvormen(
+            signbank_id=signbank_id,
+            handvorm_begin=handvorm_begin,
+            handvorm_einde=handvorm_einde,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Handvormen succesvol opgeslagen.",
+        )
+
+    except Exception:
+        logger.exception("Handvormen wijzigen mislukt")
+        messages.error(
+            request,
+            "Handvormen wijzigen mislukt. Controleer de serverlogs.",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_update_woordenboek(request, signbank_id):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])

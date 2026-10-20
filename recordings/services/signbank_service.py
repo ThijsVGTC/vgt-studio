@@ -418,3 +418,124 @@ class SignbankService:
             signbank_id=signbank_id,
             verbosity=0,
         )
+    def update_handvormen(
+        self,
+        signbank_id,
+        handvorm_begin,
+        handvorm_einde,
+        signbank_user_id,
+    ):
+        """
+        Wijzig de begin- en eindhandvorm in de Signbank-master.
+        """
+
+        def validate_code(value):
+            value = str(value or "0").strip()
+
+            if not value.isdigit():
+                raise ValueError("Ongeldige handvormcode.")
+
+            return int(value)
+
+        begin = validate_code(handvorm_begin)
+        einde = validate_code(handvorm_einde)
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            row = conn.execute(
+                """
+                SELECT subhndsh, final_subhndsh
+                FROM dictionary_gloss
+                WHERE id = ?
+                """,
+                (signbank_id,),
+            ).fetchone()
+
+            if row is None:
+                raise ValueError("Gebaar niet gevonden in Signbank.")
+
+            # Controleer of beide handvormcodes bestaan.
+            for code in (begin, einde):
+                if code == 0:
+                    continue
+
+                exists = conn.execute(
+                    """
+                    SELECT 1
+                    FROM dictionary_fieldchoice
+                    WHERE field = 'Handshape'
+                      AND CAST(machine_value AS INTEGER) = ?
+                    LIMIT 1
+                    """,
+                    (code,),
+                ).fetchone()
+
+                if exists is None:
+                    raise ValueError(
+                        f"Handvormcode {code} bestaat niet in Signbank."
+                    )
+
+            # Geen wijziging nodig.
+            if (
+                int(row["subhndsh"] or 0) == begin
+                and int(row["final_subhndsh"] or 0) == einde
+            ):
+                return
+
+            # Controleer de Signbank-gebruiker.
+            user = conn.execute(
+                "SELECT 1 FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET subhndsh = ?,
+                    final_subhndsh = ?,
+                    lastUpdated = ?
+                WHERE id = ?
+                """,
+                (begin, einde, updated_at, signbank_id),
+            )
+
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        # Synchroniseer de gewijzigde handvormen naar VGT Studio.
+        from django.core.management import call_command
+
+        try:
+            call_command(
+                "sync_signbank",
+                signbank_id=signbank_id,
+                verbosity=0,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                "De handvormen zijn opgeslagen in Signbank, "
+                "maar de synchronisatie naar VGT Studio is mislukt."
+            ) from exc

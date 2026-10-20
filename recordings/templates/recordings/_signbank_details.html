@@ -104,20 +104,17 @@
             <hr>
 
             <h3>Handvorm</h3>
-            <div class="handvorm-edit">
+            <form class="handvorm-edit" method="post" action="{% url 'signbank_update_handvormen' entry.signbank_id %}">
+                {% csrf_token %}
                 <div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
 
                     <div>
                         <label for="handvorm-begin"><strong>Begin wijzigen</strong></label><br>
                         <div class="handshape-picker">
-                            <input type="hidden"
-                                id="handvorm-begin"
-                                name="handvorm_begin"
+                            <input type="hidden" id="handvorm-begin" name="handvorm_begin"
                                 value="{{ entry.handvorm_begin_code|default:'' }}">
 
-                            <button type="button"
-                                    class="handshape-picker-button"
-                                    onclick="
+                            <button type="button" class="handshape-picker-button" onclick="
                                         this.nextElementSibling.hidden =
                                             !this.nextElementSibling.hidden;
 
@@ -131,30 +128,24 @@
                                     ">
 
                                 {% if entry.handvorm_begin_image %}
-                                    <img src="{% static entry.handvorm_begin_image %}"
-                                        alt="{{ entry.handvorm_begin }}"
-                                        width="65">
+                                <img src="{% static entry.handvorm_begin_image %}" alt="{{ entry.handvorm_begin }}"
+                                    width="65">
                                 {% else %}
-                                    Kies handvorm
+                                Kies handvorm
                                 {% endif %}
                             </button>
 
                             <div class="handshape-picker-options" hidden>
                                 {% for handshape in handshape_choices %}
-                                    <button type="button"
-                                            class="handshape-option"
-                                            title="{{ handshape.name }}"
-                                            data-code="{{ handshape.code }}"
-                                            onclick="
+                                <button type="button" class="handshape-option" title="{{ handshape.name }}"
+                                    data-code="{{ handshape.code }}" onclick="
                                                 this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
                                                 this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
                                                 this.parentElement.hidden = true;
                                             ">
-                                        <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
-                                            alt="{{ handshape.name }}"
-                                            loading="lazy"
-                                            width="65">
-                                    </button>
+                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                        alt="{{ handshape.name }}" loading="lazy" width="65">
+                                </button>
                                 {% endfor %}
                             </div>
                         </div>
@@ -163,14 +154,10 @@
                     <div>
                         <label for="handvorm-einde"><strong>Einde wijzigen</strong></label><br>
                         <div class="handshape-picker">
-                            <input type="hidden"
-                                id="handvorm-einde"
-                                name="handvorm_einde"
+                            <input type="hidden" id="handvorm-einde" name="handvorm_einde"
                                 value="{{ entry.handvorm_einde_code|default:'' }}">
 
-                            <button type="button"
-                                    class="handshape-picker-button"
-                                    onclick="
+                            <button type="button" class="handshape-picker-button" onclick="
                                         this.nextElementSibling.hidden =
                                             !this.nextElementSibling.hidden;
 
@@ -183,37 +170,34 @@
                                         );
                                     ">
                                 {% if entry.handvorm_einde_code %}
-                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ entry.handvorm_einde_code }}.png"
-                                        alt="{{ entry.handvorm_einde }}"
-                                        width="65">
+                                <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ entry.handvorm_einde_code }}.png"
+                                    alt="{{ entry.handvorm_einde }}" width="65">
                                 {% else %}
-                                    Kies handvorm
+                                Kies handvorm
                                 {% endif %}
                             </button>
 
                             <div class="handshape-picker-options" hidden>
                                 {% for handshape in handshape_choices %}
-                                    <button type="button"
-                                            class="handshape-option"
-                                            title="{{ handshape.name }}"
-                                            data-code="{{ handshape.code }}"
-                                            onclick="
+                                <button type="button" class="handshape-option" title="{{ handshape.name }}"
+                                    data-code="{{ handshape.code }}" onclick="
                                                 this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
                                                 this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
                                                 this.closest('.handshape-picker-options').hidden = true;
                                             ">
-                                        <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
-                                            alt="{{ handshape.name }}"
-                                            loading="lazy"
-                                            width="65">
-                                    </button>
+                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                        alt="{{ handshape.name }}" loading="lazy" width="65">
+                                </button>
                                 {% endfor %}
                             </div>
                         </div>
                     </div>
 
                 </div>
-            </div>
+                <button type="submit" class="btn btn-primary">
+                    Handvormen opslaan
+                </button>
+            </form>
 
             <div style="display:flex; gap:40px; flex-wrap:wrap;">
 
