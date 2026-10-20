@@ -1723,7 +1723,15 @@ def signbank_detail(request, signbank_id):
             "author": opmerking.get("role") or "",
             "date": None,
         })
+    recording_comments_count = sum(
+        1 for comment in recording_comments
+        if comment["source"] == "Opnames"
+    )
 
+    video_review_comments_count = sum(
+        1 for comment in recording_comments
+        if comment["source"] == "Videocontrole"
+    )
     return render(
         request,
         "recordings/signbank_detail.html",
@@ -1743,6 +1751,8 @@ def signbank_detail(request, signbank_id):
             "gebarometer_comments": gebarometer_comments,
             "recording_comments": recording_comments,
             "signbank_comments": signbank_comments,
+            "recording_comments_count": recording_comments_count,
+            "video_review_comments_count": video_review_comments_count,
         },
     )
 

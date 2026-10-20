@@ -748,7 +748,7 @@
 
                 <details open>
                     <summary>
-                        <strong>Opnames ({{ recording_comments|length }})</strong>
+                        <strong>Opnames ({{ recording_comments_count }})</strong>
                     </summary>
 
                     {% for comment in recording_comments %}
@@ -760,14 +760,15 @@
                             {% endif %}
                         </div>
                         {% endif %}
-                    {% empty %}
-                        <p>Geen opmerkingen.</p>
                     {% endfor %}
+                    {% if recording_comments_count == 0 %}
+                        <p>Geen opmerkingen.</p>
+                    {% endif %}
                 </details>
 
                 <details>
                     <summary>
-                        <strong>Videocontrole</strong>
+                        <strong>Videocontrole ({{ video_review_comments_count }})</strong>
                     </summary>
 
                     {% for comment in recording_comments %}
@@ -780,6 +781,9 @@
                         </div>
                         {% endif %}
                     {% endfor %}
+                    {% if video_review_comments_count == 0 %}
+                        <p>Geen opmerkingen.</p>
+                    {% endif %}
                 </details>
 
                 <details>
