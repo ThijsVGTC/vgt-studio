@@ -1192,6 +1192,79 @@ def signbank_update_woordenboek(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_update_translation(request, signbank_id, translation_id):
+    if not request.user.is_staff:
+        messages.error(
+            request,
+            "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    new_text = request.POST.get("new_text", "").strip()
+
+    if not new_text or len(new_text) > 100:
+        messages.error(
+            request,
+            "Een vertaling moet tussen 1 en 100 tekens bevatten.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    # Zoek de Signbank-gebruiker die bij het Google-account hoort.
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een "
+            "Signbank-gebruiker. De vertaling is niet gewijzigd.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().update_translation(
+            signbank_id,
+            translation_id,
+            new_text,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Vertaling succesvol gewijzigd.",
+        )
+
+    except Exception as exc:
+        logger.exception("Vertaling wijzigen mislukt")
+        messages.error(
+            request,
+            f"Vertaling wijzigen mislukt: {exc}",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_detail(request, signbank_id):
     entry = get_object_or_404(
         SignbankEntry,
@@ -1202,6 +1275,7 @@ def signbank_detail(request, signbank_id):
 
     handshape_choices = SignbankService().get_handshape_choices()
     location_choices = SignbankService().get_location_choices()
+    translations = SignbankService().get_translations(signbank_id)
 
     return render(
         request,
@@ -1210,6 +1284,7 @@ def signbank_detail(request, signbank_id):
             "entry": entry,
             "handshape_choices": handshape_choices,
             "location_choices": location_choices,
+            "translations": translations,
         },
     )
 

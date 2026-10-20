@@ -253,11 +253,51 @@
 
             <h3>Mogelijke vertaling</h3>
 
-            {% if entry.mogelijke_vertaling %}
-            <p>{{ entry.mogelijke_vertaling|linebreaksbr }}</p>
-            {% else %}
-            <p>-</p>
-            {% endif %}
+            <div class="mogelijke-vertaling">
+
+                {% for translation in translations %}
+                <div class="translation-item"
+                    style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
+
+                    <form method="post"
+                        action="{% url 'signbank_update_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
+                        style="display:flex; align-items:center; gap:10px; flex:1;">
+
+                        {% csrf_token %}
+
+                        <input type="text"
+                            name="new_text"
+                            class="form-control"
+                            value="{{ translation.text }}"
+                            maxlength="100"
+                            required
+                            style="flex:1;">
+
+                        <button type="submit"
+                                class="btn btn-sm btn-outline-primary">
+                            Opslaan
+                        </button>
+
+                    </form>
+
+                    <button type="button"
+                            class="btn btn-sm btn-outline-danger"
+                            disabled>
+                        ✕
+                    </button>
+
+                </div>
+                {% empty %}
+                <p>Geen mogelijke vertalingen beschikbaar.</p>
+                {% endfor %}
+
+                <button type="button"
+                        class="btn btn-primary"
+                        disabled>
+                    + Vertaling toevoegen
+                </button>
+
+            </div>
 
             <hr>
 

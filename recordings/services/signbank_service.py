@@ -221,7 +221,127 @@ class SignbankService:
             for row in rows
             if str(row["machine_value"]) != "0"
         ]
-    
+
+    def get_translations(self, signbank_id):
+        """
+        Haal de afzonderlijke vertalingen van een gebaar op.
+        """
+
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT
+                    t.id,
+                    t.translation_id,
+                    t.language_id,
+                    t."index",
+                    k.text
+                FROM dictionary_translation t
+                INNER JOIN dictionary_keyword k
+                    ON k.id = t.translation_id
+                WHERE t.gloss_id = ?
+                ORDER BY t."index", t.id
+                """,
+                (signbank_id,),
+            ).fetchall()
+
+        return [dict(row) for row in rows]
+
+    def update_translation(self, signbank_id, translation_row_id, new_text, signbank_user_id):
+        """
+        Wijzig één vertaling van een gebaar zonder gedeelde keywords
+        van andere gebaren aan te passen.
+        """
+
+        new_text = new_text.strip()
+
+        if not new_text or len(new_text) > 100:
+            raise ValueError("Een vertaling moet 1 tot 100 tekens bevatten.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            row = conn.execute(
+                """
+                SELECT t.translation_id, k.text
+                FROM dictionary_translation t
+                JOIN dictionary_keyword k ON k.id = t.translation_id
+                WHERE t.id = ? AND t.gloss_id = ?
+                """,
+                (translation_row_id, signbank_id),
+            ).fetchone()
+
+            if row is None:
+                raise ValueError("Vertaling niet gevonden bij dit gebaar.")
+
+            if row["text"] == new_text:
+                return
+
+            user = conn.execute(
+                "SELECT 1 FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            keyword = conn.execute(
+                "SELECT id FROM dictionary_keyword WHERE text = ?",
+                (new_text,),
+            ).fetchone()
+
+            if keyword:
+                keyword_id = keyword["id"]
+            else:
+                cursor = conn.execute(
+                    "INSERT INTO dictionary_keyword (text) VALUES (?)",
+                    (new_text,),
+                )
+                keyword_id = cursor.lastrowid
+
+            conn.execute(
+                """
+                UPDATE dictionary_translation
+                SET translation_id = ?
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (keyword_id, translation_row_id, signbank_id),
+            )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
     def update_gloss(self, signbank_id, old_gloss, new_gloss, signbank_user_id=None):
         """
         Wijzig een GLOSS in de Signbank-master en verplaats
