@@ -1008,7 +1008,189 @@ class SignbankService:
             signbank_id=signbank_id,
             verbosity=0,
         )
-        
+
+    def add_opmerking(self, signbank_id, text, signbank_user_id):
+        """
+        Voeg een opmerking toe aan één gebaar.
+        De Signbank-gebruikersnaam wordt als rol opgeslagen.
+        """
+
+        text = text.strip()
+
+        if not text:
+            raise ValueError("Een opmerking mag niet leeg zijn.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden.")
+
+            user = conn.execute(
+                """
+                SELECT username
+                FROM auth_user
+                WHERE id = ?
+                """,
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            role = user["username"]
+
+            if role.lower() in {"ety", "oldety"}:
+                raise ValueError(
+                    "Deze gebruikersnaam is gereserveerd voor etymologie."
+                )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_definition
+                    (gloss_id, role, text, count, published)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (signbank_id, role, text, 0, 0),
+            )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
+    def update_opmerking(self, signbank_id, opmerking_id, text, signbank_user_id):
+        """
+        Bewerk één Signbank-opmerking.
+        Behoud de oorspronkelijke auteur (role).
+        """
+
+        text = text.strip()
+
+        if not text:
+            raise ValueError("Een opmerking mag niet leeg zijn.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            opmerking = conn.execute(
+                """
+                SELECT id, role, text
+                FROM dictionary_definition
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (opmerking_id, signbank_id),
+            ).fetchone()
+
+            if opmerking is None:
+                raise ValueError("Opmerking niet gevonden bij dit gebaar.")
+
+            # Etymologie mag niet via opmerkingen worden bewerkt.
+            if (opmerking["role"] or "").lower() in {"ety", "oldety"}:
+                raise ValueError(
+                    "Etymologie kan niet via opmerkingen worden bewerkt."
+                )
+
+            if opmerking["text"] == text:
+                return
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            # Wijzig uitsluitend de tekst van deze opmerking.
+            # De oorspronkelijke auteur blijft behouden.
+            conn.execute(
+                """
+                UPDATE dictionary_definition
+                SET text = ?
+                WHERE id = ? AND gloss_id = ?
+                """,
+                (text, opmerking_id, signbank_id),
+            )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
     def get_translations(self, signbank_id):
         """
         Haal de afzonderlijke vertalingen van een gebaar op.

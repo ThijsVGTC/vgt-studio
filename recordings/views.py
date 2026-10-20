@@ -1535,6 +1535,146 @@ def signbank_add_source(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_add_opmerking(request, signbank_id):
+    if not request.user.is_staff:
+        messages.error(
+            request,
+            "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        messages.error(request, "Een opmerking mag niet leeg zijn.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().add_opmerking(
+            signbank_id=signbank_id,
+            text=text,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Opmerking succesvol toegevoegd.",
+        )
+
+    except Exception as exc:
+        logger.exception("Signbank-opmerking toevoegen mislukt")
+        messages.error(
+            request,
+            f"Opmerking toevoegen mislukt: {exc}",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
+def signbank_update_opmerking(request, signbank_id, opmerking_id):
+    if not request.user.is_staff:
+        messages.error(
+            request,
+            "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    text = request.POST.get("text", "").strip()
+
+    if not text:
+        messages.error(
+            request,
+            "Een opmerking mag niet leeg zijn.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().update_opmerking(
+            signbank_id=signbank_id,
+            opmerking_id=opmerking_id,
+            text=text,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Opmerking succesvol gewijzigd.",
+        )
+
+    except Exception as exc:
+        logger.exception("Signbank-opmerking wijzigen mislukt")
+        messages.error(
+            request,
+            f"Opmerking wijzigen mislukt: {exc}",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_update_categories(request, signbank_id):
     if not request.user.is_staff:
         messages.error(request, "Je hebt geen toestemming om Signbankgegevens te wijzigen.")
@@ -1925,9 +2065,10 @@ def signbank_detail(request, signbank_id):
             continue
 
         signbank_comments.append({
+            "id": opmerking.get("id"),
             "source": "Signbank",
             "text": text,
-            "author": opmerking.get("role") or "",
+            "author": opmerking.get("type") or opmerking.get("role") or "",
             "date": None,
         })
     recording_comments_count = sum(

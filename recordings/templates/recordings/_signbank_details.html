@@ -825,15 +825,77 @@
 
                     {% for comment in signbank_comments %}
                     <div class="signbank-comment">
-                        <p>{{ comment.text|linebreaksbr }}</p>
 
-                        {% if comment.author %}
-                            <small>Door: {{ comment.author }}</small>
+                        {% if comment.id %}
+                        <form method="post"
+                            action="{% url 'signbank_update_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+
+                            {% csrf_token %}
+
+                            <textarea
+                                name="text"
+                                class="form-control"
+                                rows="3"
+                                required
+                                style="width:100%; margin-bottom:8px;">{{ comment.text }}</textarea>
+
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+
+                                <small>
+                                    {% if comment.author %}
+                                        Door: {{ comment.author }}
+                                    {% endif %}
+                                </small>
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-primary">
+                                    Opslaan
+                                </button>
+
+                            </div>
+
+                        </form>
+                        {% else %}
+                            <p>{{ comment.text|linebreaksbr }}</p>
+                            {% if comment.author %}
+                                <small>Door: {{ comment.author }}</small>
+                            {% endif %}
                         {% endif %}
+
                     </div>
                     {% empty %}
                     <p>Geen opmerkingen.</p>
                     {% endfor %}
+                    <div class="signbank-add-comment"
+                        style="margin-top:20px; padding-top:15px; border-top:1px solid #ddd;">
+
+                        <form method="post"
+                            action="{% url 'signbank_add_opmerking' signbank_id=entry.signbank_id %}">
+
+                            {% csrf_token %}
+
+                            <label for="new-signbank-comment"
+                                style="display:block; margin-bottom:8px;">
+                                <strong>Nieuwe opmerking</strong>
+                            </label>
+
+                            <textarea
+                                id="new-signbank-comment"
+                                name="text"
+                                class="form-control"
+                                rows="4"
+                                placeholder="Schrijf hier een nieuwe opmerking..."
+                                required
+                                style="width:100%; margin-bottom:10px;"></textarea>
+
+                            <button type="submit"
+                                    class="btn btn-primary">
+                                + Opmerking toevoegen
+                            </button>
+
+                        </form>
+
+                    </div>
                 </details>
 
             </div>
