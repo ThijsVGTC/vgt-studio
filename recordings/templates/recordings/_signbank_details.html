@@ -879,9 +879,12 @@
                         Opslaan
                     </button>
 
-                    <button type="button"
+                    <button type="submit"
                             class="btn btn-sm btn-outline-danger"
-                            disabled>
+                            formaction="{% url 'signbank_delete_source' signbank_id=entry.signbank_id source_id=source.id %}"
+                            formmethod="post"
+                            formnovalidate
+                            onclick="return confirm('Weet je zeker dat je deze bron wilt verwijderen?');">
                         ✕
                     </button>
 
