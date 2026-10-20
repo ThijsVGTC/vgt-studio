@@ -742,22 +742,97 @@
 
 
             <hr>
-
             <h3>Opmerkingen</h3>
 
-            {% if entry.opmerkingen %}
-            {% for opmerking in entry.opmerkingen %}
-            <div>
-                {% if opmerking.role %}
-                <strong>{{ opmerking.role }}</strong><br>
-                {% endif %}
+            <div class="signbank-comments">
 
-                {{ opmerking.text|default:"-"|linebreaksbr }}
+                <details open>
+                    <summary>
+                        <strong>Opnames ({{ recording_comments|length }})</strong>
+                    </summary>
+
+                    {% for comment in recording_comments %}
+                        {% if comment.source == "Opnames" %}
+                        <div class="signbank-comment">
+                            <p>{{ comment.text|linebreaksbr }}</p>
+                            {% if comment.author %}
+                                <small>Door: {{ comment.author }}</small>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% empty %}
+                        <p>Geen opmerkingen.</p>
+                    {% endfor %}
+                </details>
+
+                <details>
+                    <summary>
+                        <strong>Videocontrole</strong>
+                    </summary>
+
+                    {% for comment in recording_comments %}
+                        {% if comment.source == "Videocontrole" %}
+                        <div class="signbank-comment">
+                            <p>{{ comment.text|linebreaksbr }}</p>
+                            {% if comment.author %}
+                                <small>Door: {{ comment.author }}</small>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </details>
+
+                <details>
+                    <summary>
+                        <strong>Gebarometer ({{ gebarometer_comments|length }})</strong>
+                    </summary>
+
+                    {% for comment in gebarometer_comments %}
+                    <div class="signbank-comment">
+                        <p>{{ comment.text|linebreaksbr }}</p>
+
+                        <small>
+                            {{ comment.type }}
+                            {% if comment.author %}
+                                · {{ comment.author }}
+                            {% endif %}
+                            {% if comment.date %}
+                                · Item bijgewerkt: {{ comment.date|date:"d/m/Y" }}
+                            {% endif %}
+                        </small>
+                    </div>
+                    {% empty %}
+                    <p>Geen opmerkingen.</p>
+                    {% endfor %}
+                </details>
+
+                <details>
+                    <summary>
+                        <strong>Gebaarcommissie</strong>
+                    </summary>
+
+                    <p>Nog geen opmerkingen gekoppeld.</p>
+                </details>
+
+                <details>
+                    <summary>
+                        <strong>Signbank ({{ signbank_comments|length }})</strong>
+                    </summary>
+
+                    {% for comment in signbank_comments %}
+                    <div class="signbank-comment">
+                        <p>{{ comment.text|linebreaksbr }}</p>
+
+                        {% if comment.author %}
+                            <small>Door: {{ comment.author }}</small>
+                        {% endif %}
+                    </div>
+                    {% empty %}
+                    <p>Geen opmerkingen.</p>
+                    {% endfor %}
+                </details>
+
             </div>
-            {% endfor %}
-            {% else %}
-            <p>-</p>
-            {% endif %}
 
             <hr>
 

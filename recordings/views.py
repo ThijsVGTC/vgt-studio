@@ -1665,6 +1665,65 @@ def signbank_detail(request, signbank_id):
                 ).fetchall()
             ]
 
+    recording_comments = []
+
+    recording_items = entry.recording_items.all()
+
+    for item in recording_items:
+
+        if item.remarks and item.remarks.strip():
+            recording_comments.append({
+                "source": "Opnames",
+                "text": item.remarks.strip(),
+                "author": item.recording_by or "",
+                "recording_id": item.id,
+            })
+
+        if item.video_review_remarks and item.video_review_remarks.strip():
+            recording_comments.append({
+                "source": "Videocontrole",
+                "text": item.video_review_remarks.strip(),
+                "author": "",
+                "recording_id": item.id,
+            })
+    gebarometer_comments = []
+    for item in entry.gebarometer_items.all():
+
+        if item.remarks and item.remarks.strip():
+            gebarometer_comments.append({
+                "source": "Gebarometer",
+                "type": "Algemene opmerking",
+                "text": item.remarks.strip(),
+                "author": "",
+                "date": item.updated_at,
+                "item_id": item.id,
+            })
+
+        if item.internal_remarks and item.internal_remarks.strip():
+            gebarometer_comments.append({
+                "source": "Gebarometer",
+                "type": "Interne opmerking",
+                "text": item.internal_remarks.strip(),
+                "author": "",
+                "date": item.updated_at,
+                "item_id": item.id,
+            })
+
+    signbank_comments = []
+
+    for opmerking in entry.opmerkingen or []:
+        text = (opmerking.get("text") or "").strip()
+
+        if not text:
+            continue
+
+        signbank_comments.append({
+            "source": "Signbank",
+            "text": text,
+            "author": opmerking.get("role") or "",
+            "date": None,
+        })
+
     return render(
         request,
         "recordings/signbank_detail.html",
@@ -1681,6 +1740,9 @@ def signbank_detail(request, signbank_id):
             "selected_variants": selected_variants,
             "functional_label_choices": functional_label_choices,
             "internal_label_choices": internal_label_choices,
+            "gebarometer_comments": gebarometer_comments,
+            "recording_comments": recording_comments,
+            "signbank_comments": signbank_comments,
         },
     )
 
