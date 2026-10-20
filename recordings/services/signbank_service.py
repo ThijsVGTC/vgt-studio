@@ -241,7 +241,9 @@ class SignbankService:
                 conn.execute(
                     """
                     UPDATE dictionary_gloss
-                    SET annotation_idgloss = ?
+                    SET 
+                        idgloss = ?,
+                        annotation_idgloss = ?
                     WHERE id = ?
                     """,
                     (new_gloss, signbank_id),
