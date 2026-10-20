@@ -47,6 +47,184 @@ class SignbankService:
             }
             for row in rows
         ]
+
+    def update_labels(self, signbank_id, label_ids, signbank_user_id, label_type="all"):
+        """
+        Bewaar de geselecteerde labels in de Signbank-master.
+        Andere glossen blijven ongewijzigd.
+        """
+
+        try:
+            selected_ids = {int(value) for value in label_ids}
+        except (ValueError, TypeError):
+            raise ValueError("Ongeldige label-ID.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden in Signbank.")
+
+            content_type = conn.execute(
+                """
+                SELECT id
+                FROM django_content_type
+                WHERE app_label = 'dictionary'
+                AND model = 'gloss'
+                LIMIT 1
+                """
+            ).fetchone()
+
+            if content_type is None:
+                raise ValueError("Contenttype voor Signbank-glossen ontbreekt.")
+
+            content_type_id = content_type["id"]
+
+            user = conn.execute(
+                "SELECT 1 FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            if selected_ids:
+                placeholders = ",".join("?" for _ in selected_ids)
+
+                rows = conn.execute(
+                    f"""
+                    SELECT id
+                    FROM tagging_tag
+                    WHERE id IN ({placeholders})
+                    """,
+                    tuple(selected_ids),
+                ).fetchall()
+
+                if {row["id"] for row in rows} != selected_ids:
+                    raise ValueError("Een of meer labels bestaan niet.")
+
+            rows = conn.execute(
+                """
+                SELECT tag_id
+                FROM tagging_taggeditem
+                WHERE object_id = ?
+                AND content_type_id = ?
+                """,
+                (signbank_id, content_type_id),
+            ).fetchall()
+
+            existing_ids = {row["tag_id"] for row in rows}
+
+            functional_names = {
+                "expliciet",
+                "verouderd",
+                "beledigend",
+                "neologisme",
+                "negatief",
+            }
+
+            if label_type not in {"all", "functional", "internal"}:
+                raise ValueError("Ongeldig labeltype.")
+
+            if label_type != "all":
+                all_labels = conn.execute(
+                    "SELECT id, name FROM tagging_tag"
+                ).fetchall()
+
+                functional_ids = {
+                    row["id"]
+                    for row in all_labels
+                    if row["name"] and row["name"].strip().lower() in functional_names
+                }
+
+                if label_type == "functional":
+                    allowed_ids = functional_ids
+                else:
+                    allowed_ids = {
+                        row["id"] for row in all_labels
+                    } - functional_ids
+
+                if not selected_ids.issubset(allowed_ids):
+                    raise ValueError("Een label behoort niet tot deze groep.")
+
+                existing_ids = existing_ids & allowed_ids
+
+            to_remove = existing_ids - selected_ids
+            to_add = selected_ids - existing_ids
+
+            if not to_remove and not to_add:
+                return
+
+            for label_id in to_remove:
+                conn.execute(
+                    """
+                    DELETE FROM tagging_taggeditem
+                    WHERE object_id = ?
+                    AND content_type_id = ?
+                    AND tag_id = ?
+                    """,
+                    (signbank_id, content_type_id, label_id),
+                )
+
+            for label_id in to_add:
+                conn.execute(
+                    """
+                    INSERT INTO tagging_taggeditem
+                        (tag_id, content_type_id, object_id)
+                    VALUES (?, ?, ?)
+                    """,
+                    (label_id, content_type_id, signbank_id),
+                )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                """
+                DELETE FROM dictionary_gloss_lastUpdater
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater
+                    (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        try:
+            call_command(
+                "sync_signbank",
+                signbank_id=signbank_id,
+                verbosity=0,
+            )
+        except Exception as exc:
+            raise RuntimeError(
+                "De labels zijn opgeslagen in Signbank, "
+                "maar de synchronisatie naar VGT Studio is mislukt."
+            ) from exc
     
     def get_video_path(self, gloss, signbank_id):
         """

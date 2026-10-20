@@ -10,6 +10,7 @@ urlpatterns = [
     path("signbank/<int:signbank_id>/locaties-wijzigen/",views.signbank_update_locaties,name="signbank_update_locaties",),
     path("signbank/<int:signbank_id>/categorieen/wijzigen/",views.signbank_update_categories,name="signbank_update_categories",),
     path("signbank/<int:signbank_id>/varianten/wijzigen/",views.signbank_update_variants,name="signbank_update_variants",),
+    path("signbank/<int:signbank_id>/labels/wijzigen/",views.signbank_update_labels,name="signbank_update_labels",),
     path("signbank/<int:signbank_id>/vertaling/<int:translation_id>/wijzigen/",views.signbank_update_translation,name="signbank_update_translation",),
     path("signbank/<int:signbank_id>/vertaling/toevoegen/",views.signbank_add_translation,name="signbank_add_translation",),
     path("signbank/<int:signbank_id>/vertaling/<int:translation_id>/verwijderen/",views.signbank_delete_translation,name="signbank_delete_translation",),

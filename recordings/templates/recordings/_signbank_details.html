@@ -576,7 +576,44 @@
             });
             </script>
             <hr>
-            <h3>Labels</h3>
+            <h3>Functionele labels</h3>
+
+            <form method="post"
+                action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
+                class="signbank-functional-labels-form">
+
+                {% csrf_token %}
+
+                <input type="hidden" name="label_type" value="functional">
+
+                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
+
+                    {% for label in functional_label_choices %}
+
+                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+
+                        <input type="checkbox"
+                            name="labels"
+                            value="{{ label.id }}"
+                            {% if label.id in selected_labels %}checked{% endif %}>
+
+                        <span>{{ label.name }}</span>
+
+                    </label>
+
+                    {% endfor %}
+
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Functionele labels opslaan
+                </button>
+
+            </form>
+
+            <hr>
+
+            <h3>Interne labels</h3>
 
             {% if entry.functional_labels %}
             <p>

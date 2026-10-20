@@ -1423,6 +1423,81 @@ def signbank_update_variants(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_update_labels(request, signbank_id):
+
+    if not request.user.is_staff:
+        return HttpResponseForbidden(
+            "Je hebt geen toestemming om labels te wijzigen."
+        )
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = SignbankUser.objects.filter(
+            email__iexact=request.user.email
+        )
+
+        if matches.count() == 1:
+            signbank_user = matches.first()
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je account is niet gekoppeld aan een Signbank-gebruiker."
+        )
+        return redirect(
+            "signbank_detail",
+            signbank_id=signbank_id,
+        )
+
+    label_ids = request.POST.getlist("labels")
+    label_type = request.POST.get("label_type")
+
+    if label_type not in {"functional", "internal"}:
+        messages.error(request, "Ongeldig labeltype.")
+        return redirect(
+            "signbank_detail",
+            signbank_id=signbank_id,
+        )
+
+    try:
+        SignbankService().update_labels(
+            signbank_id=entry.signbank_id,
+            label_ids=label_ids,
+            signbank_user_id=signbank_user.signbank_id,
+            label_type=label_type,
+        )
+
+        messages.success(
+            request,
+            "Labels succesvol opgeslagen."
+        )
+
+    except Exception as exc:
+        messages.error(
+            request,
+            f"Labels opslaan mislukt: {exc}"
+        )
+
+    return redirect(
+        "signbank_detail",
+        signbank_id=signbank_id,
+    )
+
+@login_required
 def signbank_update_translation(request, signbank_id, translation_id):
     if not request.user.is_staff:
         messages.error(
@@ -1540,6 +1615,55 @@ def signbank_detail(request, signbank_id):
                 (signbank_id,),
             ).fetchall()
         ]
+    service = SignbankService()
+
+    label_choices = service.get_label_choices()
+    functional_label_names = {
+        "expliciet",
+        "verouderd",
+        "beledigend",
+        "neologisme",
+        "negatief",
+    }
+
+    functional_label_choices = [
+        label
+        for label in label_choices
+        if label["name"].strip().lower() in functional_label_names
+    ]
+
+    internal_label_choices = [
+        label
+        for label in label_choices
+        if label["name"].strip().lower() not in functional_label_names
+    ]
+
+    with service.connection() as conn:
+        content_type = conn.execute(
+            """
+            SELECT id
+            FROM django_content_type
+            WHERE app_label = 'dictionary'
+            AND model = 'gloss'
+            LIMIT 1
+            """
+        ).fetchone()
+
+        selected_labels = []
+
+        if content_type:
+            selected_labels = [
+                row["tag_id"]
+                for row in conn.execute(
+                    """
+                    SELECT tag_id
+                    FROM tagging_taggeditem
+                    WHERE object_id = ?
+                    AND content_type_id = ?
+                    """,
+                    (signbank_id, content_type["id"]),
+                ).fetchall()
+            ]
 
     return render(
         request,
@@ -1551,8 +1675,12 @@ def signbank_detail(request, signbank_id):
             "translations": translations,
             "category_choices": category_choices,
             "variant_choices": variant_choices,
+            "label_choices": label_choices,
+            "selected_labels": selected_labels,
             "selected_categories": selected_categories,
             "selected_variants": selected_variants,
+            "functional_label_choices": functional_label_choices,
+            "internal_label_choices": internal_label_choices,
         },
     )
 
