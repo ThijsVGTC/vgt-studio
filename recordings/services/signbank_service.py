@@ -246,7 +246,7 @@ class SignbankService:
                         annotation_idgloss = ?
                     WHERE id = ?
                     """,
-                    (new_gloss, signbank_id),
+                    (new_gloss, new_gloss, signbank_id),
                 )
 
         except Exception:
