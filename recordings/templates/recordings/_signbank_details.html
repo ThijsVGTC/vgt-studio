@@ -858,19 +858,24 @@
             <div class="signbank-sources">
 
                 {% for source in sources %}
-                <div class="source-item"
+
+                <form method="post"
+                    action="{% url 'signbank_update_source' signbank_id=entry.signbank_id source_id=source.id %}"
+                    class="source-item"
                     style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
 
+                    {% csrf_token %}
+
                     <input type="text"
+                        name="new_text"
                         class="form-control"
                         value="{{ source.text }}"
                         maxlength="100"
-                        readonly
+                        required
                         style="flex:1;">
 
-                    <button type="button"
-                            class="btn btn-sm btn-outline-primary"
-                            disabled>
+                    <button type="submit"
+                            class="btn btn-sm btn-outline-primary">
                         Opslaan
                     </button>
 
@@ -880,11 +885,12 @@
                         ✕
                     </button>
 
-                </div>
+                </form>
+
                 {% empty %}
                 <p>Geen bronnen beschikbaar.</p>
                 {% endfor %}
-
+                
                 <form method="post"
                     action="{% url 'signbank_add_source' signbank_id=entry.signbank_id %}"
                     style="display:flex; gap:10px; margin-top:15px;">
@@ -904,19 +910,6 @@
                     </button>
 
                 </form>
-
-                    <input type="text"
-                        class="form-control"
-                        placeholder="Nieuwe bron..."
-                        maxlength="100"
-                        disabled
-                        style="flex:1;">
-
-                    <button type="button"
-                            class="btn btn-primary"
-                            disabled>
-                        + Bron toevoegen
-                    </button>
 
                 </div>
 
