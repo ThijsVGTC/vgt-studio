@@ -583,7 +583,7 @@
                 class="signbank-functional-labels-form">
 
                 {% csrf_token %}
-
+                
                 <input type="hidden" name="label_type" value="functional">
 
                 <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
@@ -614,34 +614,132 @@
             <hr>
 
             <h3>Interne labels</h3>
+            <form method="post"
+                action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
+                id="labels-form">
 
-            {% if entry.functional_labels %}
-            <p>
-                <strong>Functionele labels:</strong>
+                {% csrf_token %}
 
-                {% for label in entry.functional_labels %}
-                <span title="{{ label.name }}">
-                    {{ label.short }}
-                </span>
-                {% endfor %}
-            </p>
-            {% endif %}
+                <input type="hidden" name="label_type" value="internal">
 
-            {% if entry.internal_labels %}
-            <p>
-                <strong>Interne labels:</strong>
+                <div id="selected-labels">
 
-                {% for label in entry.internal_labels %}
-                <span>
-                    {{ label }}
-                </span>
-                {% endfor %}
-            </p>
-            {% endif %}
+                    {% for label in internal_label_choices %}
+                        {% if label.id in selected_labels %}
 
-            {% if not entry.functional_labels and not entry.internal_labels %}
-            <p>-</p>
-            {% endif %}
+                        <div class="selected-label"
+                            data-id="{{ label.id }}"
+                            style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                            <span>{{ label.name }}</span>
+
+                            <input type="hidden"
+                                name="labels"
+                                value="{{ label.id }}">
+
+                            <button type="button"
+                                    class="remove-label btn btn-sm btn-outline-danger"
+                                    aria-label="Label {{ label.name }} verwijderen">
+                                ✕
+                            </button>
+
+                        </div>
+
+                        {% endif %}
+                    {% endfor %}
+
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:12px;">
+
+                    <select id="label-select" class="form-control">
+                        <option value="">Selecteer intern label...</option>
+
+                        {% for label in internal_label_choices %}
+                        <option value="{{ label.id }}">
+                            {{ label.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="button"
+                            id="add-label"
+                            class="btn btn-outline-primary">
+                        + Toevoegen
+                    </button>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary"
+                        style="margin-top:15px;">
+                    Interne labels opslaan
+                </button>
+
+            </form>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const container = document.getElementById("selected-labels");
+                const select = document.getElementById("label-select");
+                const addButton = document.getElementById("add-label");
+
+                if (!container || !select || !addButton) return;
+
+                addButton.addEventListener("click", function () {
+
+                    const id = select.value;
+                    if (!id) return;
+
+                    const exists = Array.from(
+                        container.querySelectorAll(".selected-label")
+                    ).some(item => item.dataset.id === id);
+
+                    if (exists) {
+                        alert("Dit label is al toegevoegd.");
+                        return;
+                    }
+
+                    const name = select.options[select.selectedIndex].text;
+
+                    const item = document.createElement("div");
+                    item.className = "selected-label";
+                    item.dataset.id = id;
+                    item.style.cssText =
+                        "display:flex;gap:10px;align-items:center;margin-bottom:8px;";
+
+                    const label = document.createElement("span");
+                    label.textContent = name;
+
+                    const hidden = document.createElement("input");
+                    hidden.type = "hidden";
+                    hidden.name = "labels";
+                    hidden.value = id;
+
+                    const remove = document.createElement("button");
+                    remove.type = "button";
+                    remove.className = "remove-label btn btn-sm btn-outline-danger";
+                    remove.textContent = "✕";
+                    remove.setAttribute("aria-label", `Label ${name} verwijderen`);
+
+                    item.append(label, hidden, remove);
+                    container.appendChild(item);
+
+                    select.value = "";
+                });
+
+                container.addEventListener("click", function (event) {
+
+                    const button = event.target.closest(".remove-label");
+                    if (!button) return;
+
+                    button.closest(".selected-label").remove();
+                });
+
+            });
+            </script>
+
 
             <hr>
 
