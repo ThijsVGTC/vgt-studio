@@ -204,19 +204,51 @@
             </div>
 
             <hr>
-
             <h3>Locatie</h3>
 
-            <p>
-                <strong>Begin:</strong>
-                {{ entry.locatie_begin|default:"-" }}
-            </p>
+            <form method="post"
+                action="{% url 'signbank_update_locaties' entry.signbank_id %}"
+                class="locatie-edit">
 
-            <p>
-                <strong>Einde:</strong>
-                {{ entry.locatie_einde|default:"-" }}
-            </p>
+                {% csrf_token %}
 
+                <div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
+
+                    <div>
+                        <label for="locatie-begin"><strong>Locatie begin</strong></label><br>
+
+                        <select id="locatie-begin" name="locatie_begin">
+                            <option value="0">Geen locatie</option>
+
+                            {% for location in location_choices %}
+                            <option value="{{ location.code }}" {% if entry.locatie_begin_code|stringformat:"s" == location.code %}selected{% endif %}>
+                                {{ location.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <div>
+                        <label for="locatie-einde"><strong>Locatie einde</strong></label><br>
+
+                        <select id="locatie-einde" name="locatie_einde">
+                            <option value="0">Geen locatie</option>
+
+                            {% for location in location_choices %}
+                            <option value="{{ location.code }}" {% if entry.locatie_einde_code|stringformat:"s" == location.code %}selected{% endif %}>
+                                {{ location.name }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Locaties opslaan
+                </button>
+
+            </form>
             <hr>
 
             <h3>Mogelijke vertaling</h3>

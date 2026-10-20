@@ -1065,6 +1065,69 @@ def signbank_update_handvormen(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_update_locaties(request, signbank_id):
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    locatie_begin = request.POST.get("locatie_begin", "0")
+    locatie_einde = request.POST.get("locatie_einde", "0")
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    # Zoek de gekoppelde Signbank-gebruiker.
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    # Alleen terugvallen op e-mail als die uniek is.
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(
+            request,
+            "Je Google-account is niet gekoppeld aan een "
+            "Signbank-gebruiker. De handvormen zijn niet gewijzigd.",
+        )
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    try:
+        SignbankService().update_locaties(
+            signbank_id=signbank_id,
+            locatie_begin=locatie_begin,
+            locatie_einde=locatie_einde,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+
+        messages.success(
+            request,
+            "Handvormen succesvol opgeslagen.",
+        )
+
+    except Exception:
+        logger.exception("Locaties wijzigen mislukt")
+        messages.error(
+            request,
+            "Locaties wijzigen mislukt. Controleer de serverlogs.",
+        )
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+
+@login_required
 def signbank_update_woordenboek(request, signbank_id):
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1138,6 +1201,7 @@ def signbank_detail(request, signbank_id):
     from .services.signbank_service import SignbankService
 
     handshape_choices = SignbankService().get_handshape_choices()
+    location_choices = SignbankService().get_location_choices()
 
     return render(
         request,
@@ -1145,6 +1209,7 @@ def signbank_detail(request, signbank_id):
         {
             "entry": entry,
             "handshape_choices": handshape_choices,
+            "location_choices": location_choices,
         },
     )
 
