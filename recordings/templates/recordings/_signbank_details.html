@@ -104,32 +104,118 @@
             <hr>
 
             <h3>Handvorm</h3>
+            <div class="handvorm-edit">
+                <div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
+
+                    <div>
+                        <label for="handvorm-begin"><strong>Begin wijzigen</strong></label><br>
+                        <div class="handshape-picker">
+                            <input type="hidden"
+                                id="handvorm-begin"
+                                name="handvorm_begin"
+                                value="{{ entry.handvorm_begin_code|default:'' }}">
+
+                            <button type="button"
+                                    class="handshape-picker-button"
+                                    onclick="
+                                        this.nextElementSibling.hidden =
+                                            !this.nextElementSibling.hidden;
+
+                                        document.querySelectorAll('.handshape-picker-options').forEach(
+                                            el => {
+                                                if (el !== this.nextElementSibling) {
+                                                    el.hidden = true;
+                                                }
+                                            }
+                                        );
+                                    ">
+
+                                {% if entry.handvorm_begin_image %}
+                                    <img src="{% static entry.handvorm_begin_image %}"
+                                        alt="{{ entry.handvorm_begin }}"
+                                        width="65">
+                                {% else %}
+                                    Kies handvorm
+                                {% endif %}
+                            </button>
+
+                            <div class="handshape-picker-options" hidden>
+                                {% for handshape in handshape_choices %}
+                                    <button type="button"
+                                            class="handshape-option"
+                                            title="{{ handshape.name }}"
+                                            data-code="{{ handshape.code }}"
+                                            onclick="
+                                                this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
+                                                this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
+                                                this.parentElement.hidden = true;
+                                            ">
+                                        <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                            alt="{{ handshape.name }}"
+                                            loading="lazy"
+                                            width="65">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="handvorm-einde"><strong>Einde wijzigen</strong></label><br>
+                        <div class="handshape-picker">
+                            <input type="hidden"
+                                id="handvorm-einde"
+                                name="handvorm_einde"
+                                value="{{ entry.handvorm_einde_code|default:'' }}">
+
+                            <button type="button"
+                                    class="handshape-picker-button"
+                                    onclick="
+                                        this.nextElementSibling.hidden =
+                                            !this.nextElementSibling.hidden;
+
+                                        document.querySelectorAll('.handshape-picker-options').forEach(
+                                            el => {
+                                                if (el !== this.nextElementSibling) {
+                                                    el.hidden = true;
+                                                }
+                                            }
+                                        );
+                                    ">
+                                {% if entry.handvorm_einde_code %}
+                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ entry.handvorm_einde_code }}.png"
+                                        alt="{{ entry.handvorm_einde }}"
+                                        width="65">
+                                {% else %}
+                                    Kies handvorm
+                                {% endif %}
+                            </button>
+
+                            <div class="handshape-picker-options" hidden>
+                                {% for handshape in handshape_choices %}
+                                    <button type="button"
+                                            class="handshape-option"
+                                            title="{{ handshape.name }}"
+                                            data-code="{{ handshape.code }}"
+                                            onclick="
+                                                this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
+                                                this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
+                                                this.closest('.handshape-picker-options').hidden = true;
+                                            ">
+                                        <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                            alt="{{ handshape.name }}"
+                                            loading="lazy"
+                                            width="65">
+                                    </button>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
 
             <div style="display:flex; gap:40px; flex-wrap:wrap;">
-
-                <div>
-                    <strong>Begin</strong><br>
-
-                    {% if entry.handvorm_begin_image %}
-                    <img src="{% static entry.handvorm_begin_image %}" alt="{{ entry.handvorm_begin }}"
-                        title="{{ entry.handvorm_begin }}" style="max-width:100px; height:auto;">
-                    <br>
-                    {% endif %}
-
-                    {{ entry.handvorm_begin|default:"-" }}
-                </div>
-
-                <div>
-                    <strong>Einde</strong><br>
-
-                    {% if entry.handvorm_einde_image %}
-                    <img src="{% static entry.handvorm_einde_image %}" alt="{{ entry.handvorm_einde }}"
-                        title="{{ entry.handvorm_einde }}" style="max-width:100px; height:auto;">
-                    <br>
-                    {% endif %}
-
-                    {{ entry.handvorm_einde|default:"-" }}
-                </div>
 
             </div>
 

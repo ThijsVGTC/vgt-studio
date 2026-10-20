@@ -174,6 +174,30 @@ class SignbankService:
 
             return dict(row)
 
+    def get_handshape_choices(self):
+        """
+        Haal alle beschikbare handvormen op uit de Signbank-master.
+        """
+
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT machine_value, dutch_name, english_name
+                FROM dictionary_fieldchoice
+                WHERE field = 'Handshape'
+                ORDER BY CAST(machine_value AS INTEGER)
+                """
+            ).fetchall()
+
+        return [
+            {
+                "code": str(row["machine_value"]),
+                "name": row["dutch_name"] or row["english_name"] or "",
+            }
+            for row in rows
+            if str(row["machine_value"]) != "0"
+        ]
+
     def update_gloss(self, signbank_id, old_gloss, new_gloss, signbank_user_id=None):
         """
         Wijzig een GLOSS in de Signbank-master en verplaats

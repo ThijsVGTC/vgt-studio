@@ -1073,11 +1073,16 @@ def signbank_detail(request, signbank_id):
         signbank_id=signbank_id,
     )
 
+    from .services.signbank_service import SignbankService
+
+    handshape_choices = SignbankService().get_handshape_choices()
+
     return render(
         request,
         "recordings/signbank_detail.html",
         {
             "entry": entry,
+            "handshape_choices": handshape_choices,
         },
     )
 
