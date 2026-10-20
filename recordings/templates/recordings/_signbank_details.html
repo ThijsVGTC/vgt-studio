@@ -323,33 +323,259 @@
             </div>
 
             <hr>
-
             <h3>Categorieën</h3>
 
-            <ul>
-                {% if entry.categorie_1 %}<li>{{ entry.categorie_1 }}</li>{% endif %}
-                {% if entry.categorie_2 %}<li>{{ entry.categorie_2 }}</li>{% endif %}
-                {% if entry.categorie_3 %}<li>{{ entry.categorie_3 }}</li>{% endif %}
-                {% if entry.categorie_4 %}<li>{{ entry.categorie_4 }}</li>{% endif %}
-                {% if entry.categorie_5 %}<li>{{ entry.categorie_5 }}</li>{% endif %}
-            </ul>
+            <form method="post"
+                action="{% url 'signbank_update_categories' signbank_id=entry.signbank_id %}"
+                id="categories-form">
+
+                {% csrf_token %}
+
+                <div id="selected-categories">
+                    {% for selected in selected_categories %}
+                        {% for category in category_choices %}
+                            {% if category.code == selected %}
+                            <div class="selected-category"
+                                data-id="{{ category.code }}"
+                                style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                                <span>{{ category.name }}</span>
+
+                                <input type="hidden"
+                                    name="categories"
+                                    value="{{ category.code }}">
+
+                                <button type="button"
+                                        class="remove-category btn btn-sm btn-outline-danger">
+                                    ✕
+                                </button>
+                            </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endfor %}
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:12px;">
+
+                    <select id="category-select" class="form-control">
+                        <option value="">Selecteer categorie...</option>
+
+                        {% for category in category_choices %}
+                        <option value="{{ category.code }}">
+                            {{ category.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="button"
+                            id="add-category"
+                            class="btn btn-outline-primary">
+                        + Toevoegen
+                    </button>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary"
+                        style="margin-top:15px;">
+                    Categorieën opslaan
+                </button>
+
+            </form>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const container = document.getElementById("selected-categories");
+                const select = document.getElementById("category-select");
+                const addButton = document.getElementById("add-category");
+
+                function updateState() {
+                    const count = container.querySelectorAll(".selected-category").length;
+                    addButton.disabled = count >= 5;
+                }
+
+                addButton.addEventListener("click", function () {
+                    const id = select.value;
+
+                    if (!id) return;
+
+                    if (container.querySelector(`[data-id="${id}"]`)) {
+                        alert("Deze categorie is al toegevoegd.");
+                        return;
+                    }
+
+                    if (container.querySelectorAll(".selected-category").length >= 5) {
+                        alert("Je kunt maximaal vijf categorieën toevoegen.");
+                        return;
+                    }
+
+                    const name = select.options[select.selectedIndex].text;
+
+                    const item = document.createElement("div");
+                    item.className = "selected-category";
+                    item.dataset.id = id;
+                    item.style.cssText = "display:flex;gap:10px;align-items:center;margin-bottom:8px;";
+
+                    const label = document.createElement("span");
+                    label.textContent = name;
+
+                    const hidden = document.createElement("input");
+                    hidden.type = "hidden";
+                    hidden.name = "categories";
+                    hidden.value = id;
+
+                    const remove = document.createElement("button");
+                    remove.type = "button";
+                    remove.className = "remove-category btn btn-sm btn-outline-danger";
+                    remove.textContent = "✕";
+
+                    item.append(label, hidden, remove);
+                    container.appendChild(item);
+
+                    select.value = "";
+                    updateState();
+                });
+
+                container.addEventListener("click", function (event) {
+                    const button = event.target.closest(".remove-category");
+                    if (!button) return;
+
+                    button.closest(".selected-category").remove();
+                    updateState();
+                });
+
+                updateState();
+            });
+            </script>
 
             <hr>
 
             <h3>Varianten</h3>
 
-            {% if entry.variant_badges %}
-            {% for variant in entry.variant_badges %}
-            <span title="{{ variant.name }}">
-                {{ variant.short }}
-            </span>
-            {% endfor %}
-            {% else %}
-            <p>-</p>
-            {% endif %}
+            <form method="post"
+                action="{% url 'signbank_update_variants' signbank_id=entry.signbank_id %}"
+                id="variants-form">
 
+                {% csrf_token %}
+
+                <div id="selected-variants">
+                    {% for variant in variant_choices %}
+                        {% if variant.id in selected_variants %}
+                        <div class="selected-variant"
+                            data-id="{{ variant.id }}"
+                            style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                            <span>{{ variant.name }}</span>
+
+                            <input type="hidden"
+                                name="variants"
+                                value="{{ variant.id }}">
+
+                            <button type="button"
+                                    class="remove-variant btn btn-sm btn-outline-danger"
+                                    aria-label="Variant {{ variant.name }} verwijderen">
+                                ✕
+                            </button>
+
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+
+                <div style="display:flex; gap:10px; margin-top:12px;">
+
+                    <select id="variant-select" class="form-control">
+                        <option value="">Selecteer variant...</option>
+
+                        {% for variant in variant_choices %}
+                        <option value="{{ variant.id }}">
+                            {{ variant.name }}
+                        </option>
+                        {% endfor %}
+                    </select>
+
+                    <button type="button"
+                            id="add-variant"
+                            class="btn btn-outline-primary">
+                        + Toevoegen
+                    </button>
+
+                </div>
+
+                <button type="submit"
+                        class="btn btn-primary"
+                        style="margin-top:15px;">
+                    Varianten opslaan
+                </button>
+
+            </form>
+
+            <script>
+            document.addEventListener("DOMContentLoaded", function () {
+
+                const container = document.getElementById("selected-variants");
+                const select = document.getElementById("variant-select");
+                const addButton = document.getElementById("add-variant");
+
+                if (!container || !select || !addButton) return;
+
+                addButton.addEventListener("click", function () {
+
+                    const id = select.value;
+
+                    if (!id) return;
+
+                    // Voorkom dubbele varianten.
+                    const exists = Array.from(
+                        container.querySelectorAll(".selected-variant")
+                    ).some(item => item.dataset.id === id);
+
+                    if (exists) {
+                        alert("Deze variant is al toegevoegd.");
+                        return;
+                    }
+
+                    const name = select.options[select.selectedIndex].text;
+
+                    const item = document.createElement("div");
+                    item.className = "selected-variant";
+                    item.dataset.id = id;
+                    item.style.cssText =
+                        "display:flex;gap:10px;align-items:center;margin-bottom:8px;";
+
+                    const label = document.createElement("span");
+                    label.textContent = name;
+
+                    const hidden = document.createElement("input");
+                    hidden.type = "hidden";
+                    hidden.name = "variants";
+                    hidden.value = id;
+
+                    const remove = document.createElement("button");
+                    remove.type = "button";
+                    remove.className = "remove-variant btn btn-sm btn-outline-danger";
+                    remove.textContent = "✕";
+                    remove.setAttribute("aria-label", `Variant ${name} verwijderen`);
+
+                    item.append(label, hidden, remove);
+                    container.appendChild(item);
+
+                    select.value = "";
+                });
+
+                container.addEventListener("click", function (event) {
+
+                    const button = event.target.closest(".remove-variant");
+
+                    if (!button) return;
+
+                    button.closest(".selected-variant").remove();
+                });
+
+            });
+            </script>
             <hr>
-
             <h3>Labels</h3>
 
             {% if entry.functional_labels %}

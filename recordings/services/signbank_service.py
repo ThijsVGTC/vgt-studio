@@ -222,6 +222,261 @@ class SignbankService:
             if str(row["machine_value"]) != "0"
         ]
 
+    def get_category_choices(self):
+        """
+        Haal alle beschikbare categorieën op uit de Signbank-master.
+        """
+
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT
+                    machine_value,
+                    dutch_name,
+                    english_name
+                FROM dictionary_fieldchoice
+                WHERE field = 'SemField'
+                ORDER BY dutch_name COLLATE NOCASE
+                """
+            ).fetchall()
+
+        return [
+            {
+                "code": str(row["machine_value"]),
+                "name": row["dutch_name"] or row["english_name"] or "",
+            }
+            for row in rows
+            if row["machine_value"] is not None
+            and str(row["machine_value"]) != "0"
+        ]
+
+
+    def get_variant_choices(self):
+        """
+        Haal alle beschikbare varianten op uit de Signbank-master.
+        """
+
+        with self.connection() as conn:
+            rows = conn.execute(
+                """
+                SELECT
+                    id,
+                    name,
+                    description
+                FROM dictionary_dialect
+                ORDER BY name COLLATE NOCASE
+                """
+            ).fetchall()
+
+        return [
+            {
+                "id": row["id"],
+                "name": row["name"],
+                "description": row["description"] or "",
+            }
+            for row in rows
+        ]
+
+    def update_categories(self, signbank_id, categories, signbank_user_id):
+        """
+        Bewaar maximaal vijf categorieën voor een gebaar.
+        """
+
+        categories = [str(c).strip() for c in categories if str(c).strip()]
+
+        if len(categories) > 5:
+            raise ValueError("Maximaal vijf categorieën toegestaan.")
+
+        if len(categories) != len(set(categories)):
+            raise ValueError("Een categorie mag maar één keer voorkomen.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden.")
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            for code in categories:
+                if not code.isdigit():
+                    raise ValueError(f"Ongeldige categorie: {code}")
+
+                exists = conn.execute(
+                    """
+                    SELECT 1
+                    FROM dictionary_fieldchoice
+                    WHERE field = 'SemField'
+                    AND CAST(machine_value AS INTEGER) = ?
+                    """,
+                    (int(code),),
+                ).fetchone()
+
+                if exists is None:
+                    raise ValueError(f"Categorie {code} bestaat niet.")
+
+            values = categories + [None] * (5 - len(categories))
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET semField = ?,
+                    semField1 = ?,
+                    semField2 = ?,
+                    semField3 = ?,
+                    semField4 = ?,
+                    lastUpdated = ?
+                WHERE id = ?
+                """,
+                (*values, updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
+    def update_variants(self, signbank_id, variant_ids, signbank_user_id):
+        """
+        Bewaar de geselecteerde varianten van een gebaar.
+        """
+
+        try:
+            variant_ids = [int(v) for v in variant_ids]
+        except (TypeError, ValueError):
+            raise ValueError("Ongeldige variant geselecteerd.")
+
+        if len(variant_ids) != len(set(variant_ids)):
+            raise ValueError("Dubbele varianten zijn niet toegestaan.")
+
+        with self.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
+
+            gloss = conn.execute(
+                "SELECT id FROM dictionary_gloss WHERE id = ?",
+                (signbank_id,),
+            ).fetchone()
+
+            if gloss is None:
+                raise ValueError("Gebaar niet gevonden.")
+
+            user = conn.execute(
+                "SELECT id FROM auth_user WHERE id = ?",
+                (signbank_user_id,),
+            ).fetchone()
+
+            if user is None:
+                raise ValueError("Signbank-gebruiker niet gevonden.")
+
+            for variant_id in variant_ids:
+                exists = conn.execute(
+                    "SELECT 1 FROM dictionary_dialect WHERE id = ?",
+                    (variant_id,),
+                ).fetchone()
+
+                if exists is None:
+                    raise ValueError(f"Variant {variant_id} bestaat niet.")
+
+            existing = {
+                row["dialect_id"]
+                for row in conn.execute(
+                    """
+                    SELECT dialect_id
+                    FROM dictionary_gloss_dialect
+                    WHERE gloss_id = ?
+                    """,
+                    (signbank_id,),
+                )
+            }
+
+            selected = set(variant_ids)
+
+            for variant_id in existing - selected:
+                conn.execute(
+                    """
+                    DELETE FROM dictionary_gloss_dialect
+                    WHERE gloss_id = ? AND dialect_id = ?
+                    """,
+                    (signbank_id, variant_id),
+                )
+
+            for variant_id in selected - existing:
+                conn.execute(
+                    """
+                    INSERT INTO dictionary_gloss_dialect
+                        (gloss_id, dialect_id)
+                    VALUES (?, ?)
+                    """,
+                    (signbank_id, variant_id),
+                )
+
+            updated_at = timezone.localtime(
+                timezone.now(),
+                timezone=ZoneInfo("Europe/Brussels"),
+            ).strftime("%Y-%m-%d %H:%M:%S.%f")
+
+            conn.execute(
+                """
+                UPDATE dictionary_gloss
+                SET lastUpdated = ?
+                WHERE id = ?
+                """,
+                (updated_at, signbank_id),
+            )
+
+            conn.execute(
+                "DELETE FROM dictionary_gloss_lastUpdater WHERE gloss_id = ?",
+                (signbank_id,),
+            )
+
+            conn.execute(
+                """
+                INSERT INTO dictionary_gloss_lastUpdater (gloss_id, user_id)
+                VALUES (?, ?)
+                """,
+                (signbank_id, signbank_user_id),
+            )
+
+        from django.core.management import call_command
+
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
     def get_translations(self, signbank_id):
         """
         Haal de afzonderlijke vertalingen van een gebaar op.

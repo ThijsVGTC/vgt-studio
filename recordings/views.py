@@ -1329,6 +1329,100 @@ def signbank_add_translation(request, signbank_id):
     return redirect("signbank_detail", signbank_id=signbank_id)
 
 @login_required
+def signbank_update_categories(request, signbank_id):
+    if not request.user.is_staff:
+        messages.error(request, "Je hebt geen toestemming om Signbankgegevens te wijzigen.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(SignbankEntry, signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(request, "Geen gekoppelde Signbank-gebruiker gevonden.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    categories = request.POST.getlist("categories")
+
+    try:
+        SignbankService().update_categories(
+            signbank_id=signbank_id,
+            categories=categories,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+        messages.success(request, "Categorieën succesvol opgeslagen.")
+
+    except Exception:
+        logger.exception("Categorieën wijzigen mislukt")
+        messages.error(request, "Categorieën opslaan mislukt. Controleer de serverlogs.")
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
+def signbank_update_variants(request, signbank_id):
+    if not request.user.is_staff:
+        messages.error(request, "Je hebt geen toestemming om Signbankgegevens te wijzigen.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    get_object_or_404(SignbankEntry, signbank_id=signbank_id)
+
+    from .services.signbank_service import SignbankService
+    from .models import SignbankUser
+
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email
+            )[:2]
+        )
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None:
+        messages.error(request, "Geen gekoppelde Signbank-gebruiker gevonden.")
+        return redirect("signbank_detail", signbank_id=signbank_id)
+
+    variant_ids = request.POST.getlist("variants")
+
+    try:
+        SignbankService().update_variants(
+            signbank_id=signbank_id,
+            variant_ids=variant_ids,
+            signbank_user_id=signbank_user.signbank_id,
+        )
+        messages.success(request, "Varianten succesvol opgeslagen.")
+
+    except Exception:
+        logger.exception("Varianten wijzigen mislukt")
+        messages.error(request, "Varianten opslaan mislukt. Controleer de serverlogs.")
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
+@login_required
 def signbank_update_translation(request, signbank_id, translation_id):
     if not request.user.is_staff:
         messages.error(
@@ -1413,6 +1507,39 @@ def signbank_detail(request, signbank_id):
     handshape_choices = SignbankService().get_handshape_choices()
     location_choices = SignbankService().get_location_choices()
     translations = SignbankService().get_translations(signbank_id)
+    category_choices = SignbankService().get_category_choices()
+    variant_choices = SignbankService().get_variant_choices()
+
+    with SignbankService().connection() as conn:
+        row = conn.execute(
+            """
+            SELECT semField, semField1, semField2, semField3, semField4
+            FROM dictionary_gloss
+            WHERE id = ?
+            """,
+            (signbank_id,),
+        ).fetchone()
+
+        selected_categories = []
+
+        if row:
+            selected_categories = [
+                str(value)
+                for value in row
+                if value is not None and str(value).strip()
+            ]
+
+        selected_variants = [
+            row["dialect_id"]
+            for row in conn.execute(
+                """
+                SELECT dialect_id
+                FROM dictionary_gloss_dialect
+                WHERE gloss_id = ?
+                """,
+                (signbank_id,),
+            ).fetchall()
+        ]
 
     return render(
         request,
@@ -1422,6 +1549,10 @@ def signbank_detail(request, signbank_id):
             "handshape_choices": handshape_choices,
             "location_choices": location_choices,
             "translations": translations,
+            "category_choices": category_choices,
+            "variant_choices": variant_choices,
+            "selected_categories": selected_categories,
+            "selected_variants": selected_variants,
         },
     )
 
