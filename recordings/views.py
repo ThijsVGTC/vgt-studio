@@ -1075,7 +1075,7 @@ def signbank_update_handvormen(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De handvormen zijn niet gewijzigd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_handvormen(
@@ -1097,7 +1097,7 @@ def signbank_update_handvormen(request, signbank_id):
             "Handvormen wijzigen mislukt. Controleer de serverlogs.",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_locaties(request, signbank_id):
@@ -1137,7 +1137,7 @@ def signbank_update_locaties(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De handvormen zijn niet gewijzigd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_locaties(
@@ -1159,7 +1159,7 @@ def signbank_update_locaties(request, signbank_id):
             "Locaties wijzigen mislukt. Controleer de serverlogs.",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 
 @login_required
@@ -1176,7 +1176,7 @@ def signbank_update_woordenboek(request, signbank_id):
 
     if waarde not in ("0", "1"):
         messages.error(request, "Ongeldige woordenboekstatus.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1203,7 +1203,7 @@ def signbank_update_woordenboek(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De status is niet gewijzigd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_in_woordenboek(
@@ -1224,7 +1224,7 @@ def signbank_update_woordenboek(request, signbank_id):
             f"Woordenboekstatus wijzigen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_delete_translation(request, signbank_id, translation_id):
@@ -1233,7 +1233,7 @@ def signbank_delete_translation(request, signbank_id, translation_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1268,7 +1268,7 @@ def signbank_delete_translation(request, signbank_id, translation_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De vertaling is niet verwijderd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().delete_translation(
@@ -1289,7 +1289,7 @@ def signbank_delete_translation(request, signbank_id, translation_id):
             f"Vertaling verwijderen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_add_translation(request, signbank_id):
@@ -1298,7 +1298,7 @@ def signbank_add_translation(request, signbank_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1315,7 +1315,7 @@ def signbank_add_translation(request, signbank_id):
             request,
             "Een vertaling moet tussen 1 en 100 tekens bevatten.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1340,7 +1340,7 @@ def signbank_add_translation(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De vertaling is niet toegevoegd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().add_translation(
@@ -1361,7 +1361,7 @@ def signbank_add_translation(request, signbank_id):
             f"Vertaling toevoegen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_delete_source(request, signbank_id, source_id):
@@ -1370,7 +1370,7 @@ def signbank_delete_source(request, signbank_id, source_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1402,7 +1402,7 @@ def signbank_delete_source(request, signbank_id, source_id):
             request,
             "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().delete_source(
@@ -1423,7 +1423,7 @@ def signbank_delete_source(request, signbank_id, source_id):
             f"Bron verwijderen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_source(request, signbank_id, source_id):
@@ -1432,7 +1432,7 @@ def signbank_update_source(request, signbank_id, source_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1449,7 +1449,7 @@ def signbank_update_source(request, signbank_id, source_id):
             request,
             "Een bron moet tussen 1 en 100 tekens bevatten.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1473,7 +1473,7 @@ def signbank_update_source(request, signbank_id, source_id):
             request,
             "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_source(
@@ -1495,7 +1495,7 @@ def signbank_update_source(request, signbank_id, source_id):
             f"Bron wijzigen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_add_source(request, signbank_id):
@@ -1504,7 +1504,7 @@ def signbank_add_source(request, signbank_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1521,7 +1521,7 @@ def signbank_add_source(request, signbank_id):
             request,
             "Een bron moet tussen 1 en 100 tekens bevatten.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1546,7 +1546,7 @@ def signbank_add_source(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De bron is niet toegevoegd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().add_source(
@@ -1567,7 +1567,7 @@ def signbank_add_source(request, signbank_id):
             f"Bron toevoegen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_add_opmerking(request, signbank_id):
@@ -1576,7 +1576,7 @@ def signbank_add_opmerking(request, signbank_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1590,7 +1590,7 @@ def signbank_add_opmerking(request, signbank_id):
 
     if not text:
         messages.error(request, "Een opmerking mag niet leeg zijn.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1614,7 +1614,7 @@ def signbank_add_opmerking(request, signbank_id):
             request,
             "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().add_opmerking(
@@ -1635,7 +1635,7 @@ def signbank_add_opmerking(request, signbank_id):
             f"Opmerking toevoegen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_opmerking(request, signbank_id, opmerking_id):
@@ -1644,7 +1644,7 @@ def signbank_update_opmerking(request, signbank_id, opmerking_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1661,7 +1661,7 @@ def signbank_update_opmerking(request, signbank_id, opmerking_id):
             request,
             "Een opmerking mag niet leeg zijn.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1685,7 +1685,7 @@ def signbank_update_opmerking(request, signbank_id, opmerking_id):
             request,
             "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_opmerking(
@@ -1707,7 +1707,7 @@ def signbank_update_opmerking(request, signbank_id, opmerking_id):
             f"Opmerking wijzigen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_delete_opmerking(request, signbank_id, opmerking_id):
@@ -1716,7 +1716,7 @@ def signbank_delete_opmerking(request, signbank_id, opmerking_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1748,7 +1748,7 @@ def signbank_delete_opmerking(request, signbank_id, opmerking_id):
             request,
             "Je Google-account is niet gekoppeld aan een Signbank-gebruiker.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().delete_opmerking(
@@ -1769,13 +1769,13 @@ def signbank_delete_opmerking(request, signbank_id, opmerking_id):
             f"Opmerking verwijderen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_categories(request, signbank_id):
     if not request.user.is_staff:
         messages.error(request, "Je hebt geen toestemming om Signbankgegevens te wijzigen.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1800,7 +1800,7 @@ def signbank_update_categories(request, signbank_id):
 
     if signbank_user is None:
         messages.error(request, "Geen gekoppelde Signbank-gebruiker gevonden.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     categories = request.POST.getlist("categories")
 
@@ -1816,13 +1816,13 @@ def signbank_update_categories(request, signbank_id):
         logger.exception("Categorieën wijzigen mislukt")
         messages.error(request, "Categorieën opslaan mislukt. Controleer de serverlogs.")
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_variants(request, signbank_id):
     if not request.user.is_staff:
         messages.error(request, "Je hebt geen toestemming om Signbankgegevens te wijzigen.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
@@ -1847,7 +1847,7 @@ def signbank_update_variants(request, signbank_id):
 
     if signbank_user is None:
         messages.error(request, "Geen gekoppelde Signbank-gebruiker gevonden.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     variant_ids = request.POST.getlist("variants")
 
@@ -1863,7 +1863,7 @@ def signbank_update_variants(request, signbank_id):
         logger.exception("Varianten wijzigen mislukt")
         messages.error(request, "Varianten opslaan mislukt. Controleer de serverlogs.")
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_labels(request, signbank_id):
@@ -1901,20 +1901,14 @@ def signbank_update_labels(request, signbank_id):
             request,
             "Je account is niet gekoppeld aan een Signbank-gebruiker."
         )
-        return redirect(
-            "signbank_detail",
-            signbank_id=signbank_id,
-        )
+        return signbank_edit_response(request, signbank_id)
 
     label_ids = request.POST.getlist("labels")
     label_type = request.POST.get("label_type")
 
     if label_type not in {"functional", "internal"}:
         messages.error(request, "Ongeldig labeltype.")
-        return redirect(
-            "signbank_detail",
-            signbank_id=signbank_id,
-        )
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_labels(
@@ -1947,7 +1941,7 @@ def signbank_update_translation(request, signbank_id, translation_id):
             request,
             "Je hebt geen toestemming om Signbankgegevens te wijzigen.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
     if request.method != "POST":
         return HttpResponseNotAllowed(["POST"])
 
@@ -1963,7 +1957,7 @@ def signbank_update_translation(request, signbank_id, translation_id):
             request,
             "Een vertaling moet tussen 1 en 100 tekens bevatten.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1989,7 +1983,7 @@ def signbank_update_translation(request, signbank_id, translation_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De vertaling is niet gewijzigd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_translation(
@@ -2011,7 +2005,7 @@ def signbank_update_translation(request, signbank_id, translation_id):
             f"Vertaling wijzigen mislukt: {exc}",
         )
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_detail(request, signbank_id):
