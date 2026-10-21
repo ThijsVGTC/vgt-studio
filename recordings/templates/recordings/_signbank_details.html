@@ -31,8 +31,7 @@
                 </button>
             </p>
 
-            <form id="gloss-edit-form" method="post" action="{% url 'signbank_update_gloss' entry.signbank_id %}" hidden
-                onsubmit="return confirm('Ben je zeker dat je deze GLOSS wilt wijzigen? De Signbank-master en de videobestandsnaam worden aangepast.');">
+            <form id="gloss-edit-form" method="post" action="{% url 'signbank_update_gloss' entry.signbank_id %}" hidden>
 
                 {% csrf_token %}
 
