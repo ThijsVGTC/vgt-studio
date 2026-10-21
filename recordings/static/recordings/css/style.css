@@ -1884,8 +1884,8 @@ html[data-font-size="xlarge"] body * {
 #signbank-edit-modal .detail_video video {
     display: block;
     width: 100%;
-    max-width: 600px;
-    max-height: 350px;
+    max-width: 450px;
+    max-height: 260px;
     height: auto;
     margin: 0 auto;
     object-fit: contain;
