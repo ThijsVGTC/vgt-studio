@@ -1079,6 +1079,86 @@ if (columnSettingsButton && columnSettingsPanel && signbankTable) {
 {% include "recordings/_signbank_edit_modal.html" %}
 
 <script>
+// Centrale opslagfunctie voor Signbankformulieren in de modal
+document.addEventListener("submit", async function (event) {
+    const form = event.target;
+    const modal = document.getElementById("signbank-edit-modal");
+
+    if (!modal || modal.hidden || !modal.contains(form)) {
+        return;
+    }
+
+    event.preventDefault();
+
+    if (form.dataset.submitting === "true") {
+        return;
+    }
+
+    form.dataset.submitting = "true";
+
+    const submitButton = event.submitter;
+
+    if (submitButton) {
+        submitButton.disabled = true;
+    }
+
+    try {
+        const formData = new FormData(form);
+
+        if (submitButton?.name) {
+            formData.append(submitButton.name, submitButton.value);
+        }
+
+        const response = await fetch(form.action, {
+            method: form.method || "POST",
+            body: formData,
+            credentials: "same-origin",
+            headers: {
+                "X-Requested-With": "XMLHttpRequest"
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const contentType = response.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            throw new Error("De server gaf geen JSON-antwoord terug.");
+        }
+
+        const result = await response.json();
+
+        if (!result.success) {
+            const errorMessage = result.messages
+                ?.map(item => item.message)
+                .join("\n");
+
+            alert(errorMessage || "Opslaan is niet gelukt.");
+            return;
+        }
+
+        // Actuele Signbankgegevens opnieuw laden
+        await openSignbankEditModal(modal.dataset.signbankId);
+
+    } catch (error) {
+        console.error("Signbank opslaan mislukt:", error);
+
+        alert(
+            "Er is een fout opgetreden bij het opslaan. " +
+            "Controleer de gegevens voordat je opnieuw probeert."
+        );
+
+    } finally {
+        form.dataset.submitting = "false";
+
+        if (submitButton) {
+            submitButton.disabled = false;
+        }
+    }
+}, true);
+
 async function openSignbankEditModal(signbankId) {
     const modal = document.getElementById("signbank-edit-modal");
     const title = document.getElementById("signbank-edit-title");

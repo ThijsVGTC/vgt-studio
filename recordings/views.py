@@ -990,7 +990,7 @@ def signbank_update_gloss(request, signbank_id):
 
     if not new_gloss:
         messages.error(request, "De GLOSS mag niet leeg zijn.")
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     from .services.signbank_service import SignbankService
     from .models import SignbankUser
@@ -1018,7 +1018,7 @@ def signbank_update_gloss(request, signbank_id):
             "Je Google-account is niet gekoppeld aan een "
             "Signbank-gebruiker. De GLOSS is niet gewijzigd.",
         )
-        return redirect("signbank_detail", signbank_id=signbank_id)
+        return signbank_edit_response(request, signbank_id)
 
     try:
         SignbankService().update_gloss(
@@ -1035,7 +1035,7 @@ def signbank_update_gloss(request, signbank_id):
         logger.exception("GLOSS-wijziging mislukt")
         messages.error(request, f"GLOSS wijzigen mislukt: {exc}")
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_handvormen(request, signbank_id):
