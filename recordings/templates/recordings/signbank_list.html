@@ -839,14 +839,61 @@ async function openSignbankEditModal(signbankId) {
     }
 }
 
-function closeSignbankEditModal() {
+async function refreshSignbankListRow(signbankId) {
+    const row = document.querySelector(
+        `tr[data-signbank-id="${CSS.escape(String(signbankId))}"]`
+    );
+
+    if (!row) return;
+
+    try {
+        const response = await fetch(
+            `/signbank/${encodeURIComponent(signbankId)}/row/`,
+            {
+                credentials: "same-origin"
+            }
+        );
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        const template = document.createElement("template");
+        template.innerHTML = html.trim();
+
+        const newRow = template.content.querySelector("tr");
+
+        if (!newRow) {
+            throw new Error("Geen geldige tabelrij ontvangen.");
+        }
+
+        row.replaceWith(newRow);
+
+    } catch (error) {
+        console.error("Signbankrij bijwerken mislukt:", error);
+    }
+}
+
+async function closeSignbankEditModal() {
     const modal = document.getElementById("signbank-edit-modal");
 
     if (!modal) return;
 
+    const signbankId = modal.dataset.signbankId;
+    const hasChanges = modal.dataset.hasChanges === "true";
+
     modal.classList.remove("is-open");
     modal.hidden = true;
+
     delete modal.dataset.signbankId;
+    delete modal.dataset.hasChanges;
+
+    // Werk uitsluitend de gewijzigde Signbankrij bij.
+    if (hasChanges && signbankId) {
+        await refreshSignbankListRow(signbankId);
+    }
 }
 
 document.addEventListener("DOMContentLoaded", function () {

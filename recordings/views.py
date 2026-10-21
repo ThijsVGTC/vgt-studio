@@ -2200,6 +2200,26 @@ def signbank_detail(request, signbank_id):
     )
 
 @login_required
+def signbank_list_row(request, signbank_id):
+    """
+    Geeft uitsluitend de actuele HTML van één Signbankrij terug.
+    De volledige Signbanklijst wordt niet opnieuw geladen.
+    """
+
+    entry = get_object_or_404(
+        SignbankEntry,
+        signbank_id=signbank_id,
+    )
+
+    return render(
+        request,
+        "recordings/_signbank_list_row.html",
+        {
+            "entry": entry,
+        },
+    )
+
+@login_required
 def signbank_list(request):
     entries = SignbankEntry.objects.all()
 

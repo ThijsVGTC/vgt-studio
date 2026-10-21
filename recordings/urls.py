@@ -3,6 +3,7 @@ from . import views
 
 urlpatterns = [
     path("signbank/", views.signbank_list, name="signbank_list"),
+    path("signbank/<int:signbank_id>/row/", views.signbank_list_row, name="signbank_list_row"),
     path("signbank/<int:signbank_id>/",views.signbank_detail,name="signbank_detail",),
     path("signbank/<int:signbank_id>/gloss-wijzigen/", views.signbank_update_gloss, name="signbank_update_gloss"),
     path("signbank/<int:signbank_id>/woordenboek-wijzigen/",views.signbank_update_woordenboek,name="signbank_update_woordenboek",),
