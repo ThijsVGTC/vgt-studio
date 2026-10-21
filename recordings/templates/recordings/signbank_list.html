@@ -322,9 +322,9 @@ Signbank | VGT Studio
 
     <tbody>
 
-        {% for entry in entries %}
+    {% for entry in entries %}
 
-            <tr>
+        <tr data-signbank-id="{{ entry.signbank_id }}">
 
                 <td class="signbank-gloss">
 
@@ -1110,8 +1110,13 @@ document.addEventListener("submit", async function (event) {
         }
 
         // Respecteer de specifieke actie van de aangeklikte knop.
-        const action = submitButton?.formAction || form.action;
-        const method = submitButton?.formMethod || form.method || "POST";
+        const action = submitButton?.hasAttribute("formaction")
+            ? submitButton.formAction
+            : form.action;
+
+        const method = submitButton?.hasAttribute("formmethod")
+            ? submitButton.formMethod
+            : (form.method || "POST");
 
         const response = await fetch(action, {
             method: method.toUpperCase(),
@@ -1143,7 +1148,10 @@ document.addEventListener("submit", async function (event) {
             return;
         }
 
-        // Actuele Signbankgegevens opnieuw laden
+        // Onthoud dat de Signbankgegevens gewijzigd zijn.
+        modal.dataset.hasChanges = "true";
+
+        // Actuele Signbankgegevens opnieuw laden.
         await openSignbankEditModal(modal.dataset.signbankId);
 
     } catch (error) {
