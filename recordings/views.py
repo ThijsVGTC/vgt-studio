@@ -941,6 +941,21 @@ def signbank_export_bulk(request):
         f"{reverse('signbank_export_preview')}?tab=pending"
     )
 
+def signbank_edit_response(request, signbank_id):
+    from django.http import JsonResponse
+    from django.urls import reverse
+
+    if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+        return JsonResponse({
+            "success": True,
+            "reload_url": reverse(
+                "signbank_detail",
+                kwargs={"signbank_id": signbank_id},
+            ) + "?modal=1",
+        })
+
+    return redirect("signbank_detail", signbank_id=signbank_id)
+
 @login_required
 def signbank_update_gloss(request, signbank_id):
     if request.method != "POST":
