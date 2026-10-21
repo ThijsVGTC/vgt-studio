@@ -1898,3 +1898,54 @@ html[data-font-size="xlarge"] body * {
     padding: 20px;
     box-sizing: border-box;
 }
+
+/* Signbank-modal: vaste bovenbalk */
+#signbank-edit-modal .signbank-modal-content {
+    display: flex;
+    flex-direction: column;
+    max-height: 90vh;
+    overflow: hidden;
+}
+
+/* Titel links, sluitknop rechts */
+#signbank-edit-modal .signbank-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 20px;
+    padding: 20px 24px;
+    flex-shrink: 0;
+    border-bottom: 1px solid #ddd;
+    background: #fff;
+}
+
+#signbank-edit-modal .signbank-modal-header h2 {
+    margin: 0;
+}
+
+/* Sluitknop */
+#signbank-edit-modal .signbank-modal-close {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+    border: none;
+    border-radius: 6px;
+    background: #f1f1f1;
+    color: #333;
+    font-size: 26px;
+    cursor: pointer;
+}
+
+#signbank-edit-modal .signbank-modal-close:hover {
+    background: #ddd;
+}
+
+/* Alleen de inhoud scrollt */
+#signbank-edit-modal .signbank-modal-body {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+}
