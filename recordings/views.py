@@ -2202,14 +2202,18 @@ def signbank_detail(request, signbank_id):
 @login_required
 def signbank_list_row(request, signbank_id):
     """
-    Geeft uitsluitend de actuele HTML van één Signbankrij terug.
-    De volledige Signbanklijst wordt niet opnieuw geladen.
+    Geeft de actuele Signbankrij terug als deze
+    nog aan de actieve filters voldoet.
     """
 
-    entry = get_object_or_404(
-        SignbankEntry,
-        signbank_id=signbank_id,
-    )
+    entries = get_filtered_signbank_entries(request)
+
+    entry = entries.filter(
+        signbank_id=signbank_id
+    ).first()
+
+    if entry is None:
+        return HttpResponse(status=204)
 
     return render(
         request,
@@ -2220,7 +2224,7 @@ def signbank_list_row(request, signbank_id):
     )
 
 @login_required
-def signbank_list(request):
+def get_filtered_signbank_entries(request):
     entries = SignbankEntry.objects.all()
 
     search_query = request.GET.get("q", "").strip()
@@ -2335,7 +2339,20 @@ def signbank_list(request):
         entries = entries.filter(
             in_woordenboek=False
         )
+    return entries
 
+
+@login_required
+def signbank_list(request):
+    entries = get_filtered_signbank_entries(request)
+
+    search_query = request.GET.get("q", "").strip()
+    selected_categories = request.GET.getlist("category")
+    selected_functional_labels = request.GET.getlist("functional_label")
+    selected_internal_labels = request.GET.getlist("internal_label")
+    selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
+    sort = request.GET.get("sort", "signbank_id").strip()
+    direction = request.GET.get("dir", "asc").strip()
     # -------------------------------------------------
     # Alle beschikbare categorieën verzamelen
     # -------------------------------------------------

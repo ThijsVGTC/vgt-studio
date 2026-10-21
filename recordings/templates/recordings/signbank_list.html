@@ -847,8 +847,11 @@ async function refreshSignbankListRow(signbankId) {
     if (!row) return;
 
     try {
+        // Neem de actieve zoekopdracht en filters over.
+        const params = new URLSearchParams(window.location.search);
+
         const response = await fetch(
-            `/signbank/${encodeURIComponent(signbankId)}/row/`,
+            `/signbank/${encodeURIComponent(signbankId)}/row/?${params.toString()}`,
             {
                 credentials: "same-origin"
             }
@@ -856,6 +859,12 @@ async function refreshSignbankListRow(signbankId) {
 
         if (!response.ok) {
             throw new Error(`HTTP ${response.status}`);
+        }
+
+        // De gewijzigde rij voldoet niet meer aan de actieve filters.
+        if (response.status === 204) {
+            row.remove();
+            return;
         }
 
         const html = await response.text();
