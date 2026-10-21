@@ -1109,8 +1109,12 @@ document.addEventListener("submit", async function (event) {
             formData.append(submitButton.name, submitButton.value);
         }
 
-        const response = await fetch(form.action, {
-            method: form.method || "POST",
+        // Respecteer de specifieke actie van de aangeklikte knop.
+        const action = submitButton?.formAction || form.action;
+        const method = submitButton?.formMethod || form.method || "POST";
+
+        const response = await fetch(action, {
+            method: method.toUpperCase(),
             body: formData,
             credentials: "same-origin",
             headers: {
