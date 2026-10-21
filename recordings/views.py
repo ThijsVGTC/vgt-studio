@@ -944,17 +944,37 @@ def signbank_export_bulk(request):
 def signbank_edit_response(request, signbank_id):
     from django.http import JsonResponse
     from django.urls import reverse
+    from django.contrib.messages import get_messages
+    from django.contrib import messages as django_messages
 
     if request.headers.get("X-Requested-With") == "XMLHttpRequest":
+
+        notifications = [
+            {
+                "level": message.level_tag,
+                "message": str(message),
+            }
+            for message in get_messages(request)
+        ]
+
+        success = not any(
+            notification["level"] in {"error", "warning"}
+            for notification in notifications
+        )
+
         return JsonResponse({
-            "success": True,
+            "success": success,
+            "messages": notifications,
             "reload_url": reverse(
                 "signbank_detail",
                 kwargs={"signbank_id": signbank_id},
             ) + "?modal=1",
         })
 
-    return redirect("signbank_detail", signbank_id=signbank_id)
+    return redirect(
+        "signbank_detail",
+        signbank_id=signbank_id,
+    )
 
 @login_required
 def signbank_update_gloss(request, signbank_id):
