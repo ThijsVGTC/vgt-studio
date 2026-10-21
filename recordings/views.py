@@ -1929,10 +1929,7 @@ def signbank_update_labels(request, signbank_id):
             f"Labels opslaan mislukt: {exc}"
         )
 
-    return redirect(
-        "signbank_detail",
-        signbank_id=signbank_id,
-    )
+    return signbank_edit_response(request, signbank_id)
 
 @login_required
 def signbank_update_translation(request, signbank_id, translation_id):

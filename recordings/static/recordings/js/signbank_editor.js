@@ -133,12 +133,76 @@
         });
     }
 
+    function initializeSignbankLabels(container) {
+        const labels = container.querySelector("#selected-labels");
+        const select = container.querySelector("#label-select");
+        const addButton = container.querySelector("#add-label");
+
+        if (!labels || !select || !addButton) return;
+
+        // Voorkom dubbele eventlisteners
+        if (labels.dataset.initialized === "true") return;
+        labels.dataset.initialized = "true";
+
+        addButton.addEventListener("click", function () {
+            const id = select.value;
+            if (!id) return;
+
+            const exists = Array.from(
+                labels.querySelectorAll(".selected-label")
+            ).some(item => item.dataset.id === id);
+
+            if (exists) {
+                alert("Dit label is al toegevoegd.");
+                return;
+            }
+
+            const name = select.options[select.selectedIndex].text;
+
+            const item = document.createElement("div");
+            item.className = "selected-label";
+            item.dataset.id = id;
+            item.style.cssText =
+                "display:flex;gap:10px;align-items:center;margin-bottom:8px;";
+
+            const label = document.createElement("span");
+            label.textContent = name;
+
+            const hidden = document.createElement("input");
+            hidden.type = "hidden";
+            hidden.name = "labels";
+            hidden.value = id;
+
+            const remove = document.createElement("button");
+            remove.type = "button";
+            remove.className = "remove-label btn btn-sm btn-outline-danger";
+            remove.textContent = "✕";
+            remove.setAttribute(
+                "aria-label",
+                `Label ${name} verwijderen`
+            );
+
+            item.append(label, hidden, remove);
+            labels.appendChild(item);
+
+            select.value = "";
+        });
+
+        labels.addEventListener("click", function (event) {
+            const button = event.target.closest(".remove-label");
+            if (!button) return;
+
+            button.closest(".selected-label")?.remove();
+        });
+    }
+
     // Beschikbaar voor de Signbankmodal
     const initializeCategories = initializeSignbankEditor;
 
     window.initializeSignbankEditor = function (container) {
         initializeCategories(container);
         initializeSignbankVariants(container);
+        initializeSignbankLabels(container);
     };
 
     // Initialiseren op gewone detailpagina
