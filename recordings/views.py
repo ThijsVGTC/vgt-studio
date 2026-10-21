@@ -2142,9 +2142,15 @@ def signbank_detail(request, signbank_id):
         1 for comment in recording_comments
         if comment["source"] == "Videocontrole"
     )
+    template_name = (
+        "recordings/_signbank_details.html"
+        if request.GET.get("modal") == "1"
+        else "recordings/signbank_detail.html"
+    )
+
     return render(
         request,
-        "recordings/signbank_detail.html",
+        template_name,
         {
             "entry": entry,
             "handshape_choices": handshape_choices,

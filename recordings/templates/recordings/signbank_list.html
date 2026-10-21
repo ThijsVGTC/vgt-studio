@@ -553,15 +553,15 @@ Signbank | VGT Studio
                         {% endif %}
 
 
-                        {% if not entry.opmerkingen or not entry.etymologie or not entry.bronnen %}
-                            <button
-                                type="button"
-                                class="button button-secondary signbank-info-add-button"
-                                title="Informatie toevoegen"
-                            >
-                                +
-                            </button>
-                        {% endif %}
+                        <button
+                            type="button"
+                            class="button button-secondary signbank-info-add-button"
+                            data-signbank-id="{{ entry.signbank_id }}"
+                            title="Signbankgegevens bewerken"
+                            onclick="openSignbankEditModal(this.dataset.signbankId)"
+                        >
+                            Bewerken
+                        </button>
 
                     </div>
 
@@ -1074,6 +1074,93 @@ if (columnSettingsButton && columnSettingsPanel && signbankTable) {
     });
 }
 
+</script>
+
+{% include "recordings/_signbank_edit_modal.html" %}
+
+<script>
+async function openSignbankEditModal(signbankId) {
+    const modal = document.getElementById("signbank-edit-modal");
+    const title = document.getElementById("signbank-edit-title");
+    const content = document.getElementById("signbank-edit-content");
+
+    if (!modal || !content || !signbankId) return;
+
+    title.textContent = "Signbankgegevens bewerken";
+    content.textContent = "Signbankgegevens laden...";
+
+    modal.hidden = false;
+    modal.classList.add("is-open");
+    modal.dataset.signbankId = signbankId;
+
+    modal.querySelector(".signbank-modal-close")?.focus();
+
+    try {
+        const url = `/signbank/${encodeURIComponent(signbankId)}/?modal=1`;
+
+        const response = await fetch(url, {
+            credentials: "same-origin"
+        });
+
+        if (!response.ok) {
+            throw new Error(`HTTP ${response.status}`);
+        }
+
+        const html = await response.text();
+
+        // Voorkom dat een oud verzoek een andere entry overschrijft.
+        if (
+            modal.hidden ||
+            modal.dataset.signbankId !== String(signbankId)
+        ) {
+            return;
+        }
+
+        content.innerHTML = html;
+
+    } catch (error) {
+        console.error("Signbank laden mislukt:", error);
+
+        if (
+            !modal.hidden &&
+            modal.dataset.signbankId === String(signbankId)
+        ) {
+            content.textContent =
+                "De Signbankgegevens konden niet worden geladen.";
+        }
+    }
+}
+
+function closeSignbankEditModal() {
+    const modal = document.getElementById("signbank-edit-modal");
+
+    if (!modal) return;
+
+    modal.classList.remove("is-open");
+    modal.hidden = true;
+    delete modal.dataset.signbankId;
+}
+
+document.addEventListener("DOMContentLoaded", function () {
+    const modal = document.getElementById("signbank-edit-modal");
+
+    if (!modal) return;
+
+    modal.querySelector(".signbank-modal-close")
+        ?.addEventListener("click", closeSignbankEditModal);
+
+    modal.addEventListener("click", function (event) {
+        if (event.target === modal) {
+            closeSignbankEditModal();
+        }
+    });
+
+    document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape" && !modal.hidden) {
+            closeSignbankEditModal();
+        }
+    });
+});
 </script>
 
 <script src="https://player.vimeo.com/api/player.js"></script>
