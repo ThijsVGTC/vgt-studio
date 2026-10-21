@@ -323,11 +323,7 @@ Signbank | VGT Studio
     <tbody>
 
     {% for entry in entries %}
-
-        <tr data-signbank-id="{{ entry.signbank_id }}">
-        {% for entry in entries %}
-
-                {% include "recordings/_signbank_list_row.html" with entry=entry %}
+            {% include "recordings/_signbank_list_row.html" with entry=entry %}
         {% empty %}
 
             <tr>
