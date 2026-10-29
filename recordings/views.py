@@ -3410,6 +3410,14 @@ def recording_detail(request, signbank_id):
         signbank_id=signbank_id
     )
 
+    signbank_entry = SignbankEntry.objects.filter(
+        signbank_id=item.signbank_id
+    ).first()
+
+    functional_labels = get_signbank_functional_labels(
+        signbank_entry
+    )
+
     opnamereeks_actief = request.session.get(
         "opnamereeks_actief",
         False
@@ -3480,6 +3488,8 @@ def recording_detail(request, signbank_id):
         "recordings/recording_detail.html",
         {
             "item": item,
+            "signbank_entry": signbank_entry,
+            "functional_labels": functional_labels,
             "opnamereeks_actief": opnamereeks_actief,
             "has_previous_recording": has_previous_recording,
             "total_count": total_count,

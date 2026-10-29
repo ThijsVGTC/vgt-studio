@@ -1,4 +1,5 @@
 {% extends "recordings/base.html" %}
+{% load static %}
 {% block title %}
 
 detail-pagina {{ item.gloss_id }}
@@ -152,6 +153,7 @@ detail-pagina {{ item.gloss_id }}
             <hr>
         </div>
         <div class="detail_inhoud">
+            {% include "recordings/_video_review_signbank_info.html" %}
             <div class="video-source-edit">
                 <h3>Video-bron corrigeren</h3>
                 <form method="post" action="{% url 'update_video_source' item.signbank_id %}">
@@ -255,5 +257,63 @@ detail-pagina {{ item.gloss_id }}
 </script>
 
 
+{% include "recordings/_signbank_edit_modal.html" %}
 
+<script src="{% static 'recordings/js/signbank_modal.js' %}"></script>
+<script src="{% static 'recordings/js/signbank_editor.js' %}"></script>
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+
+    // Open de bestaande Signbank-editor.
+    document.addEventListener("click", function (event) {
+        const editButton = event.target.closest("#edit-signbank-button");
+
+        if (!editButton) return;
+
+        const signbankId = editButton.dataset.signbankId;
+
+        if (signbankId) {
+            openSignbankEditModal(signbankId);
+        }
+    });
+
+    // Vernieuw de Signbankgegevens na het bewerken.
+    document.addEventListener("signbank:updated", async function (event) {
+        const signbankId = event.detail.signbankId;
+        const infoBlock = document.getElementById("signbank-review-info");
+
+        if (!infoBlock || infoBlock.dataset.signbankId !== String(signbankId)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `{% url 'video_review_signbank_info' item.signbank_id %}`,
+                {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const html = await response.text();
+
+            // Vernieuw alleen de Signbankgegevens.
+            infoBlock.outerHTML = html;
+
+        } catch (error) {
+            console.error(
+                "Failed to refresh Signbank recording information:",
+                error
+            );
+        }
+    });
+
+});
+</script>
 {% endblock %}
