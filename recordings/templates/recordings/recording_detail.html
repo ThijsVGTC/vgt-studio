@@ -262,7 +262,7 @@ detail-pagina {{ item.gloss_id }}
 <script src="{% static 'recordings/js/signbank_modal.js' %}"></script>
 <script src="{% static 'recordings/js/signbank_editor.js' %}"></script>
 <script>
-document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", (function () {
 
     // Open de bestaande Signbank-editor.
     document.addEventListener("click", function (event) {
@@ -314,6 +314,6 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-});
+})());
 </script>
 {% endblock %}
