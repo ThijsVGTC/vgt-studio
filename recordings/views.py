@@ -28,6 +28,29 @@ from django.views.decorators.csrf import csrf_exempt
 # Create your views here.
 logger = logging.getLogger(__name__)
 
+def get_signbank_functional_labels(signbank_entry):
+    """
+    Return the functional labels of a Signbank entry.
+    """
+    if not signbank_entry:
+        return []
+
+    functional_labels = {
+        "ex": "Ex",
+        "vo": "Vo",
+        "be": "Be",
+        "nl": "Nl",
+        "ne": "Ne",
+    }
+
+    labels = (signbank_entry.labels or "").split(";")
+
+    return [
+        functional_labels[label.strip().lower()]
+        for label in labels
+        if label.strip().lower() in functional_labels
+    ]
+
 @login_required
 def bulk_video_upload(request):
     results = []
@@ -247,6 +270,11 @@ def video_review_item(
         RecordingItem,
         signbank_id=signbank_id,
     )
+    signbank_entry = SignbankEntry.objects.filter(
+        signbank_id=item.signbank_id
+    ).first()
+
+    functional_labels = get_signbank_functional_labels(signbank_entry)
 
     if not item.new_video and not item.rejected_video:
         return redirect(
@@ -258,6 +286,8 @@ def video_review_item(
         "recordings/video_review.html",
         {
             "item": item,
+            "signbank_entry": signbank_entry,
+            "functional_labels": functional_labels,
             "single_item": True,
             "return_to": "overview",
         },
@@ -286,6 +316,12 @@ def video_review(request):
         )
 
     item = items.first()
+    
+    signbank_entry = SignbankEntry.objects.filter(
+        signbank_id=item.signbank_id
+    ).first()
+
+    functional_labels = get_signbank_functional_labels(signbank_entry)
 
     approved_count = RecordingItem.objects.filter(
         new_video_status="GOEDGEKEURD"
@@ -300,6 +336,8 @@ def video_review(request):
         "recordings/video_review.html",
         {
             "item": item,
+            "signbank_entry": signbank_entry,
+            "functional_labels": functional_labels,
             "total_count": total_count,
             "position": 1,
             "approved_count": approved_count,
