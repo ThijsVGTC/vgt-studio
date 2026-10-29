@@ -224,7 +224,7 @@ detail-pagina {{ item.gloss_id }}
 
     document
         .getElementById("start-recording")
-        .addEventListener("click", function () {
+        ?.addEventListener("click", function () {
             startControls.style.display = "none";
             stopControls.style.display = "block";
             approvalControls.style.display = "none";
@@ -232,7 +232,7 @@ detail-pagina {{ item.gloss_id }}
 
     document
         .getElementById("stop-recording")
-        .addEventListener("click", function () {
+        ?.addEventListener("click", function () {
             startControls.style.display = "none";
             stopControls.style.display = "none";
             approvalControls.style.display = "block";
@@ -240,7 +240,7 @@ detail-pagina {{ item.gloss_id }}
 
     document
         .getElementById("retry-recording")
-        .addEventListener("click", function () {
+        ?.addEventListener("click", function () {
             startControls.style.display = "block";
             stopControls.style.display = "none";
             approvalControls.style.display = "none";
