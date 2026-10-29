@@ -348,6 +348,34 @@ def video_review(request):
     )
 
 @login_required
+def video_review_signbank_info(request, signbank_id):
+    """
+    Return the updated Signbank information for video review.
+    """
+    item = get_object_or_404(
+        RecordingItem,
+        signbank_id=signbank_id,
+    )
+
+    signbank_entry = SignbankEntry.objects.filter(
+        signbank_id=item.signbank_id
+    ).first()
+
+    functional_labels = get_signbank_functional_labels(
+        signbank_entry
+    )
+
+    return render(
+        request,
+        "recordings/_video_review_signbank_info.html",
+        {
+            "item": item,
+            "signbank_entry": signbank_entry,
+            "functional_labels": functional_labels,
+        },
+    )
+
+@login_required
 def approve_new_video(request, signbank_id):
     item = get_object_or_404(
         RecordingItem,

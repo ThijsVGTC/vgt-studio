@@ -135,75 +135,7 @@ Videocontrole | VGT Studio
 
 </div>
 
-{% if signbank_entry %}
-
-<div class="signbank-review-info">
-
-    <h3>Signbankgegevens</h3>
-
-    <div class="signbank-review-details">
-
-        <p>
-            <strong>Mogelijke vertaling:</strong>
-            {{ signbank_entry.mogelijke_vertaling|default:"-" }}
-        </p>
-
-        <p>
-            <strong>Handvorm begin:</strong>
-            {{ signbank_entry.handvorm_begin|default:"-" }}
-        </p>
-
-        <p>
-            <strong>Handvorm einde:</strong>
-            {{ signbank_entry.handvorm_einde|default:"-" }}
-        </p>
-
-        <p>
-            <strong>Locatie begin:</strong>
-            {{ signbank_entry.locatie_begin|default:"-" }}
-        </p>
-
-        <p>
-            <strong>Locatie einde:</strong>
-            {{ signbank_entry.locatie_einde|default:"-" }}
-        </p>
-        <p>
-            <strong>In woordenboek:</strong>
-            {% if signbank_entry.in_woordenboek %}
-                <span style="color: #198754; font-weight: 600;">Ja</span>
-            {% else %}
-                <span style="color: #dc3545; font-weight: 600;">Nee</span>
-            {% endif %}
-        </p>
-        <div class="signbank-review-labels">
-            <strong>Functionele labels:</strong>
-
-            {% for label in functional_labels %}
-                <span class="label-functional">
-                    {{ label }}
-                </span>
-            {% empty %}
-                <span>-</span>
-            {% endfor %}
-        </div>
-        <div class="signbank-review-edit" style="margin-top: 15px;">
-
-            <button
-                type="button"
-                class="button button-secondary"
-                id="edit-signbank-button"
-                data-signbank-id="{{ item.signbank_id }}"
-            >
-                Bewerken
-            </button>
-
-        </div>
-
-    </div>
-
-</div>
-
-{% endif %}
+{% include "recordings/_video_review_signbank_info.html" %}
 
 <div class="video-review-decision">
 
@@ -322,17 +254,59 @@ Videocontrole | VGT Studio
 <script src="{% static 'recordings/js/signbank_editor.js' %}"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
-    const editButton = document.getElementById("edit-signbank-button");
 
-    if (!editButton) return;
+    // Open de Signbank-editor.
+    // Event delegation zorgt dat de knop ook na vervanging blijft werken.
+    document.addEventListener("click", function (event) {
+        const editButton = event.target.closest("#edit-signbank-button");
 
-    editButton.addEventListener("click", function () {
-        const signbankId = this.dataset.signbankId;
+        if (!editButton) return;
+
+        const signbankId = editButton.dataset.signbankId;
 
         if (signbankId) {
             openSignbankEditModal(signbankId);
         }
     });
+
+    // Vernieuw de Signbankgegevens na een wijziging.
+    document.addEventListener("signbank:updated", async function (event) {
+
+        const signbankId = event.detail.signbankId;
+        const infoBlock = document.getElementById("signbank-review-info");
+
+        if (!infoBlock || infoBlock.dataset.signbankId !== String(signbankId)) {
+            return;
+        }
+
+        try {
+            const response = await fetch(
+                `/video-controle/${encodeURIComponent(signbankId)}/signbank-info/`,
+                {
+                    headers: {
+                        "X-Requested-With": "XMLHttpRequest"
+                    },
+                    cache: "no-store"
+                }
+            );
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}`);
+            }
+
+            const html = await response.text();
+
+            // Vervang uitsluitend het informatieblok.
+            infoBlock.outerHTML = html;
+
+        } catch (error) {
+            console.error(
+                "Failed to refresh Signbank review information:",
+                error
+            );
+        }
+    });
+
 });
 </script>
 

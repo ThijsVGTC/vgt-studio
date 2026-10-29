@@ -27,6 +27,7 @@ urlpatterns = [
     path("video-controle/",views.video_review_overview,name="video_review_overview",),
     path("video-controle/beoordelen/",views.video_review,name="video_review",),
     path("video-controle/bekijken/<int:signbank_id>/",views.video_review_item,name="video_review_item",),
+    path("video-controle/<int:signbank_id>/signbank-info/", views.video_review_signbank_info, name="video_review_signbank_info"),
     path("video-controle/<int:signbank_id>/goedkeuren/",views.approve_new_video,name="approve_new_video",),
     path("video-controle/<int:signbank_id>/afkeuren/",views.reject_new_video,name="reject_new_video",),
     path("video-controle/<int:signbank_id>/heropenen/",views.reopen_rejected_video,name="reopen_rejected_video",),

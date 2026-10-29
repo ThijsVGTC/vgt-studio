@@ -1,0 +1,68 @@
+{% if signbank_entry %}
+<div
+    id="signbank-review-info"
+    class="signbank-review-info"
+    data-signbank-id="{{ item.signbank_id }}"
+>
+    <h3>Signbankgegevens</h3>
+
+    <div class="signbank-review-details">
+
+        <p>
+            <strong>Mogelijke vertaling:</strong>
+            {{ signbank_entry.mogelijke_vertaling|default:"–" }}
+        </p>
+
+        <p>
+            <strong>Handvorm begin:</strong>
+            {{ signbank_entry.handvorm_begin|default:"–" }}
+        </p>
+
+        <p>
+            <strong>Handvorm einde:</strong>
+            {{ signbank_entry.handvorm_einde|default:"–" }}
+        </p>
+
+        <p>
+            <strong>Locatie begin:</strong>
+            {{ signbank_entry.locatie_begin|default:"–" }}
+        </p>
+
+        <p>
+            <strong>Locatie einde:</strong>
+            {{ signbank_entry.locatie_einde|default:"–" }}
+        </p>
+
+        <p>
+            <strong>In woordenboek:</strong>
+            {% if signbank_entry.in_woordenboek %}
+                <span style="color: #198754; font-weight: 600;">Ja</span>
+            {% else %}
+                <span style="color: #dc3545; font-weight: 600;">Nee</span>
+            {% endif %}
+        </p>
+
+        <div class="signbank-review-labels">
+            <strong>Functionele labels:</strong>
+
+            {% for label in functional_labels %}
+                <span class="label-functional">{{ label }}</span>
+            {% empty %}
+                <span>–</span>
+            {% endfor %}
+        </div>
+
+        <div class="signbank-review-edit" style="margin-top: 15px;">
+            <button
+                type="button"
+                class="button button-secondary"
+                id="edit-signbank-button"
+                data-signbank-id="{{ item.signbank_id }}"
+            >
+                Bewerken
+            </button>
+        </div>
+
+    </div>
+</div>
+{% endif %}
