@@ -1,0 +1,328 @@
+<!-- Nieuw bestand: recordings/templates/recordings/_signbank_create_details.html -->
+
+{% load static %}
+
+<h3>3. Vul de Signbankgegevens in</h3>
+
+<div class="form-group">
+    <label for="signbank-create-gloss">GLOSS</label>
+    <input
+        type="text"
+        id="signbank-create-gloss"
+        name="gloss"
+        maxlength="30"
+        autocomplete="off"
+        required
+    >
+</div>
+
+<div class="form-group">
+    <label for="signbank-create-in-woordenboek">In woordenboek</label>
+    <select id="signbank-create-in-woordenboek" name="in_woordenboek">
+        <option value="0" selected>Nee</option>
+        <option value="1">Ja</option>
+    </select>
+</div>
+
+<hr>
+<h3>Handvorm</h3>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
+    <div>
+        <strong id="signbank-create-handvorm-begin-label">Begin</strong>
+
+        <div class="handshape-picker">
+            <input
+                type="hidden"
+                id="signbank-create-handvorm-begin"
+                name="handvorm_begin"
+                value=""
+            >
+
+            <button
+                type="button"
+                id="signbank-create-handvorm-begin-button"
+                class="handshape-picker-button"
+                data-create-handshape-toggle
+                aria-expanded="false"
+                aria-labelledby="signbank-create-handvorm-begin-label signbank-create-handvorm-begin-button"
+            >
+                Kies handvorm
+            </button>
+
+            <div class="handshape-picker-options" hidden>
+                <button
+                    type="button"
+                    data-create-handshape-option
+                    data-code=""
+                >
+                    Geen handvorm
+                </button>
+
+                {% for handshape in handshape_choices %}
+                <button
+                    type="button"
+                    class="handshape-option"
+                    data-create-handshape-option
+                    data-code="{{ handshape.code }}"
+                    title="{{ handshape.name }}"
+                >
+                    <img
+                        src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                        alt="{{ handshape.name }}"
+                        loading="lazy"
+                        width="65"
+                    >
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <div>
+        <strong id="signbank-create-handvorm-einde-label">Einde</strong>
+
+        <div class="handshape-picker">
+            <input
+                type="hidden"
+                id="signbank-create-handvorm-einde"
+                name="handvorm_einde"
+                value=""
+            >
+
+            <button
+                type="button"
+                id="signbank-create-handvorm-einde-button"
+                class="handshape-picker-button"
+                data-create-handshape-toggle
+                aria-expanded="false"
+                aria-labelledby="signbank-create-handvorm-einde-label signbank-create-handvorm-einde-button"
+            >
+                Kies handvorm
+            </button>
+
+            <div class="handshape-picker-options" hidden>
+                <button
+                    type="button"
+                    data-create-handshape-option
+                    data-code=""
+                >
+                    Geen handvorm
+                </button>
+
+                {% for handshape in handshape_choices %}
+                <button
+                    type="button"
+                    class="handshape-option"
+                    data-create-handshape-option
+                    data-code="{{ handshape.code }}"
+                    title="{{ handshape.name }}"
+                >
+                    <img
+                        src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                        alt="{{ handshape.name }}"
+                        loading="lazy"
+                        width="65"
+                    >
+                </button>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr>
+<h3>Locatie</h3>
+
+<div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
+    <div>
+        <label for="signbank-create-locatie-begin">Locatie begin</label><br>
+
+        <select id="signbank-create-locatie-begin" name="locatie_begin" required>
+            <option value="0">Kies locatie...</option>
+
+            {% for location in location_choices %}
+            <option value="{{ location.code }}">{{ location.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <div>
+        <label for="signbank-create-locatie-einde">Locatie einde</label><br>
+
+        <select id="signbank-create-locatie-einde" name="locatie_einde" required>
+            <option value="0">Geen locatie</option>
+
+            {% for location in location_choices %}
+            <option value="{{ location.code }}">{{ location.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+
+<hr>
+<h3>Mogelijke vertalingen</h3>
+
+<div id="signbank-create-translations" data-create-list></div>
+
+<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+    <input
+        type="text"
+        id="signbank-create-translation"
+        placeholder="Nieuwe vertaling..."
+        aria-label="Nieuwe mogelijke vertaling"
+        maxlength="100"
+        style="flex:1; min-width:0; width:auto;"
+    >
+
+    <button type="button" id="signbank-create-add-translation">
+        + Vertaling toevoegen
+    </button>
+</div>
+
+<hr>
+<h3>Categorieën</h3>
+
+<div id="signbank-create-categories" data-create-list></div>
+
+<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+    <select
+        id="signbank-create-category"
+        aria-label="Categorie toevoegen"
+    >
+        <option value="">Selecteer categorie...</option>
+
+        {% for category in category_choices %}
+        <option value="{{ category.code }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="button" id="signbank-create-add-category">
+        + Toevoegen
+    </button>
+</div>
+
+<p><small>Je kunt maximaal vijf categorieën toevoegen.</small></p>
+
+<hr>
+<h3>Varianten</h3>
+
+<div id="signbank-create-variants" data-create-list></div>
+
+<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+    <select
+        id="signbank-create-variant"
+        aria-label="Variant toevoegen"
+    >
+        <option value="">Selecteer variant...</option>
+
+        {% for variant in variant_choices %}
+        <option value="{{ variant.id }}">{{ variant.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="button" id="signbank-create-add-variant">
+        + Toevoegen
+    </button>
+</div>
+
+<hr>
+<h3>Functionele labels</h3>
+
+<div style="display:flex; flex-wrap:wrap; gap:12px; margin-bottom:15px;">
+    {% for label in functional_label_choices %}
+    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+        <input
+            type="checkbox"
+            name="functional_labels"
+            value="{{ label.id }}"
+        >
+        <span>{{ label.name }}</span>
+    </label>
+    {% empty %}
+    <p>Geen functionele labels beschikbaar.</p>
+    {% endfor %}
+</div>
+
+<hr>
+<h3>Interne labels</h3>
+
+<div id="signbank-create-internal-labels" data-create-list></div>
+
+<div style="display:flex; gap:10px; margin-top:12px; flex-wrap:wrap;">
+    <select
+        id="signbank-create-internal-label"
+        aria-label="Intern label toevoegen"
+    >
+        <option value="">Selecteer intern label...</option>
+
+        {% for label in internal_label_choices %}
+        <option value="{{ label.id }}">{{ label.name }}</option>
+        {% endfor %}
+    </select>
+
+    <button type="button" id="signbank-create-add-internal-label">
+        + Toevoegen
+    </button>
+</div>
+
+<hr>
+<h3>Opmerkingen</h3>
+
+<div id="signbank-create-comments" data-create-list></div>
+
+<div class="form-group" style="margin-top:15px;">
+    <label for="signbank-create-comment">Nieuwe Signbank-opmerking</label>
+
+    <textarea
+        id="signbank-create-comment"
+        rows="4"
+        placeholder="Schrijf hier een nieuwe opmerking..."
+        style="width:100%; box-sizing:border-box;"
+    ></textarea>
+
+    <button type="button" id="signbank-create-add-comment">
+        + Opmerking toevoegen
+    </button>
+</div>
+
+<hr>
+<h3>Etymologie</h3>
+
+<div class="form-group">
+    <label for="signbank-create-etymology">Etymologische toelichting</label>
+
+    <textarea
+        id="signbank-create-etymology"
+        name="etymology"
+        rows="4"
+        placeholder="Beschrijf de oorsprong van het gebaar..."
+        style="width:100%; box-sizing:border-box;"
+    ></textarea>
+</div>
+
+<hr>
+<h3>Bronnen</h3>
+
+<div id="signbank-create-sources" data-create-list></div>
+
+<div style="display:flex; gap:10px; margin-top:15px; flex-wrap:wrap;">
+    <input
+        type="text"
+        id="signbank-create-source"
+        placeholder="Nieuwe bron..."
+        aria-label="Nieuwe bron"
+        maxlength="100"
+        style="flex:1; min-width:0; width:auto;"
+    >
+
+    <button type="button" id="signbank-create-add-source">
+        + Bron toevoegen
+    </button>
+</div>
+
+<hr>
+
+<button type="submit" id="signbank-create-save" disabled>
+    Gebaar en video opslaan
+</button>

@@ -4005,7 +4005,41 @@ def signbank_create(request):
     if request.method != "GET":
         return HttpResponseNotAllowed(["GET"])
 
+    from .services.signbank_service import SignbankService
+
+    service = SignbankService()
+
+    label_choices = service.get_label_choices()
+
+    functional_names = {
+        "expliciet",
+        "verouderd",
+        "beledigend",
+        "neologisme",
+        "negatief",
+    }
+
+    functional_label_choices = [
+        label
+        for label in label_choices
+        if label["name"].strip().lower() in functional_names
+    ]
+
+    internal_label_choices = [
+        label
+        for label in label_choices
+        if label["name"].strip().lower() not in functional_names
+    ]
+
     return render(
         request,
         "recordings/signbank_create.html",
+        {
+            "handshape_choices": service.get_handshape_choices(),
+            "location_choices": service.get_location_choices(),
+            "category_choices": service.get_category_choices(),
+            "variant_choices": service.get_variant_choices(),
+            "functional_label_choices": functional_label_choices,
+            "internal_label_choices": internal_label_choices,
+        },
     )
