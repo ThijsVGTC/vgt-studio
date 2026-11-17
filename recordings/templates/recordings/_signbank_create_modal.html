@@ -167,7 +167,7 @@
                     id="signbank-create-retry"
                     class="button-secondary"
                 >
-                    Andere video of opnieuw opnemen
+                    Opnieuw opnemen
                 </button>
 
                 <button type="button" id="signbank-create-continue">
@@ -192,16 +192,24 @@
             </div>
 
             <div class="form-group">
-                <label for="signbank-create-translation">
-                    Nederlandse vertaling
-                </label>
-                <input
-                    type="text"
-                    id="signbank-create-translation"
-                    name="translation"
-                    maxlength="100"
-                    required
-                >
+                <h3>Mogelijke vertalingen</h3>
+
+                <div id="signbank-create-translations"></div>
+
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <input
+                        type="text"
+                        id="signbank-create-translation"
+                        placeholder="Nieuwe vertaling..."
+                        aria-label="Nieuwe mogelijke vertaling"
+                        maxlength="100"
+                        style="flex:1; min-width:0; width:auto;"
+                    >
+
+                    <button type="button" id="signbank-create-add-translation">
+                        + Vertaling toevoegen
+                    </button>
+                </div>
             </div>
 
             <button

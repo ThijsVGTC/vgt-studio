@@ -131,6 +131,7 @@
 
         state.showChoice();
         form.reset();
+        get("translations").replaceChildren();
         modal.close();
     };
 
@@ -140,7 +141,70 @@
         event.preventDefault();
         close();
     });
+    const translations = get("translations");
+    const translationInput = get("translation");
 
+    const addTranslation = () => {
+        const text = translationInput.value.trim();
+
+        if (!text) {
+            state.showError("Vul eerst een mogelijke vertaling in.");
+            translationInput.focus();
+            return;
+        }
+
+        const existing = [...translations.querySelectorAll("input")];
+
+        if (existing.some(
+            input => input.value.trim().toLowerCase() === text.toLowerCase()
+        )) {
+            state.showError("Deze vertaling staat al in de lijst.");
+            translationInput.focus();
+            return;
+        }
+
+        const row = document.createElement("div");
+        row.className = "translation-item";
+        row.style.cssText =
+            "display:flex; align-items:center; gap:10px; margin-bottom:8px;";
+
+        const field = document.createElement("input");
+        field.type = "text";
+        field.name = "translations";
+        field.value = text;
+        field.maxLength = 100;
+        field.required = true;
+        field.setAttribute("aria-label", "Mogelijke vertaling");
+        field.style.cssText = "flex:1; min-width:0; width:auto;";
+
+        const remove = document.createElement("button");
+        remove.type = "button";
+        remove.className = "button-secondary";
+        remove.textContent = "✕";
+        remove.title = "Vertaling verwijderen";
+        remove.setAttribute("aria-label", "Vertaling verwijderen");
+
+        remove.addEventListener("click", () => {
+            row.remove();
+            translationInput.focus();
+        });
+
+        row.append(field, remove);
+        translations.append(row);
+
+        translationInput.value = "";
+        state.showError();
+        translationInput.focus();
+    };
+
+    get("add-translation").addEventListener("click", addTranslation);
+
+    translationInput.addEventListener("keydown", (event) => {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            addTranslation();
+        }
+    });
     // De opslag koppelen we in een volgende stap.
     form.addEventListener("submit", (event) => {
         event.preventDefault();
