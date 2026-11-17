@@ -16,8 +16,16 @@ Signbank | VGT Studio
         </p>
     </div>
 
-    <div class="signbank-count">
-        {{ filtered_count }} resultaten
+    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+        <div class="signbank-count">
+            {{ filtered_count }} resultaten
+        </div>
+
+        {% if user.is_staff %}
+        <a href="{% url 'signbank_create' %}" class="button">
+            + Nieuw gebaar toevoegen
+        </a>
+        {% endif %}
     </div>
 </div>
 

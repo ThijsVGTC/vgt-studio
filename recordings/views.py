@@ -4173,16 +4173,41 @@ def signbank_create(request):
             verbosity=0,
         )
 
-        if SignbankEntry.objects.filter(
+        entry = SignbankEntry.objects.filter(
             signbank_id=signbank_id,
-        ).exists():
-            redirect_url = reverse(
-                "signbank_detail",
-                kwargs={"signbank_id": signbank_id},
-            )
-        else:
+        ).first()
+
+        if entry is None:
             raise RuntimeError(
                 "De nieuwe entry ontbreekt na synchronisatie."
+            )
+
+        redirect_url = reverse(
+            "signbank_detail",
+            kwargs={"signbank_id": signbank_id},
+        )
+
+        from .thumbnail_utils import generate_thumbnail_for_item
+
+        success, thumbnail_message = generate_thumbnail_for_item(
+            entry,
+            source_path=service.get_video_path(
+                entry.gloss,
+                signbank_id,
+            ),
+            force=True,
+        )
+
+        if not success:
+            logger.warning(
+                "Thumbnail genereren mislukt voor Signbank ID %s: %s",
+                signbank_id,
+                thumbnail_message,
+            )
+
+            warnings.append(
+                "Het gebaar en de video zijn opgeslagen, "
+                "maar de thumbnail kon niet worden aangemaakt."
             )
 
     except Exception:

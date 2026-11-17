@@ -290,8 +290,22 @@ class Command(BaseCommand):
                             f"Fout bij Signbank ID {row['id']}: {exc}"
                         )
                     )
-                    
+            deleted_count = 0
+            cleanup_error = ""
+
             if dry_run:
+                if error_count > 0:
+                    raise CommandError(
+                        f"Dry run mislukt: {error_count} fouten gevonden."
+                    )
+
+                if options["signbank_id"] is None:
+                    self.remove_deleted_entries(
+                        connection,
+                        started_at,
+                        dry_run=True,
+                    )
+
                 self.stdout.write(
                     self.style.SUCCESS(
                         f"Dry run voltooid. {total} entries gelezen."
@@ -299,14 +313,52 @@ class Command(BaseCommand):
                 )
                 return
 
+            # Alleen een volledige, foutloze synchronisatie
+            # mag verdwenen entries uit Studio verwijderen.
+            if options["signbank_id"] is None:
+                if error_count == 0:
+                    try:
+                        deleted_count = self.remove_deleted_entries(
+                            connection,
+                            started_at,
+                        )
+                    except Exception as exc:
+                        error_count += 1
+                        cleanup_error = str(exc)
+
+                        self.stderr.write(
+                            self.style.ERROR(
+                                "Verwijderen van verdwenen entries "
+                                f"is mislukt: {exc}"
+                            )
+                        )
+                else:
+                    self.stdout.write(
+                        self.style.WARNING(
+                            "Verwijderen overgeslagen wegens "
+                            "synchronisatiefouten."
+                        )
+                    )
+
             self.stdout.write("")
-            self.stdout.write(
-                self.style.SUCCESS("Synchronisatie voltooid.")
-            )
+
+            if error_count == 0:
+                self.stdout.write(
+                    self.style.SUCCESS("Synchronisatie voltooid.")
+                )
+            else:
+                self.stdout.write(
+                    self.style.WARNING(
+                        "Synchronisatie afgerond met fouten."
+                    )
+                )
+
             self.stdout.write(f"Nieuw:       {created_count}")
             self.stdout.write(f"Bijgewerkt:  {updated_count}")
             self.stdout.write(f"Ongewijzigd: {unchanged_count}")
+            self.stdout.write(f"Verwijderd:  {deleted_count}")
             self.stdout.write(f"Fouten:      {error_count}")
+
             SignbankSyncLog.objects.create(
                 started_at=started_at,
                 total_entries=total,
@@ -315,13 +367,15 @@ class Command(BaseCommand):
                 unchanged_entries=unchanged_count,
                 error_count=error_count,
                 successful=(error_count == 0),
+                error_message=cleanup_error,
             )
+
             if error_count > 0:
                 raise CommandError(
-                    f"Signbank-synchronisatie mislukt: "
-                    f"{error_count} van {total} entries konden niet worden verwerkt."
+                    f"Signbank-synchronisatie afgerond "
+                    f"met {error_count} fouten."
                 )
-
+            
         finally:
             connection.close()
             fcntl.flock(lock_file, fcntl.LOCK_UN)
@@ -628,3 +682,95 @@ class Command(BaseCommand):
             return ""
 
         return str(value).strip()
+
+    def remove_deleted_entries(
+        self,
+        source_connection,
+        started_at,
+        dry_run=False,
+    ):
+        from django.db import transaction
+        from gebarometer.models import GebarometerItem
+
+        # Lees de actuele IDs opnieuw uit de Signbank-master.
+        master_ids = {
+            row["id"]
+            for row in source_connection.execute(
+                "SELECT id FROM dictionary_gloss"
+            ).fetchall()
+        }
+
+        # Entries die tijdens deze synchronisatie zijn toegevoegd
+        # of bijgewerkt, komen niet voor verwijdering in aanmerking.
+        candidates = [
+            entry.pk
+            for entry in SignbankEntry.objects.filter(
+                synced_at__lt=started_at,
+            ).only("id", "signbank_id").iterator(chunk_size=500)
+            if entry.signbank_id not in master_ids
+        ]
+
+        if dry_run:
+            self.stdout.write(
+                self.style.WARNING(
+                    f"DRY RUN: {len(candidates)} verdwenen "
+                    "Signbank-entries zouden uit Studio worden verwijderd."
+                )
+            )
+            return len(candidates)
+
+        removed_count = 0
+
+        with transaction.atomic():
+            for entry_pk in candidates:
+                entry = (
+                    SignbankEntry.objects
+                    .select_for_update()
+                    .filter(
+                        pk=entry_pk,
+                        synced_at__lt=started_at,
+                    )
+                    .first()
+                )
+
+                if entry is None:
+                    continue
+
+                # Controleer vlak vóór verwijderen nogmaals
+                # of het gebaar werkelijk ontbreekt in Signbank.
+                exists_in_master = source_connection.execute(
+                    """
+                    SELECT 1
+                    FROM dictionary_gloss
+                    WHERE id = ?
+                    """,
+                    (entry.signbank_id,),
+                ).fetchone()
+
+                if exists_in_master:
+                    continue
+
+                gebarometer_items = GebarometerItem.objects.filter(
+                    signbank_entry_id=entry.pk,
+                )
+
+                # Bewaar de GLOSS wanneer er nog geen
+                # historische naam bij de Gebarometergegevens staat.
+                gebarometer_items.filter(
+                    historical_gloss="",
+                ).update(
+                    historical_gloss=entry.gloss,
+                )
+
+                # Bewaar alle Gebarometergegevens en resultaten;
+                # verbreek uitsluitend de koppeling met de entry.
+                gebarometer_items.update(
+                    signbank_entry=None,
+                )
+
+                # RecordingItem gebruikt SET_NULL: bestaande opnames,
+                # video's en opmerkingen blijven daardoor behouden.
+                entry.delete()
+                removed_count += 1
+
+        return removed_count
