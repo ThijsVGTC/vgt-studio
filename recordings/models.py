@@ -156,7 +156,7 @@ class SignbankEntry(models.Model):
         if not self.gloss or not self.signbank_id:
             return ""
 
-        prefix = self.gloss[:2].upper()
+        prefix = self.gloss[:2]
 
         return (
             "https://vlaamsegebarentaal.be/signbank/"

@@ -4002,44 +4002,207 @@ def signbank_cron_sync(request):
 
 @login_required
 def signbank_create(request):
-    if request.method != "GET":
-        return HttpResponseNotAllowed(["GET"])
+    from django.http import JsonResponse
 
+    from .forms import NewSignbankEntryForm
+    from .models import SignbankUser
     from .services.signbank_service import SignbankService
+    from .services.signbank_creation import create_signbank_entry
+    from .services.video_processing import prepare_signbank_video
+
+    if request.method not in {"GET", "POST"}:
+        return HttpResponseNotAllowed(["GET", "POST"])
 
     service = SignbankService()
 
-    label_choices = service.get_label_choices()
+    if request.method == "GET":
+        labels = service.get_label_choices()
 
-    functional_names = {
-        "expliciet",
-        "verouderd",
-        "beledigend",
-        "neologisme",
-        "negatief",
-    }
+        functional_names = {
+            "expliciet",
+            "verouderd",
+            "beledigend",
+            "neologisme",
+            "negatief",
+        }
 
-    functional_label_choices = [
-        label
-        for label in label_choices
-        if label["name"].strip().lower() in functional_names
-    ]
+        return render(
+            request,
+            "recordings/signbank_create.html",
+            {
+                "handshape_choices": service.get_handshape_choices(),
+                "location_choices": service.get_location_choices(),
+                "category_choices": service.get_category_choices(),
+                "variant_choices": service.get_variant_choices(),
+                "functional_label_choices": [
+                    label
+                    for label in labels
+                    if label["name"].strip().lower() in functional_names
+                ],
+                "internal_label_choices": [
+                    label
+                    for label in labels
+                    if label["name"].strip().lower() not in functional_names
+                ],
+            },
+        )
 
-    internal_label_choices = [
-        label
-        for label in label_choices
-        if label["name"].strip().lower() not in functional_names
-    ]
+    if not request.user.is_staff:
+        return JsonResponse(
+            {
+                "ok": False,
+                "error": "Je hebt geen toestemming om gebaren toe te voegen.",
+            },
+            status=403,
+        )
 
-    return render(
-        request,
-        "recordings/signbank_create.html",
+    signbank_user = SignbankUser.objects.filter(
+        studio_user=request.user,
+    ).first()
+
+    if signbank_user is None and request.user.email:
+        matches = list(
+            SignbankUser.objects.filter(
+                email__iexact=request.user.email,
+            )[:2]
+        )
+
+        if len(matches) == 1:
+            signbank_user = matches[0]
+
+    if signbank_user is None or not signbank_user.is_active:
+        return JsonResponse(
+            {
+                "ok": False,
+                "error": (
+                    "Je account is niet gekoppeld aan een actieve "
+                    "Signbank-gebruiker."
+                ),
+            },
+            status=403,
+        )
+
+    form = NewSignbankEntryForm(
+        request.POST,
+        request.FILES,
+        service=service,
+    )
+
+    if not form.is_valid():
+        return JsonResponse(
+            {
+                "ok": False,
+                "error": "Controleer de ingevulde gegevens.",
+                "errors": {
+                    name: list(errors)
+                    for name, errors in form.errors.items()
+                },
+            },
+            status=400,
+        )
+
+    signbank_id = None
+    warnings = []
+
+    try:
+        with prepare_signbank_video(
+            form.cleaned_data["video"]
+        ) as video_path:
+            signbank_id = create_signbank_entry(
+                data=form.cleaned_data,
+                signbank_user_id=signbank_user.signbank_id,
+                prepared_video_path=video_path,
+            )
+
+    except Exception as exc:
+        if signbank_id is not None:
+            # De entry is al opgeslagen. Een opruimfout mag
+            # de gebruiker niet opnieuw laten opslaan.
+            logger.exception(
+                "Opruimen na opslaan van Signbank ID %s mislukt",
+                signbank_id,
+            )
+
+            warnings.append(
+                "Het gebaar en de video zijn opgeslagen, maar een "
+                "tijdelijk bestand kon niet worden opgeruimd."
+            )
+
+        elif isinstance(exc, ValueError):
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "error": str(exc),
+                },
+                status=400,
+            )
+
+        elif isinstance(exc, RuntimeError):
+            logger.exception("Opslaguitkomst van nieuw gebaar onzeker")
+
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "error": str(exc),
+                    "retry_allowed": False,
+                },
+                status=409,
+            )
+
+        else:
+            logger.exception("Nieuw Signbank-gebaar opslaan mislukt")
+
+            return JsonResponse(
+                {
+                    "ok": False,
+                    "error": (
+                        "Het gebaar kon niet worden opgeslagen. "
+                        "De video en ingevulde gegevens blijven "
+                        "in dit venster beschikbaar."
+                    ),
+                },
+                status=500,
+            )
+
+    redirect_url = reverse("signbank_list")
+
+    try:
+        call_command(
+            "sync_signbank",
+            signbank_id=signbank_id,
+            verbosity=0,
+        )
+
+        if SignbankEntry.objects.filter(
+            signbank_id=signbank_id,
+        ).exists():
+            redirect_url = reverse(
+                "signbank_detail",
+                kwargs={"signbank_id": signbank_id},
+            )
+        else:
+            raise RuntimeError(
+                "De nieuwe entry ontbreekt na synchronisatie."
+            )
+
+    except Exception:
+        logger.exception(
+            "Synchronisatie van nieuw Signbank ID %s mislukt",
+            signbank_id,
+        )
+
+        warnings.append(
+            f"Gebaar {signbank_id} en de video zijn opgeslagen in "
+            "Signbank, maar de synchronisatie naar Studio is mislukt. "
+            "Synchroniseer dit gebaar opnieuw; maak het niet opnieuw aan."
+        )
+
+    return JsonResponse(
         {
-            "handshape_choices": service.get_handshape_choices(),
-            "location_choices": service.get_location_choices(),
-            "category_choices": service.get_category_choices(),
-            "variant_choices": service.get_variant_choices(),
-            "functional_label_choices": functional_label_choices,
-            "internal_label_choices": internal_label_choices,
+            "ok": True,
+            "signbank_id": signbank_id,
+            "redirect_url": redirect_url,
+            "warnings": warnings,
         },
+        status=201,
     )

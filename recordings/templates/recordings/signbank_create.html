@@ -19,17 +19,10 @@
 
     {% include "recordings/_signbank_create_modal.html" %}
 
-    <script
-        src="{% static 'recordings/js/signbank_create.js' %}"
-        defer
-    ></script>
-
-    <script
-        src="{% static 'recordings/js/signbank_create_camera.js' %}"
-        defer
-    ></script>
-    <script
-    src="{% static 'recordings/js/signbank_create_details.js' %}"
-    defer
-    ></script>
+    <script type="module">
+        import "{% static 'recordings/js/signbank_create.js' %}";
+        import "{% static 'recordings/js/signbank_create_camera.js' %}";
+        import "{% static 'recordings/js/signbank_create_details.js' %}";
+        import "{% static 'recordings/js/signbank_create_save.js' %}";
+    </script>
 {% endblock %}

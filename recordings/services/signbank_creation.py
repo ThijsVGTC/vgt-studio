@@ -298,3 +298,157 @@ def insert_signbank_entry(conn, data, signbank_user_id):
         })
 
     return signbank_id
+
+def create_signbank_entry(data, signbank_user_id, prepared_video_path):
+    """
+    Bewaar de nieuwe entry en de voorbereide MP4 samen.
+
+    Bij een normale fout wordt de database teruggedraaid en
+    wordt een eventueel aangemaakte video verwijderd.
+    """
+    import logging
+    import os
+    import shutil
+    import tempfile
+
+    from pathlib import Path
+    from .signbank_service import SignbankService
+
+    logger = logging.getLogger(__name__)
+    service = SignbankService()
+
+    source_path = Path(prepared_video_path)
+
+    if not source_path.is_file() or source_path.stat().st_size == 0:
+        raise ValueError("Er is geen verwerkte video beschikbaar.")
+
+    video_root = Path(service.video_root).resolve()
+
+    if not video_root.is_dir():
+        raise ValueError("De videomap van Signbank is niet beschikbaar.")
+
+    signbank_id = None
+    target_path = None
+    temporary_path = None
+    video_published = False
+
+    try:
+        with service.write_connection() as conn:
+            conn.execute("PRAGMA foreign_keys = ON")
+            conn.execute("BEGIN IMMEDIATE")
+
+            signbank_id = insert_signbank_entry(
+                conn,
+                data,
+                signbank_user_id,
+            )
+
+            target_path = service.get_video_path(
+                data["gloss"],
+                signbank_id,
+            ).resolve()
+
+            if not target_path.is_relative_to(video_root):
+                raise ValueError(
+                    "De GLOSS levert een ongeldig videopad op."
+                )
+
+            target_path.parent.mkdir(
+                parents=True,
+                exist_ok=True,
+            )
+
+            # Bereid de volledige video eerst in dezelfde map voor.
+            # Daardoor hoeft er geen gedeeltelijke video te worden
+            # gepubliceerd en werkt de link op hetzelfde bestandssysteem.
+            with tempfile.NamedTemporaryFile(
+                mode="wb",
+                prefix=".studio-video-",
+                suffix=".mp4",
+                dir=target_path.parent,
+                delete=False,
+            ) as destination:
+                temporary_path = Path(destination.name)
+
+                with source_path.open("rb") as source:
+                    shutil.copyfileobj(source, destination)
+
+                destination.flush()
+                os.fchmod(destination.fileno(), 0o644)
+                os.fsync(destination.fileno())
+
+            # Maak de definitieve naam aan zonder ooit een
+            # bestaand videobestand te overschrijven.
+            os.link(temporary_path, target_path)
+            video_published = True
+
+        # De database-transactie is hier succesvol afgerond.
+        return signbank_id
+
+    except Exception as exc:
+        if video_published:
+            # Controleer de database voordat we een video verwijderen.
+            # Ook bij een fout rond de commit kan de entry namelijk
+            # toch al definitief opgeslagen zijn.
+            try:
+                with service.connection() as conn:
+                    saved = conn.execute(
+                        """
+                        SELECT annotation_idgloss
+                        FROM dictionary_gloss
+                        WHERE id = ?
+                        """,
+                        (signbank_id,),
+                    ).fetchone()
+            except Exception as check_error:
+                logger.exception(
+                    "Opslaguitkomst onbekend voor Signbank ID %s",
+                    signbank_id,
+                )
+
+                raise RuntimeError(
+                    "De opslaguitkomst kon niet worden gecontroleerd. "
+                    f"Controleer Signbank ID {signbank_id} voordat je "
+                    "opnieuw probeert op te slaan."
+                ) from check_error
+
+            if saved is not None:
+                if saved["annotation_idgloss"] == data["gloss"]:
+                    logger.warning(
+                        "Signbank ID %s is opgeslagen ondanks "
+                        "een fout bij het afronden: %s",
+                        signbank_id,
+                        exc,
+                    )
+                    return signbank_id
+
+                raise RuntimeError(
+                    "De opslaguitkomst is onverwacht. "
+                    f"Controleer Signbank ID {signbank_id}."
+                ) from exc
+
+            try:
+                target_path.unlink(missing_ok=True)
+            except OSError as cleanup_error:
+                logger.exception(
+                    "Video opruimen mislukt voor Signbank ID %s",
+                    signbank_id,
+                )
+
+                raise RuntimeError(
+                    "De entry is niet opgeslagen, maar het videobestand "
+                    "kon niet worden opgeruimd. Controleer dit voordat "
+                    "je opnieuw probeert."
+                ) from cleanup_error
+
+        raise
+
+    finally:
+        if temporary_path is not None:
+            try:
+                temporary_path.unlink(missing_ok=True)
+            except OSError:
+                logger.exception(
+                    "Tijdelijk videobestand opruimen mislukt: %s",
+                    temporary_path,
+                )
