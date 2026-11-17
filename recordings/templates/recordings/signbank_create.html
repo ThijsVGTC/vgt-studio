@@ -1,0 +1,31 @@
+{% extends "recordings/base.html" %}
+{% load static %}
+
+{% block title %}Nieuw gebaar | VGT Studio{% endblock %}
+
+{% block content %}
+    <div class="page-heading">
+        <div>
+            <h1>Nieuw gebaar toevoegen</h1>
+            <p class="page-intro">
+                Upload een video of maak een webcamopname.
+            </p>
+        </div>
+    </div>
+
+    <button type="button" data-signbank-create>
+        Nieuw gebaar toevoegen
+    </button>
+
+    {% include "recordings/_signbank_create_modal.html" %}
+
+    <script
+        src="{% static 'recordings/js/signbank_create.js' %}"
+        defer
+    ></script>
+
+    <script
+        src="{% static 'recordings/js/signbank_create_camera.js' %}"
+        defer
+    ></script>
+{% endblock %}

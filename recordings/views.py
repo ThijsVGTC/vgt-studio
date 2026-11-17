@@ -3999,3 +3999,13 @@ def signbank_cron_sync(request):
     call_command("sync_signbank")
 
     return HttpResponse("Signbank-synchronisatie voltooid.")
+
+@login_required
+def signbank_create(request):
+    if request.method != "GET":
+        return HttpResponseNotAllowed(["GET"])
+
+    return render(
+        request,
+        "recordings/signbank_create.html",
+    )

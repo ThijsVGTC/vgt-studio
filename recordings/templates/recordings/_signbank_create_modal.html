@@ -1,0 +1,216 @@
+<style>
+    #signbank-create-modal {
+        width: min(1100px, 95vw);
+        max-height: 94vh;
+        box-sizing: border-box;
+        padding: 24px;
+        border: 0;
+        border-radius: 12px;
+        background: var(--surface-color, white);
+        color: var(--text-color, #222);
+    }
+
+    #signbank-create-modal::backdrop {
+        background: rgba(0, 0, 0, 0.65);
+    }
+
+    #signbank-create-modal [hidden] {
+        display: none !important;
+    }
+
+    .signbank-create-header,
+    .signbank-create-actions {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 12px;
+    }
+
+    .signbank-create-header {
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .signbank-create-header h2 {
+        margin: 0;
+    }
+
+    #signbank-create-modal video {
+        display: block;
+        width: 100%;
+        max-height: 56vh;
+        margin: 16px 0;
+        background: #111;
+        border-radius: 8px;
+    }
+
+    #signbank-create-details {
+        margin: 24px 0 0;
+        padding: 0;
+        border: 0;
+        min-width: 0;
+    }
+
+    #signbank-create-modal button:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+</style>
+
+<dialog
+    id="signbank-create-modal"
+    aria-labelledby="signbank-create-title"
+>
+    <div class="signbank-create-header">
+        <h2 id="signbank-create-title">Nieuw gebaar toevoegen</h2>
+
+        <button
+            type="button"
+            id="signbank-create-close"
+            class="button-secondary"
+            aria-label="Venster sluiten"
+        >
+            Sluiten
+        </button>
+    </div>
+
+    <form
+        id="signbank-create-form"
+        method="post"
+        enctype="multipart/form-data"
+        action="{% url 'signbank_create' %}"
+    >
+        {% csrf_token %}
+
+        <p
+            id="signbank-create-error"
+            class="form-error"
+            role="alert"
+            hidden
+        ></p>
+
+        <p
+            id="signbank-create-status"
+            role="status"
+            aria-live="polite"
+        ></p>
+
+        <section id="signbank-create-choice">
+            <h3>1. Kies hoe je de video toevoegt</h3>
+
+            <div class="signbank-create-actions">
+                <button type="button" id="signbank-create-upload">
+                    Video uploaden
+                </button>
+
+                <button type="button" id="signbank-create-webcam">
+                    Webcamopname maken
+                </button>
+            </div>
+        </section>
+
+        <input
+            type="file"
+            id="signbank-create-video"
+            name="video"
+            accept="video/*"
+            hidden
+        >
+
+        <section id="signbank-create-camera" hidden>
+            <h3>Webcamopname</h3>
+
+            <video
+                id="signbank-create-live"
+                autoplay
+                muted
+                playsinline
+            ></video>
+
+            <p id="signbank-create-timer">00:00</p>
+
+            <div class="signbank-create-actions">
+                <button type="button" id="signbank-create-start">
+                    Opname starten
+                </button>
+
+                <button
+                    type="button"
+                    id="signbank-create-stop"
+                    disabled
+                >
+                    Opname stoppen
+                </button>
+
+                <button
+                    type="button"
+                    id="signbank-create-camera-back"
+                    class="button-secondary"
+                >
+                    Terug naar de keuze
+                </button>
+            </div>
+        </section>
+
+        <section id="signbank-create-review" hidden>
+            <h3>2. Bekijk de video</h3>
+
+            <video
+                id="signbank-create-preview"
+                controls
+                playsinline
+            ></video>
+
+            <div class="signbank-create-actions">
+                <button
+                    type="button"
+                    id="signbank-create-retry"
+                    class="button-secondary"
+                >
+                    Andere video of opnieuw opnemen
+                </button>
+
+                <button type="button" id="signbank-create-continue">
+                    Video gebruiken en gegevens invullen
+                </button>
+            </div>
+        </section>
+
+        <fieldset id="signbank-create-details" disabled hidden>
+            <h3>3. Vul de gegevens in</h3>
+
+            <div class="form-group">
+                <label for="signbank-create-gloss">GLOSS</label>
+                <input
+                    type="text"
+                    id="signbank-create-gloss"
+                    name="gloss"
+                    maxlength="30"
+                    autocomplete="off"
+                    required
+                >
+            </div>
+
+            <div class="form-group">
+                <label for="signbank-create-translation">
+                    Nederlandse vertaling
+                </label>
+                <input
+                    type="text"
+                    id="signbank-create-translation"
+                    name="translation"
+                    maxlength="100"
+                    required
+                >
+            </div>
+
+            <button
+                type="submit"
+                id="signbank-create-save"
+                disabled
+            >
+                Gebaar en video opslaan
+            </button>
+        </fieldset>
+    </form>
+</dialog>
