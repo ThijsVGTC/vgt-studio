@@ -2522,6 +2522,31 @@ def signbank_list(request):
         if label.lower() not in functional_label_names
     ]
 
+    create_context = {}
+
+    if request.user.is_staff:
+        from .services.signbank_service import SignbankService
+
+        service = SignbankService()
+        create_labels = service.get_label_choices()
+
+        create_context = {
+            "handshape_choices": service.get_handshape_choices(),
+            "location_choices": service.get_location_choices(),
+            "category_choices": service.get_category_choices(),
+            "variant_choices": service.get_variant_choices(),
+            "functional_label_choices": [
+                label
+                for label in create_labels
+                if label["name"].strip().lower() in functional_label_names
+            ],
+            "internal_label_choices": [
+                label
+                for label in create_labels
+                if label["name"].strip().lower() not in functional_label_names
+            ],
+        }
+
     return render(
         request,
         "recordings/signbank_list.html",
@@ -2540,6 +2565,7 @@ def signbank_list(request):
             "filtered_count": paginator.count,
             "functional_label_options": functional_label_options,
             "internal_label_options": internal_label_options,
+            **create_context,
         },
     )
 
