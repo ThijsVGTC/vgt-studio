@@ -72,6 +72,10 @@
                 "Voeg de geselecteerde variant eerst toe met '+ Toevoegen'.",
             ],
             [
+                "functional-label",
+                "Voeg het geselecteerde functionele label eerst toe met '+ Toevoegen'.",
+            ],
+            [
                 "internal-label",
                 "Voeg het geselecteerde interne label eerst toe met '+ Toevoegen'.",
             ],

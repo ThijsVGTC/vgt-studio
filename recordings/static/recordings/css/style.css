@@ -2330,3 +2330,34 @@ html[data-reading-mode="true"] :is(#signbank-create-details, #signbank-edit-moda
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+#signbank-create-details :is(#signbank-create-comment, #signbank-create-etymology) {
+    display: block;
+    width: 100%;
+    min-height: 0;
+    height: auto;
+    padding: 0.4rem 0.55rem;
+    box-sizing: border-box;
+    line-height: 1.35;
+    resize: vertical;
+}
+
+#signbank-create-details #signbank-create-save {
+    min-height: 44px;
+    padding: 0.45rem 0.85rem;
+    border: 0;
+    border-radius: 8px;
+    background: #f3705d;
+    color: #261511;
+    font-weight: 600;
+}
+
+#signbank-create-details #signbank-create-save:hover:not(:disabled) {
+    background: #ff8978;
+}
+
+html[data-reading-mode="true"] #signbank-create-details #signbank-create-save {
+    background: #ffe500;
+    color: #000;
+}
+

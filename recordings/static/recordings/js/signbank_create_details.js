@@ -106,6 +106,14 @@
     });
 
     bindChoiceList({
+        selectId: "functional-label",
+        listId: "functional-labels",
+        buttonId: "add-functional-label",
+        name: "functional_labels",
+        label: "functioneel label",
+    });
+
+    bindChoiceList({
         selectId: "internal-label",
         listId: "internal-labels",
         buttonId: "add-internal-label",

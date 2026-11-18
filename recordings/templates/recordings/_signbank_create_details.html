@@ -195,15 +195,19 @@
     <section class="signbank-field-panel">
         <h3>Functionele labels</h3>
 
-        <div class="signbank-label-options">
-            {% for label in functional_label_choices %}
-                <label>
-                    <input type="checkbox" name="functional_labels" value="{{ label.id }}">
-                    <span>{{ label.name }}</span>
-                </label>
-            {% empty %}
-                <small>Geen functionele labels beschikbaar.</small>
-            {% endfor %}
+        <div id="signbank-create-functional-labels" data-create-list></div>
+
+        <div class="signbank-field-row">
+            <select id="signbank-create-functional-label" aria-label="Functioneel label toevoegen">
+                <option value="">Selecteer functioneel label...</option>
+                {% for label in functional_label_choices %}
+                    <option value="{{ label.id }}">{{ label.name }}</option>
+                {% endfor %}
+            </select>
+
+            <button type="button" id="signbank-create-add-functional-label">
+                + Toevoegen
+            </button>
         </div>
     </section>
 
@@ -235,7 +239,7 @@
             <textarea
                 id="signbank-create-comment"
                 aria-label="Nieuwe Signbank-opmerking"
-                rows="2"
+                rows="1"
                 placeholder="Schrijf hier een nieuwe opmerking..."
             ></textarea>
 
@@ -253,7 +257,7 @@
                 id="signbank-create-etymology"
                 name="etymology"
                 aria-label="Etymologische toelichting"
-                rows="2"
+                rows="1"
                 placeholder="Beschrijf de oorsprong van het gebaar..."
             ></textarea>
         </div>
