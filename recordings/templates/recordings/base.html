@@ -12,6 +12,7 @@
 
 <body>
     {% block studio_header %}
+    <div id="studio-header-fallback">
     <header class="site-header">
         <div class="container header-inner">
             <a href="{% url 'studio_home' %}" class="logo">
@@ -73,6 +74,28 @@
             {% endif %}
         </div>
     </header>
+    </div>
+    {% if user.is_authenticated %}
+    <div id="studio-react-header"
+         data-home="{% url 'studio_home' %}"
+         data-recordings="{% url 'recording_list' %}"
+         data-series="{% url 'recording_series_list' %}"
+         data-review="{% url 'video_review_overview' %}"
+         data-export="{% url 'signbank_export_preview' %}"
+         data-signbank="{% url 'signbank_list' %}"
+         data-stats="{% url 'signbank_stats' %}"
+         data-gebarometer="{% url 'gebarometer:overview' %}"
+         data-username="{{ user.username }}"
+         data-view="{{ request.resolver_match.view_name }}">
+    </div>
+
+    <form id="studio-react-logout" method="post"
+          action="{% url 'account_logout' %}" hidden>
+        {% csrf_token %}
+    </form>
+
+    <script type="module" src="{% static 'recordings/js/studio-header.js' %}"></script>
+    {% endif %}
     {% endblock %}
     <main class="site-main">
         <div class="container">

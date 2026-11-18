@@ -1,8 +1,12 @@
 import React, { useLayoutEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import {
-    AppBar, Button, Menu, MenuItem, Toolbar, Typography,
+    AppBar, Button, Menu, MenuItem, Toolbar, Typography,Box,IconButton,Tooltip
 } from "@mui/material";
+import DarkModeOutlined from "@mui/icons-material/DarkModeOutlined";
+import LightModeOutlined from "@mui/icons-material/LightModeOutlined";
+import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
+import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -68,6 +72,12 @@ function StudioHeader() {
         localStorage.setItem("vgt-studio-reading", String(reading));
     }, [dark, reading]);
 
+    const view = links.view || "";
+    const signbankActive =
+        view.startsWith("signbank_") && !view.startsWith("signbank_export");
+    const gebarometerActive = view.startsWith("gebarometer:");
+    const themeLabel = dark ? "Lichte modus" : "Donkere modus";
+
     return (
         <AppBar position="static" elevation={0} sx={{ bgcolor: "#313f69" }}>
             <Toolbar sx={{ gap: 1.5, flexWrap: "wrap", py: 1 }}>
@@ -75,54 +85,53 @@ function StudioHeader() {
                     VGT STUDIO
                 </Button>
 
-                <Toolbar
-                    component="nav"
-                    aria-label="Hoofdnavigatie"
-                    disableGutters
-                    variant="dense"
-                    sx={{ gap: 1, flexWrap: "wrap", flexGrow: 1 }}
-                >
-                    <NavMenu label="Opnames" items={[
-                        ["Opnames", links.recordings],
-                        ["Opnamereeksen", links.series],
-                        ["Videocontrole", links.review],
-                        ["Signbank Export", links.export],
-                    ]} />
+                <Box sx={{ ml: "auto", display: "flex", gap: 1, alignItems: "center",
+                        justifyContent: "flex-end", flexWrap: "wrap" }}>
+                    <Box component="nav" aria-label="Hoofdnavigatie"
+                        sx={{ display: "flex", gap: 1, justifyContent: "flex-end",
+                            flexWrap: "wrap" }}>
+                        <NavMenu label="Signbank" active={signbankActive} items={[
+                            ["Signbank", links.signbank, view === "signbank_list"],
+                            ["Stats", links.stats, view === "signbank_stats"],
+                        ]} />
+                        <NavMenu label="Opnames" active={!signbankActive && !gebarometerActive}
+                                items={[
+                            ["Opnames", links.recordings, view === "recording_list"],
+                            ["Opnamereeksen", links.series, view === "recording_series_list"],
+                            ["Videocontrole", links.review, view === "video_review_overview"],
+                            ["Signbank Export", links.export, view === "signbank_export_preview"],
+                        ]} />
+                        <Button href={links.gebarometer} color="inherit"
+                                aria-current={view === "gebarometer:overview" ? "page" : undefined}
+                                sx={{ bgcolor: gebarometerActive ? "rgba(255,255,255,.18)" : undefined }}>
+                            Gebarometer
+                        </Button>
+                    </Box>
 
-                    <NavMenu label="Signbank" active items={[
-                        ["Signbank", links.signbank, true],
-                        ["Stats", links.stats],
-                    ]} />
+                    <Tooltip title={themeLabel}>
+                        <IconButton color="inherit" aria-label={themeLabel}
+                                    onClick={() => setDark((value) => !value)}>
+                            {dark ? <LightModeOutlined /> : <DarkModeOutlined />}
+                        </IconButton>
+                    </Tooltip>
 
-                    <Button href={links.gebarometer} color="inherit">
-                        Gebarometer
+                    <Tooltip title={reading ? "Leesmodus uitschakelen" : "Leesmodus inschakelen"}>
+                        <IconButton color="inherit" aria-label="Leesmodus"
+                                    aria-pressed={reading}
+                                    onClick={() => setReading((value) => !value)}>
+                            {reading ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
+                        </IconButton>
+                    </Tooltip>
+
+                    <Typography variant="body2">{links.username}</Typography>
+                    <Button type="submit" form="studio-react-logout" color="inherit">
+                        Uitloggen
                     </Button>
-                </Toolbar>
-
-                <Button
-                    color="inherit"
-                    aria-pressed={dark}
-                    onClick={() => setDark((value) => !value)}
-                >
-                    Donkere modus
-                </Button>
-
-                <Button
-                    color="inherit"
-                    aria-pressed={reading}
-                    onClick={() => setReading((value) => !value)}
-                >
-                    Leesmodus
-                </Button>
-
-                <Typography variant="body2">{links.username}</Typography>
-
-                <Button type="submit" form="studio-react-logout" color="inherit">
-                    Uitloggen
-                </Button>
+                </Box>
             </Toolbar>
         </AppBar>
     );
+
 }
 
 createRoot(mount).render(<StudioHeader />);
