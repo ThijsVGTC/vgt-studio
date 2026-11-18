@@ -29,17 +29,22 @@ function readColumnPreferences() {
     }
 }
 
-function Badges({ items }) {
+function Badges({ items, functional = false }) {
     return (
-        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.5}>
-            {items.map((item, index) => (
-                <Chip
-                    key={index}
-                    size="small"
-                    label={typeof item === "string" ? item : item.short}
-                    title={typeof item === "string" ? undefined : item.name}
-                />
-            ))}
+        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.25}>
+            {items.map((item, index) => {
+                const isText = typeof item === "string";
+
+                return (
+                    <span
+                        key={index}
+                        className={functional ? "label-functional" : "data-badge"}
+                        title={isText ? undefined : item.name}
+                    >
+                        {isText ? item : item.short}
+                    </span>
+                );
+            })}
         </Stack>
     );
 }
@@ -180,7 +185,7 @@ export function SignbankTable({ listUrl }) {
             case 7:
                 return row.categories.length ? <Badges items={row.categories} /> : "–";
             case 8:
-                return <Badges items={row.functionalLabels} />;
+                return <Badges items={row.functionalLabels} functional />;
             case 9:
                 return <Badges items={row.internalLabels} />;
             case 10:
