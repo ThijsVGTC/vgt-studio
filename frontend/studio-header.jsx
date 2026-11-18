@@ -59,10 +59,6 @@ function StudioHeader() {
     );
 
     useLayoutEffect(() => {
-        document.getElementById("studio-header-fallback").hidden = true;
-    }, []);
-
-    useLayoutEffect(() => {
         const page = document.documentElement;
         page.dataset.theme = dark ? "dark" : "light";
         page.dataset.fontSize = reading ? "xlarge" : "normal";
@@ -77,6 +73,11 @@ function StudioHeader() {
         view.startsWith("signbank_") && !view.startsWith("signbank_export");
     const gebarometerActive = view.startsWith("gebarometer:");
     const themeLabel = dark ? "Lichte modus" : "Donkere modus";
+    const preferenceIconSx = {
+        width: 44,
+        height: 44,
+        "& .MuiSvgIcon-root": { fontSize: "1.125rem" },
+    };
 
     return (
         <AppBar position="static" elevation={0} sx={{ bgcolor: "#313f69" }}>
@@ -110,7 +111,8 @@ function StudioHeader() {
 
                     <Tooltip title={themeLabel}>
                         <IconButton color="inherit" aria-label={themeLabel}
-                                    onClick={() => setDark((value) => !value)}>
+                                    onClick={() => setDark((value) => !value)}
+                                    sx={preferenceIconSx}>
                             {dark ? <LightModeOutlined /> : <DarkModeOutlined />}
                         </IconButton>
                     </Tooltip>
@@ -118,15 +120,45 @@ function StudioHeader() {
                     <Tooltip title={reading ? "Leesmodus uitschakelen" : "Leesmodus inschakelen"}>
                         <IconButton color="inherit" aria-label="Leesmodus"
                                     aria-pressed={reading}
-                                    onClick={() => setReading((value) => !value)}>
+                                    onClick={() => setReading((value) => !value)}
+                                    sx={preferenceIconSx}>
                             {reading ? <VisibilityOffOutlined /> : <VisibilityOutlined />}
                         </IconButton>
                     </Tooltip>
 
-                    <Typography variant="body2">{links.username}</Typography>
-                    <Button type="submit" form="studio-react-logout" color="inherit">
-                        Uitloggen
-                    </Button>
+                    <Box
+                        role="group"
+                        aria-label="Account"
+                        sx={{
+                            display: "flex",
+                            alignItems: "center",
+                            gap: 1,
+                            ml: 0.5,
+                            pl: 1.5,
+                            borderLeft: "1px solid rgba(255,255,255,.35)",
+                        }}
+                    >
+                        <Typography sx={{ fontSize: "0.8125rem" }}>
+                            {links.username}
+                        </Typography>
+
+                        <Button
+                            type="submit"
+                            form="studio-react-logout"
+                            variant="contained"
+                            disableElevation
+                            size="small"
+                            sx={{
+                                bgcolor: "#F3705D",
+                                color: "#261511",
+                                fontSize: "0.75rem",
+                                textTransform: "none",
+                                "&:hover": { bgcolor: "#FF8978" },
+                            }}
+                        >
+                            Uitloggen
+                        </Button>
+                    </Box>
                 </Box>
             </Toolbar>
         </AppBar>

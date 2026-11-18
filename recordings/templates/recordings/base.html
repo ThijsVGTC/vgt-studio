@@ -8,6 +8,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}VGT-Studio{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'recordings/css/style.css' %}">
+    <script>
+        document.documentElement.classList.add("studio-js");
+    </script>
+    <style>
+        .studio-js #studio-header-fallback {
+            display: none;
+        }
+
+        .studio-js #studio-react-header {
+            min-height: 64px;
+            background: #313f69;
+        }
+    </style>
 </head>
 
 <body>
