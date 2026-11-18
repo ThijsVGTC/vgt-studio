@@ -30,3 +30,4 @@ index.html
 .env
 db.sqlite3
 media/
+frontend/node_modules/

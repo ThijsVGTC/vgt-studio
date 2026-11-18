@@ -28,3 +28,6 @@ media//data/signbank/
 
 # Lokale Docker-configuratie
 compose.override.yaml
+
+#REACT
+/frontend/node_modules/
