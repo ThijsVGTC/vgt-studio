@@ -2,17 +2,17 @@ import React, { useEffect, useState } from "react";
 import {
     Alert, Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle,
     FormControlLabel, Link, Popover, Stack, Table, TableBody, TableCell,
-    TableContainer, TableHead, TableRow, Typography,
+    TableContainer, TableHead, TableRow, Typography, TableSortLabel,
 } from "@mui/material";
 
 const columns = [
-    { id: 1, label: "GLOSS" },
+    { id: 1, label: "GLOSS", sortKey: "gloss" },
     { id: 2, label: "Video" },
     { id: 3, label: "Handvorm" },
     { id: 4, label: "Locatie" },
     { id: 5, label: "Mogelijke vertaling" },
     { id: 6, label: "Variant" },
-    { id: 7, label: "Categorieën" },
+    { id: 7, label: "Categorieën", sortKey: "categorie" },
     { id: 8, label: "Labels" },
     { id: 9, label: "Intern" },
     { id: 10, label: "Info" },
@@ -99,6 +99,22 @@ export function SignbankTable({ listUrl }) {
     const visibleColumns = columns.filter(
         ({ id, pinned }) => pinned || id <= 2 || columnPreferences[id] !== false
     );
+
+    const searchParams = new URLSearchParams(window.location.search);
+    const currentSort = searchParams.get("sort");
+    const currentDirection = searchParams.get("dir") === "desc" ? "desc" : "asc";
+
+    function getSortUrl(sortKey) {
+        const url = new URL(listUrl, window.location.origin);
+        url.search = window.location.search;
+        url.searchParams.set("sort", sortKey);
+        url.searchParams.set(
+            "dir",
+            currentSort === sortKey && currentDirection === "asc" ? "desc" : "asc"
+        );
+        url.searchParams.delete("page");
+        return url.href;
+    }
 
     function toggleHandshapes() {
         const next = !showNames;
@@ -337,15 +353,29 @@ export function SignbankTable({ listUrl }) {
                        sx={{ minWidth: "max-content", overflow: "visible" }}>
                     <TableHead>
                         <TableRow>
-                            {visibleColumns.map(({ id, label, pinned }) => (
-                                <TableCell
-                                    key={id}
-                                    scope="col"
-                                    className={pinned ? "signbank-pinned-action" : undefined}
-                                >
-                                    {label}
-                                </TableCell>
-                            ))}
+                            {visibleColumns.map(({ id, label, pinned, sortKey }) => {
+                                const active = Boolean(sortKey && sortKey === currentSort);
+
+                                return (
+                                    <TableCell
+                                        key={id}
+                                        scope="col"
+                                        className={pinned ? "signbank-pinned-action" : undefined}
+                                        sortDirection={active ? currentDirection : false}
+                                    >
+                                        {sortKey ? (
+                                            <TableSortLabel
+                                                component="a"
+                                                href={getSortUrl(sortKey)}
+                                                active={active}
+                                                direction={active ? currentDirection : "asc"}
+                                            >
+                                                {label}
+                                            </TableSortLabel>
+                                        ) : label}
+                                    </TableCell>
+                                );
+                            })}
                         </TableRow>
                     </TableHead>
 
