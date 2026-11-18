@@ -256,14 +256,25 @@ export function SignbankTable({ listUrl }) {
                                 {label}
                             </Button>
                         ))}
-                        <Button size="small" variant="outlined"
-                                onClick={() => window.openSignbankEditModal(row.id)}>
+                        <Button
+                            size="small"
+                            variant="contained"
+                            disableElevation
+                            className="signbank-edit-button"
+                            onClick={() => window.openSignbankEditModal(row.id)}
+                        >
                             Bewerken
                         </Button>
                     </Stack>
                 );
             case 11:
-                return <Chip size="small" label={row.inDictionary ? "Ja" : "Nee"} />;
+                return (
+                    <Chip
+                        size="small"
+                        label={row.inDictionary ? "Ja" : "Nee"}
+                        className={row.inDictionary ? "signbank-wdb-yes" : "signbank-wdb-no"}
+                    />
+                );
             default:
                 return null;
         }

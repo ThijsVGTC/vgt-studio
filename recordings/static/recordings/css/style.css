@@ -2708,3 +2708,23 @@ html[data-reading-mode="true"] #signbank-react-table .label-functional {
     background-color: #ffe500;
     color: #000;
 }
+
+#signbank-react-table .MuiChip-root.signbank-wdb-yes {
+    background-color: #dcfce7;
+    border-color: #86efac;
+    color: #14532d;
+}
+
+#signbank-react-table .MuiChip-root.signbank-wdb-no {
+    background-color: #fee2e2;
+    border-color: #fca5a5;
+    color: #7f1d1d;
+}
+
+#signbank-react-table .signbank-edit-button {
+    background-color: var(--sb-list-primary);
+    color: var(--sb-list-primary-text);
+    border-radius: 8px;
+    text-transform: none;
+    font-weight: 600;
+}
