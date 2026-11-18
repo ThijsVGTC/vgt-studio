@@ -2728,3 +2728,18 @@ html[data-reading-mode="true"] #signbank-react-table .label-functional {
     text-transform: none;
     font-weight: 600;
 }
+
+#signbank-react-table .signbank-handshape-flow {
+    justify-content: flex-start;
+    text-align: left;
+}
+
+#signbank-react-table .signbank-sticky-columns .signbank-pinned-action {
+    position: sticky;
+    right: 0;
+    z-index: 5;
+    min-width: 7rem;
+    text-align: right;
+    white-space: nowrap;
+    box-shadow: -4px 0 6px -4px rgb(0 0 0 / 30%);
+}

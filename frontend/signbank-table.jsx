@@ -17,6 +17,7 @@ const columns = [
     { id: 9, label: "Intern" },
     { id: 10, label: "Info" },
     { id: 11, label: "WDB" },
+    { id: 12, label: "Actie", pinned: true },
 ];
 
 const columnStorageKey = "vgt-studio-signbank-columns";
@@ -96,7 +97,7 @@ export function SignbankTable({ listUrl }) {
     const [info, setInfo] = useState(null);
 
     const visibleColumns = columns.filter(
-        ({ id }) => id <= 2 || columnPreferences[id] !== false
+        ({ id, pinned }) => pinned || id <= 2 || columnPreferences[id] !== false
     );
 
     function toggleHandshapes() {
@@ -248,7 +249,7 @@ export function SignbankTable({ listUrl }) {
                 return <Badges items={row.internalLabels} />;
             case 10:
                 return (
-                    <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.5}>
+                    <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.5} sx={{ justifyContent: "flex-end" }}>
                         {infoActions.filter(([, , items]) => items?.length).map(([label, title, items]) => (
                             <Button key={label} size="small" variant="outlined"
                                     aria-label={`${title} voor ${row.gloss}`}
@@ -256,15 +257,6 @@ export function SignbankTable({ listUrl }) {
                                 {label}
                             </Button>
                         ))}
-                        <Button
-                            size="small"
-                            variant="contained"
-                            disableElevation
-                            className="signbank-edit-button"
-                            onClick={() => window.openSignbankEditModal(row.id)}
-                        >
-                            Bewerken
-                        </Button>
                     </Stack>
                 );
             case 11:
@@ -274,6 +266,18 @@ export function SignbankTable({ listUrl }) {
                         label={row.inDictionary ? "Ja" : "Nee"}
                         className={row.inDictionary ? "signbank-wdb-yes" : "signbank-wdb-no"}
                     />
+                );
+            case 12:
+                return (
+                    <Button
+                        size="small"
+                        variant="contained"
+                        disableElevation
+                        className="signbank-edit-button"
+                        onClick={() => window.openSignbankEditModal(row.id)}
+                    >
+                        Bewerken
+                    </Button>
                 );
             default:
                 return null;
@@ -311,7 +315,7 @@ export function SignbankTable({ listUrl }) {
                 }}
             >
                 <Stack sx={{ p: 1.5 }}>
-                    {columns.slice(2).map(({ id, label }) => (
+                    {columns.filter(({ id, pinned }) => id > 2 && !pinned).map(({ id, label }) => (
                         <FormControlLabel
                             key={id}
                             label={label}
@@ -333,8 +337,14 @@ export function SignbankTable({ listUrl }) {
                        sx={{ minWidth: "max-content", overflow: "visible" }}>
                     <TableHead>
                         <TableRow>
-                            {visibleColumns.map(({ id, label }) => (
-                                <TableCell key={id} scope="col">{label}</TableCell>
+                            {visibleColumns.map(({ id, label, pinned }) => (
+                                <TableCell
+                                    key={id}
+                                    scope="col"
+                                    className={pinned ? "signbank-pinned-action" : undefined}
+                                >
+                                    {label}
+                                </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
@@ -349,9 +359,12 @@ export function SignbankTable({ listUrl }) {
                         )}
                         {rows.map((row) => (
                             <TableRow key={row.id} hover>
-                                {visibleColumns.map(({ id }) => (
-                                    <TableCell key={id}
-                                               sx={id === 5 ? { minWidth: 180, maxWidth: 280 } : undefined}>
+                                {visibleColumns.map(({ id, pinned }) => (
+                                    <TableCell
+                                        key={id}
+                                        className={pinned ? "signbank-pinned-action" : undefined}
+                                        sx={id === 5 ? { minWidth: 180, maxWidth: 280 } : undefined}
+                                    >
                                         {renderCell(row, id)}
                                     </TableCell>
                                 ))}
