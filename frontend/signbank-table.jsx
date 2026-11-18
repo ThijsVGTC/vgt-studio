@@ -1,12 +1,103 @@
 import React, { useEffect, useState } from "react";
 import {
-    Alert, Box, Link, Table, TableBody, TableCell,
+    Alert, Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle,
+    FormControlLabel, Link, Popover, Stack, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Typography,
 } from "@mui/material";
+
+const columns = [
+    { id: 1, label: "GLOSS" },
+    { id: 2, label: "Video" },
+    { id: 3, label: "Handvorm" },
+    { id: 4, label: "Locatie" },
+    { id: 5, label: "Mogelijke vertaling" },
+    { id: 6, label: "Variant" },
+    { id: 7, label: "Categorieën" },
+    { id: 8, label: "Labels" },
+    { id: 9, label: "Intern" },
+    { id: 10, label: "Info" },
+    { id: 11, label: "WDB" },
+];
+
+const columnStorageKey = "vgt-studio-signbank-columns";
+
+function readColumnPreferences() {
+    try {
+        return JSON.parse(localStorage.getItem(columnStorageKey) || "{}") || {};
+    } catch {
+        return {};
+    }
+}
+
+function Badges({ items }) {
+    return (
+        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.5}>
+            {items.map((item, index) => (
+                <Chip
+                    key={index}
+                    size="small"
+                    label={typeof item === "string" ? item : item.short}
+                    title={typeof item === "string" ? undefined : item.name}
+                />
+            ))}
+        </Stack>
+    );
+}
+
+function EtymologyValue({ text }) {
+    const embed = React.useRef(null);
+
+    useEffect(() => {
+        const match = text?.trim().match(
+            /^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?\d+(?:[/?#]|$)/i
+        );
+
+        if (!match || !window.Vimeo?.Player) return;
+
+        const player = new window.Vimeo.Player(embed.current, {
+            url: text.trim(),
+            responsive: true,
+        });
+
+        player.ready().catch(() => {});
+        return () => { player.destroy().catch(() => {}); };
+    }, [text]);
+
+    return (
+        <Stack spacing={0.5}>
+            <div ref={embed} />
+            <Typography variant="body2" sx={{ overflowWrap: "anywhere" }}>
+                {text}
+            </Typography>
+        </Stack>
+    );
+}
 
 export function SignbankTable({ listUrl }) {
     const [rows, setRows] = useState(null);
     const [error, setError] = useState(false);
+    const [showNames, setShowNames] = useState(
+        () => localStorage.getItem("signbankHandshapeView") === "names"
+    );
+    const [columnPreferences, setColumnPreferences] = useState(readColumnPreferences);
+    const [columnAnchor, setColumnAnchor] = useState(null);
+    const [info, setInfo] = useState(null);
+
+    const visibleColumns = columns.filter(
+        ({ id }) => id <= 2 || columnPreferences[id] !== false
+    );
+
+    function toggleHandshapes() {
+        const next = !showNames;
+        setShowNames(next);
+        localStorage.setItem("signbankHandshapeView", next ? "names" : "images");
+    }
+
+    function setColumnVisible(id, visible) {
+        const next = { ...columnPreferences, [id]: visible };
+        setColumnPreferences(next);
+        localStorage.setItem(columnStorageKey, JSON.stringify(next));
+    }
 
     useEffect(() => {
         const controller = new AbortController();
@@ -36,61 +127,191 @@ export function SignbankTable({ listUrl }) {
         return () => controller.abort();
     }, [listUrl]);
 
-    if (error) return <Alert severity="error">De gebaren konden niet worden geladen.</Alert>;
+        if (error) return <Alert severity="error">De gebaren konden niet worden geladen.</Alert>;
     if (!rows) return <Typography role="status">Gebaren laden…</Typography>;
 
+    function renderCell(row, id) {
+        const infoActions = [
+            ["Opm", "Opmerkingen", row.notes],
+            ["Et", "Etymologie", row.etymology],
+            ["Bron", "Bronnen", row.sources],
+        ];
+
+        switch (id) {
+            case 1:
+                return <Link href={row.detailUrl} fontWeight={600}>{row.gloss}</Link>;
+            case 2:
+                return row.thumbnailUrl && row.videoUrl ? (
+                    <Link href={row.videoUrl} target="_blank" rel="noopener">
+                        <Box component="img" src={row.thumbnailUrl}
+                             alt={`Video van ${row.gloss}`} loading="lazy"
+                             sx={{ display: "block", width: 120, height: "auto" }} />
+                    </Link>
+                ) : "–";
+            case 3:
+                return (
+                    <div className="signbank-handshape-flow">
+                        {row.handshapes.map(({ imageUrl, name }, index) => (
+                            <React.Fragment key={index}>
+                                {index > 0 && <span aria-hidden="true">→</span>}
+                                {!showNames && imageUrl ? (
+                                    <img src={imageUrl} alt={name} title={name}
+                                         loading="lazy" className="signbank-handshape-image" />
+                                ) : <span>{name || "–"}</span>}
+                            </React.Fragment>
+                        ))}
+                    </div>
+                );
+            case 4:
+                return (
+                    <>
+                        <div className="signbank-value-pair">
+                            <span>Begin</span><span>{row.locations[0] || "–"}</span>
+                        </div>
+                        <div className="signbank-value-pair">
+                            <span>Einde</span><span>{row.locations[1] || "–"}</span>
+                        </div>
+                    </>
+                );
+            case 5:
+                return row.translations || "–";
+            case 6:
+                return <Badges items={row.variants} />;
+            case 7:
+                return row.categories.length ? <Badges items={row.categories} /> : "–";
+            case 8:
+                return <Badges items={row.functionalLabels} />;
+            case 9:
+                return <Badges items={row.internalLabels} />;
+            case 10:
+                return (
+                    <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.5}>
+                        {infoActions.filter(([, , items]) => items?.length).map(([label, title, items]) => (
+                            <Button key={label} size="small" variant="outlined"
+                                    aria-label={`${title} voor ${row.gloss}`}
+                                    onClick={() => setInfo({ title, items, row })}>
+                                {label}
+                            </Button>
+                        ))}
+                        <Button size="small" variant="outlined"
+                                onClick={() => window.openSignbankEditModal(row.id)}>
+                            Bewerken
+                        </Button>
+                    </Stack>
+                );
+            case 11:
+                return <Chip size="small" label={row.inDictionary ? "Ja" : "Nee"} />;
+            default:
+                return null;
+        }
+    }
+
     return (
-        <TableContainer>
-            <Table size="small" aria-label="Signbank-tabel">
-                <TableHead>
-                    <TableRow>
-                        <TableCell>GLOSS</TableCell>
-                        <TableCell>Video</TableCell>
-                        <TableCell>Handvorm</TableCell>
-                    </TableRow>
-                </TableHead>
+        <>
+            <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}
+                   sx={{ justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
+                <Button size="small" variant="outlined" onClick={toggleHandshapes}>
+                    Handvormen · {showNames ? "Namen" : "Afbeeldingen"}
+                </Button>
+                <Button size="small" variant="outlined"
+                        aria-haspopup="dialog"
+                        aria-expanded={Boolean(columnAnchor)}
+                        aria-controls={columnAnchor ? "react-signbank-columns" : undefined}
+                        onClick={(event) => setColumnAnchor(event.currentTarget)}>
+                    Kolommen kiezen
+                </Button>
+            </Stack>
 
-                <TableBody>
-                    {rows.length === 0 && (
-                        <TableRow>
-                            <TableCell colSpan={3}>Geen gebaren gevonden.</TableCell>
-                        </TableRow>
-                    )}
-
-                    {rows.map((row) => (
-                        <TableRow key={row.id} hover>
-                            <TableCell component="th" scope="row">
-                                <Link href={row.detailUrl}>{row.gloss}</Link>
-                            </TableCell>
-
-                            <TableCell>
-                                {row.thumbnailUrl && row.videoUrl ? (
-                                    <Link href={row.videoUrl} target="_blank" rel="noopener">
-                                        <Box component="img" src={row.thumbnailUrl}
-                                             alt={`Video van ${row.gloss}`} loading="lazy"
-                                             sx={{ display: "block", width: 120 }} />
-                                    </Link>
-                                ) : "–"}
-                            </TableCell>
-
-                            <TableCell>
-                                <div className="signbank-handshape-flow">
-                                    {row.handshapes.map(({ imageUrl, name }, index) => (
-                                        <React.Fragment key={index}>
-                                            {index > 0 && <span aria-hidden="true">→</span>}
-                                            {imageUrl ? (
-                                                <img src={imageUrl} alt={name}
-                                                     loading="lazy"
-                                                     className="signbank-handshape-image" />
-                                            ) : <span>{name || "–"}</span>}
-                                        </React.Fragment>
-                                    ))}
-                                </div>
-                            </TableCell>
-                        </TableRow>
+            <Popover
+                open={Boolean(columnAnchor)}
+                anchorEl={columnAnchor}
+                onClose={() => setColumnAnchor(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
+                slotProps={{
+                    paper: {
+                        id: "react-signbank-columns",
+                        role: "dialog",
+                        "aria-label": "Zichtbare kolommen",
+                    },
+                }}
+            >
+                <Stack sx={{ p: 1.5 }}>
+                    {columns.slice(2).map(({ id, label }) => (
+                        <FormControlLabel
+                            key={id}
+                            label={label}
+                            control={
+                                <Checkbox
+                                    size="small"
+                                    checked={columnPreferences[id] !== false}
+                                    onChange={(event) => setColumnVisible(id, event.target.checked)}
+                                />
+                            }
+                        />
                     ))}
-                </TableBody>
-            </Table>
-        </TableContainer>
+                </Stack>
+            </Popover>
+
+            <TableContainer className="signbank-table-wrapper">
+                <Table className="signbank-sticky-columns" size="small"
+                       aria-label="Signbank-tabel"
+                       sx={{ minWidth: "max-content", overflow: "visible" }}>
+                    <TableHead>
+                        <TableRow>
+                            {visibleColumns.map(({ id, label }) => (
+                                <TableCell key={id} scope="col">{label}</TableCell>
+                            ))}
+                        </TableRow>
+                    </TableHead>
+
+                    <TableBody>
+                        {rows.length === 0 && (
+                            <TableRow>
+                                <TableCell colSpan={visibleColumns.length}>
+                                    Geen gebaren gevonden.
+                                </TableCell>
+                            </TableRow>
+                        )}
+                        {rows.map((row) => (
+                            <TableRow key={row.id} hover>
+                                {visibleColumns.map(({ id }) => (
+                                    <TableCell key={id}
+                                               sx={id === 5 ? { minWidth: 180, maxWidth: 280 } : undefined}>
+                                        {renderCell(row, id)}
+                                    </TableCell>
+                                ))}
+                            </TableRow>
+                        ))}
+                    </TableBody>
+                </Table>
+            </TableContainer>
+
+            {info && (
+                <Dialog open onClose={() => setInfo(null)}
+                        fullWidth maxWidth="sm" aria-labelledby="signbank-react-info-title">
+                    <DialogTitle id="signbank-react-info-title">
+                        {info.title} voor {info.row.gloss}
+                    </DialogTitle>
+                    <DialogContent>
+                        <Stack spacing={1.5}>
+                            {info.items.map((item, index) =>
+                                info.title === "Etymologie" ? (
+                                    <EtymologyValue key={index} text={item.text} />
+                                ) : (
+                                    <Typography key={index} sx={{ whiteSpace: "pre-wrap" }}>
+                                        {item.type && <strong>{item.type} </strong>}
+                                        {item.text}
+                                    </Typography>
+                                )
+                            )}
+                            <Button onClick={() => setInfo(null)} sx={{ alignSelf: "flex-end" }}>
+                                Sluiten
+                            </Button>
+                        </Stack>
+                    </DialogContent>
+                </Dialog>
+            )}
+        </>
     );
 }
