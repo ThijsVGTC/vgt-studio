@@ -2361,3 +2361,13 @@ html[data-reading-mode="true"] #signbank-create-details #signbank-create-save {
     color: #000;
 }
 
+#signbank-create-details .signbank-field-row > #signbank-create-comment {
+    flex: 1 1 12rem;
+    width: auto;
+    min-width: 0;
+    margin: 0;
+}
+
+#signbank-create-details .signbank-field-row > #signbank-create-add-comment {
+    flex: 0 0 auto;
+}
