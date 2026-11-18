@@ -2371,3 +2371,25 @@ html[data-reading-mode="true"] #signbank-create-details #signbank-create-save {
 #signbank-create-details .signbank-field-row > #signbank-create-add-comment {
     flex: 0 0 auto;
 }
+
+#signbank-edit-modal .signbank-add-comment .signbank-field-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+#signbank-edit-modal #new-signbank-comment {
+    flex: 1 1 12rem;
+    width: auto;
+    min-width: 0;
+    min-height: 0;
+    margin: 0;
+    line-height: 1.35;
+    resize: vertical;
+}
+
+#signbank-edit-modal .selected-label > span {
+    flex: 1;
+    min-width: 0;
+}

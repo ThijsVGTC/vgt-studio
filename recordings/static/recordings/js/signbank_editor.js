@@ -133,11 +133,14 @@
         });
     }
 
-    function initializeSignbankLabels(container) {
-        const labels = container.querySelector("#selected-labels");
-        const select = container.querySelector("#label-select");
-        const addButton = container.querySelector("#add-label");
-
+    function initializeSignbankLabels(container, {
+        listSelector = "#selected-labels",
+        selectSelector = "#label-select",
+        addButtonSelector = "#add-label",
+    } = {}) {
+        const labels = container.querySelector(listSelector);
+        const select = container.querySelector(selectSelector);
+        const addButton = container.querySelector(addButtonSelector);
         if (!labels || !select || !addButton) return;
 
         // Voorkom dubbele eventlisteners
@@ -203,6 +206,11 @@
         initializeCategories(container);
         initializeSignbankVariants(container);
         initializeSignbankLabels(container);
+        initializeSignbankLabels(container, {
+            listSelector: "#selected-functional-labels",
+            selectSelector: "#functional-label-select",
+            addButtonSelector: "#add-functional-label",
+        });
     };
 
     // Initialiseren op gewone detailpagina

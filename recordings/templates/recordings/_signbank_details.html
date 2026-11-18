@@ -107,8 +107,7 @@
             </div>
 
             <div class="signbank-field-grid">
-                <section class="signbank-field-panel signbank-field-panel--wide">
-                    <hr>
+                <section class="signbank-field-panel signbank-field-panel--wide">                    
                     <h3>Mogelijke vertaling</h3>
 
                     <div class="mogelijke-vertaling">
@@ -181,8 +180,7 @@
                     </div>
                 </section>
 
-                <section class="signbank-field-panel">
-                    <hr>
+                <section class="signbank-field-panel">                    
                     <h3>Handvorm</h3>
                     <form class="handvorm-edit" method="post" action="{% url 'signbank_update_handvormen' entry.signbank_id %}">
                         {% csrf_token %}
@@ -280,8 +278,8 @@
                     </form>
                 </section>
 
-                <section class="signbank-field-panel">
-                    <hr>
+             <section class="signbank-field-panel">
+                    
                     <h3>Locatie</h3>
 
                     <form method="post"
@@ -329,8 +327,7 @@
                     </form>
                 </section>
 
-                <section class="signbank-field-panel">
-                    <hr>
+                <section class="signbank-field-panel">             
                     <h3>Categorieën</h3>
 
                     <form method="post"
@@ -392,8 +389,7 @@
                     </form>
                 </section>
 
-                <section class="signbank-field-panel">
-                    <hr>
+                <section class="signbank-field-panel">                    
                     <h3>Varianten</h3>
 
                     <form method="post"
@@ -455,46 +451,57 @@
                     </form>
                 </section>
 
-                <section class="signbank-field-panel">
-                    <hr>
+                <section class="signbank-field-panel">          
                     <h3>Functionele labels</h3>
 
-                    <form method="post"
+                    <form
+                        method="post"
                         action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
-                        class="signbank-functional-labels-form">
-
+                        class="signbank-functional-labels-form"
+                    >
                         {% csrf_token %}
-
                         <input type="hidden" name="label_type" value="functional">
 
-                        <div class="signbank-label-options">
-
+                        <div id="selected-functional-labels">
                             {% for label in functional_label_choices %}
+                                {% if label.id in selected_labels %}
+                                    <div class="selected-label signbank-field-row" data-id="{{ label.id }}">
+                                        <span>{{ label.name }}</span>
+                                        <input type="hidden" name="labels" value="{{ label.id }}">
 
-                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-
-                                <input type="checkbox"
-                                    name="labels"
-                                    value="{{ label.id }}"
-                                    {% if label.id in selected_labels %}checked{% endif %}>
-
-                                <span>{{ label.name }}</span>
-
-                            </label>
-
+                                        <button
+                                            type="button"
+                                            class="remove-label btn btn-sm btn-outline-danger"
+                                            aria-label="Label {{ label.name }} verwijderen"
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                {% endif %}
                             {% endfor %}
+                        </div>
 
+                        <div class="signbank-field-row">
+                            <select id="functional-label-select" class="form-control"
+                                    aria-label="Functioneel label toevoegen">
+                                <option value="">Selecteer functioneel label...</option>
+                                {% for label in functional_label_choices %}
+                                    <option value="{{ label.id }}">{{ label.name }}</option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="button" id="add-functional-label" class="btn btn-outline-primary">
+                                + Toevoegen
+                            </button>
                         </div>
 
                         <button type="submit" class="btn btn-primary">
                             Functionele labels opslaan
                         </button>
-
                     </form>
                 </section>
 
                 <section class="signbank-field-panel">
-                    <hr>
                     <h3>Interne labels</h3>
                     <form method="post"
                         action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
@@ -562,7 +569,6 @@
                 </section>
 
                 <section class="signbank-field-panel signbank-field-panel--wide">
-                    <hr>
                     <h3>Opmerking SB</h3>
 
                     <div class="signbank-comments">
@@ -706,41 +712,32 @@
                             <p>Geen opmerkingen.</p>
                             {% endfor %}
                             <div class="signbank-add-comment">
-
                                 <form method="post"
-                                    action="{% url 'signbank_add_opmerking' signbank_id=entry.signbank_id %}">
-
+                                    action="{% url 'signbank_add_opmerking' signbank_id=entry.signbank_id %}"
+                                    class="signbank-field-row">
                                     {% csrf_token %}
-
-                                    <label for="new-signbank-comment"
-                                        style="display:block; margin-bottom:8px;">
-                                        <strong>Nieuwe opmerking</strong>
-                                    </label>
 
                                     <textarea
                                         id="new-signbank-comment"
                                         name="text"
                                         class="form-control"
-                                        rows="2"
+                                        rows="1"
+                                        aria-label="Nieuwe Signbank-opmerking"
                                         placeholder="Schrijf hier een nieuwe opmerking..."
                                         required
-                                        style="width:100%; margin-bottom:10px;"></textarea>
+                                    ></textarea>
 
-                                    <button type="submit"
-                                            class="btn btn-primary">
+                                    <button type="submit" class="btn btn-outline-primary">
                                         + Opmerking toevoegen
                                     </button>
-
                                 </form>
-
                             </div>
                         </details>
 
                     </div>
                 </section>
 
-                <section class="signbank-field-panel signbank-field-panel--wide">
-                    <hr>
+                <section class="signbank-field-panel signbank-field-panel--wide">                    
                     <h3>Etymologie</h3>
 
                     {% if entry.etymologie %}
@@ -754,8 +751,7 @@
                     {% endif %}
                 </section>
 
-                <section class="signbank-field-panel signbank-field-panel--wide">
-                    <hr>
+                <section class="signbank-field-panel signbank-field-panel--wide">                    
                     <h3>Bron</h3>
                     <div class="signbank-sources">
 
@@ -819,8 +815,7 @@
                     </div>
                 </section>
             </div>
-
-            <hr>
+           
 
             <p>
                 <strong>Laatste wijziging in Signbank:</strong>
