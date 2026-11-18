@@ -111,6 +111,8 @@
         }
     };
 
+    get("webcam").addEventListener("click", () => state.openCamera());
+
     get("start").addEventListener("click", () => {
         if (!stream || recorder) return;
 
