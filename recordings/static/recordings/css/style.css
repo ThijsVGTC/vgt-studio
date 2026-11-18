@@ -1949,3 +1949,42 @@ html[data-font-size="xlarge"] body * {
     min-height: 0;
     overflow-y: auto;
 }
+
+/* Hoog contrast voor de bestaande Studio-schermen */
+html[data-reading-mode="true"] {
+    color-scheme: dark;
+    --bg-color: #000;
+    --surface-color: #121212;
+    --text-color: #fff;
+    --border-color: #a6a6a6;
+    --studio-contrast-accent: #ffe500;
+}
+
+html[data-reading-mode="true"] :is(body, .page, .content, main, .site-footer) {
+    background-color: var(--bg-color) !important;
+    color: var(--text-color) !important;
+}
+
+html[data-reading-mode="true"] :is(
+    table, th, td, .card, .panel, .signbank-filter-form,
+    .filter-dropdown-menu, .signbank-modal-content, .signbank-modal-header,
+    #signbank-create-modal, #column-settings-panel, input, select, textarea
+) {
+    background-color: var(--surface-color) !important;
+    color: var(--text-color) !important;
+    border-color: var(--border-color) !important;
+}
+
+html[data-reading-mode="true"] #studio-react-header {
+    background: var(--bg-color);
+}
+
+html[data-reading-mode="true"] main a:not(.button) {
+    color: var(--studio-contrast-accent);
+    text-decoration: underline;
+}
+
+html[data-reading-mode="true"] :focus-visible {
+    outline: 2px solid var(--studio-contrast-accent);
+    outline-offset: 3px;
+}
