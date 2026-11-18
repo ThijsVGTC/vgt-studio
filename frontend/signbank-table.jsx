@@ -81,6 +81,13 @@ function EtymologyValue({ text }) {
 export function SignbankTable({ listUrl }) {
     const [rows, setRows] = useState(null);
     const [error, setError] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [nextPage, setNextPage] = useState(null);
+    const [requestedPage, setRequestedPage] = useState(
+        () => new URLSearchParams(window.location.search).get("page") || "1"
+    );
+    const [retry, setRetry] = useState(0);
+    const loadMoreRef = React.useRef(null);
     const [showNames, setShowNames] = useState(
         () => localStorage.getItem("signbankHandshapeView") === "names"
     );
@@ -109,30 +116,81 @@ export function SignbankTable({ listUrl }) {
         const url = new URL(listUrl, window.location.origin);
         url.search = window.location.search;
         url.searchParams.set("format", "json");
-
-        setRows(null);
-        setError(false);
+        url.searchParams.set("page", requestedPage);
 
         async function loadRows() {
             try {
                 const response = await fetch(url, { signal: controller.signal });
-                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                if (!response.ok) {
+                    throw new Error(`HTTP ${response.status}`);
+                }
 
                 const data = await response.json();
-                if (!controller.signal.aborted) setRows(data.rows);
+                if (controller.signal.aborted) return;
+
+                setRows((previous) => {
+                    const byId = new Map((previous ?? []).map((row) => [row.id, row]));
+
+                    for (const row of data.rows) {
+                        byId.set(row.id, row);
+                    }
+
+                    return [...byId.values()];
+                });
+                setNextPage(data.nextPage);
             } catch (error) {
                 if (!controller.signal.aborted) {
                     console.error("Signbank laden mislukt", error);
                     setError(true);
                 }
+            } finally {
+                if (!controller.signal.aborted) setLoading(false);
             }
         }
 
         loadRows();
         return () => controller.abort();
-    }, [listUrl]);
+    }, [listUrl, requestedPage, retry]);
 
-        if (error) return <Alert severity="error">De gebaren konden niet worden geladen.</Alert>;
+    const loadMore = React.useCallback(() => {
+        if (loading || error || nextPage === null) return;
+
+        setLoading(true);
+        setRequestedPage(String(nextPage));
+    }, [loading, error, nextPage]);
+
+    useEffect(() => {
+        const target = loadMoreRef.current;
+        if (!target || loading || error || nextPage === null) return;
+        if (!("IntersectionObserver" in window)) return;
+
+        const observer = new IntersectionObserver(([entry]) => {
+            if (entry.isIntersecting) {
+                observer.disconnect();
+                loadMore();
+            }
+        }, { rootMargin: "0px 0px 300px 0px" });
+
+        observer.observe(target);
+        return () => observer.disconnect();
+    }, [loading, error, nextPage, loadMore]);
+
+    function retryLoad() {
+        setError(false);
+        setLoading(true);
+        setRetry((attempt) => attempt + 1);
+    }
+
+    if (error && !rows) {
+        return (
+            <Alert severity="error" action={
+                <Button onClick={retryLoad}>Opnieuw proberen</Button>
+            }>
+                De gebaren konden niet worden geladen.
+            </Alert>
+        );
+    }
     if (!rows) return <Typography role="status">Gebaren laden…</Typography>;
 
     function renderCell(row, id) {
@@ -291,6 +349,28 @@ export function SignbankTable({ listUrl }) {
                     </TableBody>
                 </Table>
             </TableContainer>
+
+            <Stack ref={loadMoreRef} spacing={1} sx={{ alignItems: "center", py: 1.5 }}>
+                {loading && (
+                    <Typography role="status" variant="body2">
+                        Meer gebaren laden…
+                    </Typography>
+                )}
+
+                {error && (
+                    <Alert severity="error" action={
+                        <Button onClick={retryLoad}>Opnieuw proberen</Button>
+                    }>
+                        De volgende gebaren konden niet worden geladen.
+                    </Alert>
+                )}
+
+                {!loading && !error && nextPage !== null && (
+                    <Button variant="outlined" size="small" onClick={loadMore}>
+                        Meer gebaren laden
+                    </Button>
+                )}
+            </Stack>
 
             {info && (
                 <Dialog open onClose={() => setInfo(null)}
