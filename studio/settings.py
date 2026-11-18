@@ -154,8 +154,6 @@ SOCIALACCOUNT_PROVIDERS = {
 }
 
 SOCIALACCOUNT_ADAPTER = "recordings.adapters.VGTStudioSocialAccountAdapter"
-
-LOGIN_REDIRECT_URL = "/"
 ACCOUNT_LOGOUT_REDIRECT_URL = "/logged-out/"
 
 # Password validation
@@ -219,7 +217,7 @@ SIGNBANK_BASE_URL = "https://vlaamsegebarentaal.be/signbank/"
 WEBOPNAME_BASE_URL = "http://127.0.0.1:8000/"
 
 LOGIN_URL = "login"
-LOGIN_REDIRECT_URL = "recording_list"
+LOGIN_REDIRECT_URL = "signbank_list"
 WHITENOISE_STATIC_PREFIX = "/static/"
 
 # Login/session 30 dagen bewaren
