@@ -1996,3 +1996,164 @@ html[data-font-size="contrast"] {
 html[data-font-size="contrast"] body {
     font-size: 1rem;
 }
+
+/* Gegevens invullen en bewerken */
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) {
+    --sb-outline: #6379ab;
+    --sb-action-text: #313f69;
+    --sb-save: #f3705d;
+    --sb-save-text: #261511;
+    font-family: system-ui, sans-serif;
+}
+
+html[data-theme="dark"] :is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) {
+    --sb-outline: #a8b9e6;
+    --sb-action-text: #c8d5ff;
+}
+
+html[data-reading-mode="true"] :is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) {
+    --sb-outline: #ffe500;
+    --sb-action-text: #ffe500;
+    --sb-save: #ffe500;
+    --sb-save-text: #000;
+}
+
+#signbank-create-details {
+    margin-top: 0.75rem;
+}
+
+.signbank-core-fields {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 0.75rem;
+}
+
+@media (max-width: 520px) {
+    .signbank-core-fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) :is(h2, h3) {
+    margin: 0.75rem 0 0.35rem;
+    font-size: 1rem;
+    font-weight: 600;
+    line-height: 1.35;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .form-group {
+    margin-bottom: 0.5rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) hr {
+    margin: 0.65rem 0;
+    border: 0;
+    border-top: 1px solid var(--border-color, #d1d5db);
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud)
+:is(input[type="text"], select, textarea) {
+    box-sizing: border-box;
+    min-width: 0;
+    max-width: 100%;
+    padding: 0.4rem 0.55rem;
+    font: inherit;
+    border-radius: 8px;
+}
+
+#signbank-create-details button[id^="signbank-create-add-"],
+#signbank-edit-modal .detail_inhoud .btn-outline-primary {
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--sb-outline);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sb-action-text);
+    box-shadow: none;
+}
+
+#signbank-create-save,
+#signbank-edit-modal .detail_inhoud .btn-primary {
+    padding: 0.45rem 0.75rem;
+    border: 0;
+    border-radius: 8px;
+    background: var(--sb-save);
+    color: var(--sb-save-text);
+}
+
+/* Minder ruimte rond de video zodra het formulier openstaat */
+#signbank-create-modal:has(#signbank-create-details:not([hidden])) {
+    width: min(820px, 94vw);
+}
+
+#signbank-create-modal:has(#signbank-create-details:not([hidden])) #signbank-create-preview {
+    max-height: min(25vh, 200px);
+}
+
+#signbank-edit-modal .signbank-modal-content {
+    width: min(820px, 94vw);
+    border-radius: 14px;
+    background: var(--surface-color, #fff);
+    color: var(--text-color, #1f2937);
+}
+
+#signbank-edit-modal .signbank-modal-header {
+    padding: 0.5rem 1rem;
+    background: var(--surface-color, #fff);
+    border-bottom-color: var(--border-color, #d1d5db);
+}
+
+#signbank-edit-modal .signbank-modal-close {
+    width: 44px;
+    height: 44px;
+    background: transparent;
+    color: inherit;
+}
+
+#signbank-edit-modal :is(.signbank-modal-body, .detail_inhoud) {
+    padding: 0.65rem 1rem;
+}
+
+#signbank-edit-modal .detail_video {
+    padding: 0.5rem 0;
+}
+
+#signbank-edit-modal .detail_video video {
+    max-height: min(25vh, 200px);
+    border-radius: 12px;
+}
+
+/* Nieuw gebaar: alleen het formulier scrollt */
+#signbank-create-modal[open] {
+    display: flex;
+    flex-direction: column;
+    max-height: 94dvh;
+    overflow: hidden;
+}
+
+#signbank-create-modal .signbank-create-header {
+    flex: 0 0 auto;
+    margin-bottom: 0.5rem;
+}
+
+#signbank-create-form {
+    min-height: 0;
+    overflow: auto;
+}
+
+/* Bewerken: de titel en het kruisje staan boven de scrollzone */
+#signbank-edit-modal .signbank-modal-content {
+    max-height: 90dvh;
+}
+
+#signbank-edit-modal .signbank-modal-header {
+    flex: 0 0 auto;
+}
+
+#signbank-edit-modal .signbank-modal-body {
+    min-height: 0;
+    overflow: auto;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal) .signbank-field-panel--wide {
+    grid-column: 1 / -1;
+}
