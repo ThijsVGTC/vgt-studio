@@ -276,190 +276,13 @@ Signbank | VGT Studio
         </div>
 
     </div>
-    
-    <div class="handshape-view-toggle">
-        <span>Handvormen:</span>
 
-        <button
-            type="button"
-            id="handshape-view-toggle"
-            class="handshape-toggle-button"
-            aria-pressed="false"
-        >
-            <span class="handshape-toggle-images">Afbeeldingen</span>
-            <span class="handshape-toggle-separator">/</span>
-            <span class="handshape-toggle-names">Namen</span>
-        </button>
-    </div>
-
-    <div class="signbank-column-settings">
-
-        <button
-            type="button"
-            id="toggle-column-settings"
-            aria-expanded="false"
-            aria-controls="column-settings-panel"
-        >
-            ⚙ Kolommen kiezen
-        </button>
-
-        <div id="column-settings-panel" hidden>
-
-            <strong>Zichtbare kolommen</strong>
-
-            <label><input type="checkbox" data-column="3" checked> Handvorm</label>
-            <label><input type="checkbox" data-column="4" checked> Locatie</label>
-            <label><input type="checkbox" data-column="5" checked> Mogelijke vertaling</label>
-            <label><input type="checkbox" data-column="6" checked> Variant</label>
-            <label><input type="checkbox" data-column="7" checked> Categorieën</label>
-            <label><input type="checkbox" data-column="8" checked> Labels</label>
-            <label><input type="checkbox" data-column="9" checked> Intern</label>
-            <label><input type="checkbox" data-column="10" checked> Info</label>
-            <label><input type="checkbox" data-column="11" checked> WDB</label>
-
-        </div>
-
-    </div>
-    <details>
-        <summary>React-tabel testen</summary>
-        <div
-            id="signbank-react-table"
-            data-list-url="{% url 'signbank_list' %}"
-        ></div>
-    </details>
-    <div class="signbank-table-wrapper">
-
-    <table class="signbank-table signbank-sticky-columns">
-
-        <thead>
-
-            <tr>
-                <th>
-                    <a href="{% if sort == 'gloss' and direction == 'asc' %}{% querystring sort='gloss' dir='desc' page=None %}{% else %}{% querystring sort='gloss' dir='asc' page=None %}{% endif %}">
-                        GLOSS
-                        {% if sort == "gloss" %}
-                            {% if direction == "asc" %}
-                                ↑
-                            {% else %}
-                                ↓
-                            {% endif %}
-                        {% endif %}
-                    </a>
-                </th>
-
-                <th class="t_center">
-                    Video
-                </th>
-
-                <th class="t_center">
-                    Handvorm
-                </th>
-
-                <th>
-                    Locatie
-                </th>
-
-                <th>
-                    Mogelijke vertaling
-                </th>
-
-                <th>
-                    Variant
-                </th>
-                
-                <th>
-                    <a href="{% if sort == 'categorie' and direction == 'asc' %}{% querystring sort='categorie' dir='desc' page=None %}{% else %}{% querystring sort='categorie' dir='asc' page=None %}{% endif %}">
-                        Categorieën
-                        {% if sort == "categorie" %}
-                            {% if direction == "asc" %}
-                                ↑
-                            {% else %}
-                                ↓
-                            {% endif %}
-                        {% endif %}
-                    </a>
-                </th>
-                <th>
-                    Labels
-                </th>
-                <th>
-                    Intern
-                </th>
-                <th class="t_center">
-                    Info
-                </th>
-
-                <th class="t_center">
-                    WDB
-                </th>
-            </tr>
-
-        </thead>
+    <div
+        id="signbank-react-table"
+        data-list-url="{% url 'signbank_list' %}"
+    ></div>
 
 
-        <tbody>
-
-        {% for entry in entries %}
-                {% include "recordings/_signbank_list_row.html" with entry=entry %}
-            {% empty %}
-
-                <tr>
-
-                    <td colspan="11">
-
-                        Geen Signbank-items gevonden.
-
-                    </td>
-
-                </tr>
-
-            {% endfor %}
-
-        </tbody>
-
-    </table>
-
-    </div>
-
-
-    {% if page_obj.paginator.num_pages > 1 %}
-
-    <div class="pagination">
-
-        {% if page_obj.has_previous %}
-
-            <a
-                href="{% querystring page=page_obj.previous_page_number %}"
-                class="button button-secondary"
-            >
-                ← Vorige
-            </a>
-
-        {% endif %}
-
-
-        <span class="pagination-info">
-
-            Pagina {{ page_obj.number }}
-            van {{ page_obj.paginator.num_pages }}
-
-        </span>
-
-
-        {% if page_obj.has_next %}
-
-            <a
-                href="{% querystring page=page_obj.next_page_number %}"
-                class="button button-secondary"
-            >
-                Volgende →
-            </a>
-
-        {% endif %}
-
-    </div>
-
-    {% endif %}
 </div>
 <script>
 document.addEventListener("DOMContentLoaded", function () {
@@ -908,50 +731,10 @@ async function openSignbankEditModal(signbankId) {
     }
 }
 
-async function refreshSignbankListRow(signbankId) {
-    const row = document.querySelector(
-        `tr[data-signbank-id="${CSS.escape(String(signbankId))}"]`
-    );
-
-    if (!row) return;
-
-    try {
-        // Neem de actieve zoekopdracht en filters over.
-        const params = new URLSearchParams(window.location.search);
-
-        const response = await fetch(
-            `/signbank/${encodeURIComponent(signbankId)}/row/?${params.toString()}`,
-            {
-                credentials: "same-origin"
-            }
-        );
-
-        if (!response.ok) {
-            throw new Error(`HTTP ${response.status}`);
-        }
-
-        // De gewijzigde rij voldoet niet meer aan de actieve filters.
-        if (response.status === 204) {
-            row.remove();
-            return;
-        }
-
-        const html = await response.text();
-
-        const template = document.createElement("template");
-        template.innerHTML = html.trim();
-
-        const newRow = template.content.querySelector("tr");
-
-        if (!newRow) {
-            throw new Error("Geen geldige tabelrij ontvangen.");
-        }
-
-        row.replaceWith(newRow);
-
-    } catch (error) {
-        console.error("Signbankrij bijwerken mislukt:", error);
-    }
+function refreshSignbankListRow(signbankId) {
+    window.dispatchEvent(new CustomEvent("signbank:row-updated", {
+        detail: { signbankId },
+    }));
 }
 
 async function closeSignbankEditModal() {

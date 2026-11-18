@@ -2282,6 +2282,9 @@ def signbank_list_row(request, signbank_id):
     if entry is None:
         return HttpResponse(status=204)
 
+    if request.GET.get("format") == "json":
+        return JsonResponse(serialize_signbank_row(entry))
+
     return render(
         request,
         "recordings/_signbank_list_row.html",

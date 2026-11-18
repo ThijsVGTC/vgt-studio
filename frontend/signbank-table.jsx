@@ -193,6 +193,54 @@ export function SignbankTable({ listUrl }) {
         return () => observer.disconnect();
     }, [loading, error, nextPage, loadMore]);
 
+    useEffect(() => {
+        const controller = new AbortController();
+
+        async function refreshRow(event) {
+            const id = String(event.detail.signbankId);
+            const base = new URL(listUrl, window.location.origin);
+            const url = new URL(`${encodeURIComponent(id)}/row/`, base);
+            url.search = window.location.search;
+            url.searchParams.set("format", "json");
+
+            try {
+                const response = await fetch(url, {
+                    signal: controller.signal,
+                    cache: "no-store",
+                });
+
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+
+                if (response.status === 204) {
+                    setRows((current) =>
+                        current?.filter((row) => String(row.id) !== id) ?? null
+                    );
+                    return;
+                }
+
+                const updatedRow = await response.json();
+                if (controller.signal.aborted) return;
+
+                setRows((current) =>
+                    current?.map((row) =>
+                        String(row.id) === id ? updatedRow : row
+                    ) ?? null
+                );
+            } catch (error) {
+                if (!controller.signal.aborted) {
+                    console.error("Signbankrij bijwerken mislukt", error);
+                }
+            }
+        }
+
+        window.addEventListener("signbank:row-updated", refreshRow);
+
+        return () => {
+            controller.abort();
+            window.removeEventListener("signbank:row-updated", refreshRow);
+        };
+    }, [listUrl]);
+
     function retryLoad() {
         setError(false);
         setLoading(true);
