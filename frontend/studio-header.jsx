@@ -11,6 +11,7 @@ import { studioThemes } from "./studio-theme";
 import { createPortal } from "react-dom";
 import { SignbankUploadChoice } from "./signbank-upload-choice.jsx";
 import { SignbankListControls } from "./signbank-list.jsx";
+import { SignbankTable } from "./signbank-table.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -121,6 +122,7 @@ function StudioHeader() {
     );
     const uploadChoice = document.getElementById("signbank-react-upload-choice");
     const signbankControls = document.getElementById("signbank-react-controls");
+    const signbankTable = document.getElementById("signbank-react-table");
 
     return (
         <ThemeProvider theme={theme}>
@@ -233,12 +235,14 @@ function StudioHeader() {
                     </Box>
                 </Toolbar>
             </AppBar>
+
             {uploadChoice && createPortal(
                 <UploadChoiceBoundary>
                     <SignbankUploadChoice highContrast={reading} />
                 </UploadChoiceBoundary>,
                 uploadChoice
             )}
+
             {signbankControls && createPortal(
                 <UploadChoiceBoundary>
                     <SignbankListControlsMount
@@ -247,6 +251,13 @@ function StudioHeader() {
                     />
                 </UploadChoiceBoundary>,
                 signbankControls
+            )}
+
+            {signbankTable && createPortal(
+                <UploadChoiceBoundary>
+                    <SignbankTable listUrl={signbankTable.dataset.listUrl} />
+                </UploadChoiceBoundary>,
+                signbankTable
             )}
         </ThemeProvider>
     );
