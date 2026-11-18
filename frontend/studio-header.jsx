@@ -10,6 +10,7 @@ import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 import { studioThemes } from "./studio-theme";
 import { createPortal } from "react-dom";
 import { SignbankUploadChoice } from "./signbank-upload-choice.jsx";
+import { SignbankListControls } from "./signbank-list.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -69,6 +70,21 @@ class UploadChoiceBoundary extends React.Component {
     }
 }
 
+function SignbankListControlsMount({ mount, highContrast }) {
+    const data = JSON.parse(
+        document.getElementById("signbank-filter-data").textContent
+    );
+
+    return (
+        <SignbankListControls
+            data={data}
+            listUrl={mount.dataset.listUrl}
+            totalCount={Number(mount.dataset.totalCount)}
+            highContrast={highContrast}
+        />
+    );
+}
+
 function StudioHeader() {
     const [dark, setDark] = useState(
         () => localStorage.getItem("vgt-studio-theme") === "dark"
@@ -104,6 +120,7 @@ function StudioHeader() {
         (letter) => letter.toLocaleUpperCase("nl-BE")
     );
     const uploadChoice = document.getElementById("signbank-react-upload-choice");
+    const signbankControls = document.getElementById("signbank-react-controls");
 
     return (
         <ThemeProvider theme={theme}>
@@ -221,6 +238,15 @@ function StudioHeader() {
                     <SignbankUploadChoice highContrast={reading} />
                 </UploadChoiceBoundary>,
                 uploadChoice
+            )}
+            {signbankControls && createPortal(
+                <UploadChoiceBoundary>
+                    <SignbankListControlsMount
+                        mount={signbankControls}
+                        highContrast={reading}
+                    />
+                </UploadChoiceBoundary>,
+                signbankControls
             )}
         </ThemeProvider>
     );

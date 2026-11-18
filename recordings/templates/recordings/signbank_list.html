@@ -7,6 +7,13 @@ Signbank | VGT Studio
 {% block content %}
 <div class="signbank-list-page">
     <div class="signbank-sticky-controls">
+        {{ signbank_filter_data|json_script:"signbank-filter-data" }}
+
+        <div id="signbank-react-controls"
+            data-total-count="{{ total_count }}"
+            data-list-url="{% url 'signbank_list' %}"></div>
+
+        <div id="signbank-legacy-controls">
             <div class="page-heading">
             <div>
                 <h1>Signbank</h1>
@@ -266,6 +273,7 @@ Signbank | VGT Studio
             </section>
 
         </form>
+        </div>
 
     </div>
     

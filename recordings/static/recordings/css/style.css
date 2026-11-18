@@ -2645,3 +2645,7 @@ html[data-reading-mode="true"] .signbank-list-page .signbank-filter-form {
     border-color: var(--sb-list-primary, #f3705d);
     color: var(--sb-list-primary-text, #261511);
 }
+
+#signbank-react-controls:not(:empty) + #signbank-legacy-controls {
+    display: none;
+}
