@@ -5,392 +5,444 @@
 Signbank | VGT Studio
 {% endblock %}
 {% block content %}
+<div class="signbank-list-page">
+    <div class="page-heading">
+        <div>
+            <h1>Signbank</h1>
 
-<div class="page-heading">
-    <div>
-        <h1>Signbank</h1>
-
-        <p class="page-intro">
-            Gesynchroniseerde gegevens uit Signbank.
-        </p>
-    </div>
-
-    <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-        <div class="signbank-count">
-            {{ filtered_count }} resultaten
+            <p class="page-intro">
+                Gesynchroniseerde gegevens uit Signbank.
+            </p>
         </div>
 
-        {% if user.is_staff %}
-        <button type="button" data-signbank-create>
-            + Nieuw gebaar toevoegen
-        </button>
-        {% endif %}
-    </div>
-</div>
+        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+            <div class="signbank-count">
+                {{ filtered_count }} resultaten
+            </div>
 
-<form method="get" class="signbank-filter-form">
-
-    <div class="signbank-filter-grid">
-
-        <div>
-            <label for="q">
-                <strong>Zoeken</strong>
-            </label>
-
-            <input
-                type="search"
-                id="q"
-                name="q"
-                value="{{ search_query }}"
-                placeholder="GLOSS, ID, vertaling..."
-            >
+            {% if user.is_staff %}
+            <button type="button" data-signbank-create>
+                + Nieuw gebaar toevoegen
+            </button>
+            {% endif %}
         </div>
+    </div>
+
+    <form method="get" class="signbank-filter-form">
+
+        <div class="signbank-filter-grid">
+
+            <div>
+                <label for="q">
+                    <strong>Zoeken</strong>
+                </label>
+
+                <input
+                    type="search"
+                    id="q"
+                    name="q"
+                    value="{{ search_query }}"
+                    placeholder="GLOSS, ID, vertaling..."
+                >
+            </div>
 
 
-        <div>
-            <div class="filter-dropdown" id="category-dropdown">
-                <button type="button" class="filter-dropdown-toggle">
-                    Categorieën
-                </button>
+            <div>
+                <div class="filter-dropdown" id="category-dropdown">
+                    <button type="button" class="filter-dropdown-toggle">
+                        Categorieën
+                        {% if selected_categories %}
+                            <span class="signbank-filter-count">{{ selected_categories|length }}</span>
+                        {% endif %}
+                    </button>
 
-                <div class="filter-dropdown-menu">
-                    <input
-                        type="text"
-                        class="filter-dropdown-search"
-                        placeholder="Zoek categorie..."
-                        autocomplete="off"
-                    >
-                    {% for category in categories %}
-                        <label class="filter-checkbox filter-category-option">
-                            <input
-                                type="checkbox"
-                                name="category"
-                                value="{{ category }}"
-                                {% if category in selected_categories %}checked{% endif %}
-                            >
-                            <span>{{ category }}</span>
-                        </label>
-                    {% endfor %}
+                    <div class="filter-dropdown-menu">
+                        <input
+                            type="text"
+                            class="filter-dropdown-search"
+                            placeholder="Zoek categorie..."
+                            autocomplete="off"
+                        >
+                        {% for category in categories %}
+                            <label class="filter-checkbox filter-category-option">
+                                <input
+                                    type="checkbox"
+                                    name="category"
+                                    value="{{ category }}"
+                                    {% if category in selected_categories %}checked{% endif %}
+                                >
+                                <span>{{ category }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
                 </div>
             </div>
-        </div>
 
 
-        <div>
-            <div class="filter-dropdown">
-                <button type="button" class="filter-dropdown-toggle">
-                    Functionele labels
-                </button>
+            <div>
+                <div class="filter-dropdown">
+                    <button type="button" class="filter-dropdown-toggle">
+                        Functionele labels
+                        {% if selected_functional_labels %}
+                            <span class="signbank-filter-count">{{ selected_functional_labels|length }}</span>
+                        {% endif %}
+                    </button>
 
-                <div class="filter-dropdown-menu">
-                    <label class="filter-checkbox filter-select-all">
+                    <div class="filter-dropdown-menu">
+                        <label class="filter-checkbox filter-select-all">
+
+                            <input
+
+                                type="checkbox"
+
+                                class="functional-label-select-all"
+
+                            >
+
+                            <span>Alles selecteren</span>
+
+                        </label>
+
+                        <div class="filter-dropdown-separator"></div>
+                        {% for label in functional_label_options %}
+                            <label class="filter-checkbox">
+                                <input
+                                    type="checkbox"
+                                    name="functional_label"
+                                    value="{{ label }}"
+                                    class="functional-label-checkbox"
+                                    {% if label in selected_functional_labels %}checked{% endif %}
+                                >
+                                <span>{{ label }}</span>
+                            </label>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <div>
+                <div class="filter-dropdown" id="internal-label-dropdown">
+                    <button type="button" class="filter-dropdown-toggle">
+                        Interne labels
+                        <span class="signbank-filter-count">
+                            {% if selected_internal_labels %}
+                                {{ selected_internal_labels|length }}
+                            {% else %}
+                                {{ default_hidden_internal_labels|length }}
+                            {% endif %}
+                        </span>
+                    </button>
+
+                    <div class="filter-dropdown-menu">
 
                         <input
-
-                            type="checkbox"
-
-                            class="functional-label-select-all"
-
+                            type="text"
+                            class="filter-dropdown-search internal-label-search"
+                            placeholder="Zoek label..."
+                            autocomplete="off"
                         >
+                            <label class="filter-checkbox filter-select-all">
+                                <input type="checkbox" class="internal-label-select-all">
+                                <span>Alles selecteren</span>
+                            </label>
+                            <label class="filter-checkbox internal-label-option">
+                                <input
+                                    type="checkbox"
+                                    name="internal_label"
+                                    value="__geen_label__"
+                                    {% if "__geen_label__" in selected_internal_labels %}checked{% endif %}
+                                >
+                                <span>Geen label</span>
+                            </label>            
+                        {% for label in internal_label_options %}
+                            <label class="filter-checkbox internal-label-option">
+                                <input
+                                    type="checkbox"
+                                    name="internal_label"
+                                    value="{{ label }}"
+                                    {% if label in selected_internal_labels %}checked{% endif %}
+                                >
+                                <span>{{ label }}</span>
+                            </label>
+                        {% endfor %}
 
-                        <span>Alles selecteren</span>
+                    </div>
+                </div>
+            </div>
 
-                    </label>
+            <div>
+            <div class="filter-dropdown" id="dictionary-dropdown">
+                    <button type="button" class="filter-dropdown-toggle">
+                        In woordenboek
+                        {% if selected_in_dictionary == "yes" or selected_in_dictionary == "no" %}
+                            <span class="signbank-filter-count">1</span>
+                        {% endif %}
+                    </button>
 
-                    <div class="filter-dropdown-separator"></div>
-                    {% for label in functional_label_options %}
+                    <div class="filter-dropdown-menu">
+
                         <label class="filter-checkbox">
                             <input
-                                type="checkbox"
-                                name="functional_label"
-                                value="{{ label }}"
-                                class="functional-label-checkbox"
-                                {% if label in selected_functional_labels %}checked{% endif %}
+                                type="radio"
+                                name="in_dictionary"
+                                value=""
+                                {% if not selected_in_dictionary %}checked{% endif %}
                             >
-                            <span>{{ label }}</span>
+                            <span>Alles</span>
                         </label>
-                    {% endfor %}
+
+                        <label class="filter-checkbox">
+                            <input
+                                type="radio"
+                                name="in_dictionary"
+                                value="yes"
+                                {% if selected_in_dictionary == "yes" %}checked{% endif %}
+                            >
+                            <span>Ja</span>
+                        </label>
+
+                        <label class="filter-checkbox">
+                            <input
+                                type="radio"
+                                name="in_dictionary"
+                                value="no"
+                                {% if selected_in_dictionary == "no" %}checked{% endif %}
+                            >
+                            <span>Nee</span>
+                        </label>
+
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div>
-            <div class="filter-dropdown" id="internal-label-dropdown">
-                <button type="button" class="filter-dropdown-toggle">
-                    Interne labels
+
+            <div class="signbank-filter-buttons">
+                <button type="submit">
+                    Filteren
                 </button>
 
-                <div class="filter-dropdown-menu">
-
-                    <input
-                        type="text"
-                        class="filter-dropdown-search internal-label-search"
-                        placeholder="Zoek label..."
-                        autocomplete="off"
-                    >
-                        <label class="filter-checkbox internal-label-option">
-                            <input
-                                type="checkbox"
-                                name="internal_label"
-                                value="__geen_label__"
-                                {% if "__geen_label__" in selected_internal_labels %}checked{% endif %}
-                            >
-                            <span>Geen label</span>
-                        </label>            
-                    {% for label in internal_label_options %}
-                        <label class="filter-checkbox internal-label-option">
-                            <input
-                                type="checkbox"
-                                name="internal_label"
-                                value="{{ label }}"
-                                {% if label in selected_internal_labels %}checked{% endif %}
-                            >
-                            <span>{{ label }}</span>
-                        </label>
-                    {% endfor %}
-
-                </div>
+                <a
+                    href="{% url 'signbank_list' %}"
+                    class="button button-secondary"
+                >
+                    Wissen
+                </a>
             </div>
+
         </div>
 
-        <div>
-           <div class="filter-dropdown" id="dictionary-dropdown">
-                <button type="button" class="filter-dropdown-toggle">
-                    In woordenboek
-                </button>
+        <section class="signbank-active-filters" aria-label="Actieve filters">
+            <strong>Actieve filters</strong>
 
-                <div class="filter-dropdown-menu">
+            {% if search_query %}
+                <span class="signbank-filter-chip">Zoeken: {{ search_query }}</span>
+            {% endif %}
 
-                    <label class="filter-checkbox">
-                        <input
-                            type="radio"
-                            name="in_dictionary"
-                            value=""
-                            {% if not selected_in_dictionary %}checked{% endif %}
-                        >
-                        <span>Alles</span>
-                    </label>
+            {% for category in selected_categories %}
+                <span class="signbank-filter-chip">Categorie: {{ category }}</span>
+            {% endfor %}
 
-                    <label class="filter-checkbox">
-                        <input
-                            type="radio"
-                            name="in_dictionary"
-                            value="yes"
-                            {% if selected_in_dictionary == "yes" %}checked{% endif %}
-                        >
-                        <span>Ja</span>
-                    </label>
+            {% for label in selected_functional_labels %}
+                <span class="signbank-filter-chip">Functioneel: {{ label }}</span>
+            {% endfor %}
 
-                    <label class="filter-checkbox">
-                        <input
-                            type="radio"
-                            name="in_dictionary"
-                            value="no"
-                            {% if selected_in_dictionary == "no" %}checked{% endif %}
-                        >
-                        <span>Nee</span>
-                    </label>
+            {% for label in selected_internal_labels %}
+                <span class="signbank-filter-chip">
+                    Intern: {% if label == "__geen_label__" %}Geen label{% else %}{{ label }}{% endif %}
+                </span>
+            {% empty %}
+                <span class="signbank-filter-chip">
+                    Standaard verborgen: {{ default_hidden_internal_labels|join:", " }}
+                </span>
+            {% endfor %}
 
-                </div>
-            </div>
-        </div>
+            {% if selected_in_dictionary == "yes" %}
+                <span class="signbank-filter-chip">In woordenboek: Ja</span>
+            {% elif selected_in_dictionary == "no" %}
+                <span class="signbank-filter-chip">In woordenboek: Nee</span>
+            {% endif %}
+        </section>
 
+    </form>
 
-        <div class="signbank-filter-buttons">
-            <button type="submit">
-                Filteren
-            </button>
+    <div class="handshape-view-toggle">
+        <span>Handvormen:</span>
 
-            <a
-                href="{% url 'signbank_list' %}"
-                class="button button-secondary"
-            >
-                Wissen
-            </a>
+        <button
+            type="button"
+            id="handshape-view-toggle"
+            class="handshape-toggle-button"
+            aria-pressed="false"
+        >
+            <span class="handshape-toggle-images">Afbeeldingen</span>
+            <span class="handshape-toggle-separator">/</span>
+            <span class="handshape-toggle-names">Namen</span>
+        </button>
+    </div>
+
+    <div class="signbank-column-settings">
+
+        <button
+            type="button"
+            id="toggle-column-settings"
+            aria-expanded="false"
+            aria-controls="column-settings-panel"
+        >
+            ⚙ Kolommen kiezen
+        </button>
+
+        <div id="column-settings-panel" hidden>
+
+            <strong>Zichtbare kolommen</strong>
+
+            <label><input type="checkbox" data-column="3" checked> Handvorm</label>
+            <label><input type="checkbox" data-column="4" checked> Locatie</label>
+            <label><input type="checkbox" data-column="5" checked> Mogelijke vertaling</label>
+            <label><input type="checkbox" data-column="6" checked> Variant</label>
+            <label><input type="checkbox" data-column="7" checked> Categorieën</label>
+            <label><input type="checkbox" data-column="8" checked> Labels</label>
+            <label><input type="checkbox" data-column="9" checked> Intern</label>
+            <label><input type="checkbox" data-column="10" checked> Info</label>
+            <label><input type="checkbox" data-column="11" checked> WDB</label>
+
         </div>
 
     </div>
 
-</form>
+    <div class="signbank-table-wrapper">
 
-<div class="handshape-view-toggle">
-    <span>Handvormen:</span>
+    <table class="signbank-table signbank-sticky-columns">
 
-    <button
-        type="button"
-        id="handshape-view-toggle"
-        class="handshape-toggle-button"
-        aria-pressed="false"
-    >
-        <span class="handshape-toggle-images">Afbeeldingen</span>
-        <span class="handshape-toggle-separator">/</span>
-        <span class="handshape-toggle-names">Namen</span>
-    </button>
-</div>
-
-<div class="signbank-column-settings">
-
-    <button
-        type="button"
-        id="toggle-column-settings"
-        aria-expanded="false"
-        aria-controls="column-settings-panel"
-    >
-        ⚙ Kolommen kiezen
-    </button>
-
-    <div id="column-settings-panel" hidden>
-
-        <strong>Zichtbare kolommen</strong>
-
-        <label><input type="checkbox" data-column="3" checked> Handvorm</label>
-        <label><input type="checkbox" data-column="4" checked> Locatie</label>
-        <label><input type="checkbox" data-column="5" checked> Mogelijke vertaling</label>
-        <label><input type="checkbox" data-column="6" checked> Variant</label>
-        <label><input type="checkbox" data-column="7" checked> Categorieën</label>
-        <label><input type="checkbox" data-column="8" checked> Labels</label>
-        <label><input type="checkbox" data-column="9" checked> Intern</label>
-        <label><input type="checkbox" data-column="10" checked> Info</label>
-        <label><input type="checkbox" data-column="11" checked> WDB</label>
-
-    </div>
-
-</div>
-
-<div class="signbank-table-wrapper">
-
-<table class="signbank-table signbank-sticky-columns">
-
-    <thead>
-
-        <tr>
-            <th>
-                <a href="?sort=gloss&dir={% if sort == 'gloss' and direction == 'asc' %}desc{% else %}asc{% endif %}">
-                    GLOSS
-                    {% if sort == "gloss" %}
-                        {% if direction == "asc" %}
-                            ↑
-                        {% else %}
-                            ↓
-                        {% endif %}
-                    {% endif %}
-                </a>
-            </th>
-
-            <th class="t_center">
-                Video
-            </th>
-
-            <th class="t_center">
-                Handvorm
-            </th>
-
-            <th>
-                Locatie
-            </th>
-
-            <th>
-                Mogelijke vertaling
-            </th>
-
-            <th>
-                Variant
-            </th>
-            
-            <th>
-                <a href="?sort=categorie&dir={% if sort == 'categorie' and direction == 'asc' %}desc{% else %}asc{% endif %}">
-                    Categorieën
-                    {% if sort == "categorie" %}
-                        {% if direction == "asc" %}
-                            ↑
-                        {% else %}
-                            ↓
-                        {% endif %}
-                    {% endif %}
-                </a>
-            </th>
-            <th>
-                Labels
-            </th>
-            <th>
-                Intern
-            </th>
-            <th class="t_center">
-                Info
-            </th>
-
-            <th class="t_center">
-                WDB
-            </th>
-        </tr>
-
-    </thead>
-
-
-    <tbody>
-
-    {% for entry in entries %}
-            {% include "recordings/_signbank_list_row.html" with entry=entry %}
-        {% empty %}
+        <thead>
 
             <tr>
+                <th>
+                    <a href="{% if sort == 'gloss' and direction == 'asc' %}{% querystring sort='gloss' dir='desc' page=None %}{% else %}{% querystring sort='gloss' dir='asc' page=None %}{% endif %}">
+                        GLOSS
+                        {% if sort == "gloss" %}
+                            {% if direction == "asc" %}
+                                ↑
+                            {% else %}
+                                ↓
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
 
-                <td colspan="11">
+                <th class="t_center">
+                    Video
+                </th>
 
-                    Geen Signbank-items gevonden.
+                <th class="t_center">
+                    Handvorm
+                </th>
 
-                </td>
+                <th>
+                    Locatie
+                </th>
 
+                <th>
+                    Mogelijke vertaling
+                </th>
+
+                <th>
+                    Variant
+                </th>
+                
+                <th>
+                    <a href="{% if sort == 'categorie' and direction == 'asc' %}{% querystring sort='categorie' dir='desc' page=None %}{% else %}{% querystring sort='categorie' dir='asc' page=None %}{% endif %}">
+                        Categorieën
+                        {% if sort == "categorie" %}
+                            {% if direction == "asc" %}
+                                ↑
+                            {% else %}
+                                ↓
+                            {% endif %}
+                        {% endif %}
+                    </a>
+                </th>
+                <th>
+                    Labels
+                </th>
+                <th>
+                    Intern
+                </th>
+                <th class="t_center">
+                    Info
+                </th>
+
+                <th class="t_center">
+                    WDB
+                </th>
             </tr>
 
-        {% endfor %}
-
-    </tbody>
-
-</table>
-
-</div>
+        </thead>
 
 
-{% if page_obj.paginator.num_pages > 1 %}
+        <tbody>
 
-<div class="pagination">
+        {% for entry in entries %}
+                {% include "recordings/_signbank_list_row.html" with entry=entry %}
+            {% empty %}
 
-    {% if page_obj.has_previous %}
+                <tr>
 
-        <a
-            href="?page={{ page_obj.previous_page_number }}&q={{ search_query|urlencode }}&category={{ selected_category|urlencode }}&label={{ selected_label|urlencode }}&in_dictionary={{ selected_in_dictionary }}"
-            class="button button-secondary"
-        >
-            ← Vorige
-        </a>
+                    <td colspan="11">
+
+                        Geen Signbank-items gevonden.
+
+                    </td>
+
+                </tr>
+
+            {% endfor %}
+
+        </tbody>
+
+    </table>
+
+    </div>
+
+
+    {% if page_obj.paginator.num_pages > 1 %}
+
+    <div class="pagination">
+
+        {% if page_obj.has_previous %}
+
+            <a
+                href="{% querystring page=page_obj.previous_page_number %}"
+                class="button button-secondary"
+            >
+                ← Vorige
+            </a>
+
+        {% endif %}
+
+
+        <span class="pagination-info">
+
+            Pagina {{ page_obj.number }}
+            van {{ page_obj.paginator.num_pages }}
+
+        </span>
+
+
+        {% if page_obj.has_next %}
+
+            <a
+                href="{% querystring page=page_obj.next_page_number %}"
+                class="button button-secondary"
+            >
+                Volgende →
+            </a>
+
+        {% endif %}
+
+    </div>
 
     {% endif %}
-
-
-    <span class="pagination-info">
-
-        Pagina {{ page_obj.number }}
-        van {{ page_obj.paginator.num_pages }}
-
-    </span>
-
-
-    {% if page_obj.has_next %}
-
-        <a
-            href="?page={{ page_obj.next_page_number }}&q={{ search_query|urlencode }}&category={{ selected_category|urlencode }}&label={{ selected_label|urlencode }}&in_dictionary={{ selected_in_dictionary }}"
-            class="button button-secondary"
-        >
-            Volgende →
-        </a>
-
-    {% endif %}
-
 </div>
-
-{% endif %}
-
 <script>
 document.addEventListener("DOMContentLoaded", function () {
 
@@ -542,43 +594,35 @@ document.querySelectorAll(".filter-dropdown-search").forEach(function (input) {
     });
 });
 
-const selectAllFunctional = document.querySelector(
-    ".functional-label-select-all"
-);
+function bindSelectAll(toggleSelector, fieldName) {
+    const form = document.querySelector(".signbank-filter-form");
+    const toggle = form?.querySelector(toggleSelector);
+    if (!toggle) return;
 
-const functionalCheckboxes = document.querySelectorAll(
-    ".functional-label-checkbox"
-);
+    const options = [...form.querySelectorAll(
+        `input[type="checkbox"][name="${fieldName}"]`
+    )];
 
-if (selectAllFunctional) {
+    function updateToggle() {
+        const checked = options.filter(option => option.checked).length;
 
-    function updateFunctionalSelectAll() {
-        const checked = Array.from(functionalCheckboxes)
-            .filter(function (checkbox) {
-                return checkbox.checked;
-            }).length;
-
-        selectAllFunctional.checked =
-            functionalCheckboxes.length > 0 &&
-            checked === functionalCheckboxes.length;
-
-        selectAllFunctional.indeterminate =
-            checked > 0 &&
-            checked < functionalCheckboxes.length;
+        toggle.checked = options.length > 0 && checked === options.length;
+        toggle.indeterminate = checked > 0 && checked < options.length;
     }
 
-    selectAllFunctional.addEventListener("change", function () {
-        functionalCheckboxes.forEach(function (checkbox) {
-            checkbox.checked = selectAllFunctional.checked;
+    toggle.addEventListener("change", () => {
+        options.forEach(option => {
+            option.checked = toggle.checked;
         });
+        updateToggle();
     });
 
-    functionalCheckboxes.forEach(function (checkbox) {
-        checkbox.addEventListener("change", updateFunctionalSelectAll);
-    });
-
-    updateFunctionalSelectAll();
+    options.forEach(option => option.addEventListener("change", updateToggle));
+    updateToggle();
 }
+
+bindSelectAll(".functional-label-select-all", "functional_label");
+bindSelectAll(".internal-label-select-all", "internal_label");
 
 const internalLabelSearch = document.querySelector(
     "#internal-label-dropdown .internal-label-search"

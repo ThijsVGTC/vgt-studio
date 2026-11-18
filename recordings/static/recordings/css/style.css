@@ -2478,3 +2478,107 @@ html[data-reading-mode="true"] #signbank-edit-modal .detail_inhoud .btn-outline-
     background: transparent;
     color: #ffe500;
 }
+
+.signbank-list-page {
+    --sb-list-outline: #6379ab;
+    --sb-list-action: #313f69;
+    --sb-list-primary: #f3705d;
+    --sb-list-primary-text: #261511;
+    --sb-list-badge: #313f69;
+    --sb-list-badge-text: #fff;
+}
+
+html[data-theme="dark"] .signbank-list-page {
+    --sb-list-outline: #a8b9e6;
+    --sb-list-action: #c8d5ff;
+    --sb-list-badge: #a8b9e6;
+    --sb-list-badge-text: #121827;
+}
+
+html[data-reading-mode="true"] .signbank-list-page {
+    --sb-list-outline: #ffe500;
+    --sb-list-action: #ffe500;
+    --sb-list-primary: #ffe500;
+    --sb-list-primary-text: #000;
+    --sb-list-badge: #ffe500;
+    --sb-list-badge-text: #000;
+}
+
+.signbank-list-page :is(.signbank-filter-form, .signbank-table-wrapper) {
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 14px;
+    background: var(--surface-color, #fff);
+}
+
+.signbank-list-page .signbank-filter-form {
+    padding: 0.85rem 1rem;
+    margin-bottom: 0.85rem;
+}
+
+.signbank-list-page .signbank-filter-grid {
+    gap: 0.55rem;
+}
+
+.signbank-list-page .signbank-filter-grid input[type="search"] {
+    min-width: 0;
+    width: min(19rem, 100%);
+    border-radius: 8px;
+}
+
+.signbank-list-page :is(.filter-dropdown-toggle, .signbank-filter-buttons button) {
+    min-height: 40px;
+    padding: 0.4rem 0.65rem;
+    border: 1px solid var(--sb-list-outline);
+    border-radius: 8px;
+    background: transparent;
+    color: var(--sb-list-action);
+    box-shadow: none;
+}
+
+.signbank-list-page .filter-dropdown-toggle {
+    gap: 0.45rem;
+}
+
+.signbank-list-page [data-signbank-create] {
+    min-height: 44px;
+    border-radius: 8px;
+    background: var(--sb-list-primary);
+    color: var(--sb-list-primary-text);
+}
+
+.signbank-list-page .filter-dropdown-menu {
+    border-radius: 10px;
+    border-color: var(--border-color, #d1d5db);
+    background: var(--surface-color, #fff);
+    color: var(--text-color, #1f2937);
+}
+
+.signbank-filter-count {
+    display: inline-grid;
+    place-items: center;
+    min-width: 1.4rem;
+    height: 1.4rem;
+    padding-inline: 0.2rem;
+    border-radius: 999px;
+    background: var(--sb-list-badge);
+    color: var(--sb-list-badge-text);
+    font-size: 0.75rem;
+    font-variant-numeric: tabular-nums;
+}
+
+.signbank-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.35rem 0.5rem;
+    margin-top: 0.65rem;
+    font-size: 0.85rem;
+}
+
+.signbank-filter-chip {
+    padding: 0.2rem 0.55rem;
+    border: 1px solid var(--border-color, #d1d5db);
+    border-radius: 999px;
+    color: var(--sb-list-action);
+    overflow-wrap: anywhere;
+}

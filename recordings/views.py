@@ -2289,6 +2289,7 @@ def signbank_list_row(request, signbank_id):
         },
     )
 
+SIGNBANK_DEFAULT_HIDDEN_LABELS = ("afgekeurd", "gebaar_verplaatst")
 @login_required
 def get_filtered_signbank_entries(request):
     entries = SignbankEntry.objects.all()
@@ -2389,11 +2390,8 @@ def get_filtered_signbank_entries(request):
         entries = entries.filter(internal_filter)
 
     if not selected_internal_labels:
-        entries = entries.exclude(
-            Q(labels__icontains="afgekeurd")
-            | Q(labels__icontains="gebaar_verplaatst")
-
-    )
+        for label in SIGNBANK_DEFAULT_HIDDEN_LABELS:
+            entries = entries.exclude(labels__icontains=label)
     # -------------------------------------------------
     # In woordenboek
     # -------------------------------------------------
