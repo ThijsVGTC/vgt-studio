@@ -53,6 +53,22 @@ function NavMenu({ label, items, active = false }) {
     );
 }
 
+class UploadChoiceBoundary extends React.Component {
+    state = { failed: false };
+
+    static getDerivedStateFromError() {
+        return { failed: true };
+    }
+
+    componentDidCatch(error) {
+        console.error("Signbank-uploadkeuze:", error);
+    }
+
+    render() {
+        return this.state.failed ? null : this.props.children;
+    }
+}
+
 function StudioHeader() {
     const [dark, setDark] = useState(
         () => localStorage.getItem("vgt-studio-theme") === "dark"
@@ -201,7 +217,9 @@ function StudioHeader() {
                 </Toolbar>
             </AppBar>
             {uploadChoice && createPortal(
-                <SignbankUploadChoice highContrast={reading} />,
+                <UploadChoiceBoundary>
+                    <SignbankUploadChoice highContrast={reading} />
+                </UploadChoiceBoundary>,
                 uploadChoice
             )}
         </ThemeProvider>
