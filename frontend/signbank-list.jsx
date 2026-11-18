@@ -175,10 +175,10 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
     }
 
     const primarySx = {
-        bgcolor: highContrast ? "#ffe500" : "#f3705d",
+        bgcolor: highContrast ? "#ffe500" : "#313f69",
         color: "#261511",
         textTransform: "none",
-        "&:hover": { bgcolor: highContrast ? "#fff36a" : "#ff8978" },
+        "&:hover": { bgcolor: highContrast ? "#fff36a" : "#253153" },
     };
 
     return (
