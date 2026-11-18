@@ -8,6 +8,8 @@ import LightModeOutlined from "@mui/icons-material/LightModeOutlined";
 import VisibilityOutlined from "@mui/icons-material/VisibilityOutlined";
 import VisibilityOffOutlined from "@mui/icons-material/VisibilityOffOutlined";
 import { studioThemes } from "./studio-theme";
+import { createPortal } from "react-dom";
+import { SignbankUploadChoice } from "./signbank-upload-choice.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -85,6 +87,7 @@ function StudioHeader() {
         /^./u,
         (letter) => letter.toLocaleUpperCase("nl-BE")
     );
+    const uploadChoice = document.getElementById("signbank-react-upload-choice");
 
     return (
         <ThemeProvider theme={theme}>
@@ -197,6 +200,10 @@ function StudioHeader() {
                     </Box>
                 </Toolbar>
             </AppBar>
+            {uploadChoice && createPortal(
+                <SignbankUploadChoice highContrast={reading} />,
+                uploadChoice
+            )}
         </ThemeProvider>
     );
 }

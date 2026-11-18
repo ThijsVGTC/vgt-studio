@@ -55,6 +55,13 @@
         opacity: 0.5;
         cursor: not-allowed;
     }
+    #signbank-react-upload-choice:not(:empty) + .signbank-create-actions {
+    display: none;
+    }
+
+    #signbank-create-modal:has(#signbank-create-choice:not([hidden])) {
+        width: min(600px, 94vw);
+    }
 </style>
 
 <dialog
@@ -97,7 +104,7 @@
 
         <section id="signbank-create-choice">
             <h3>1. Kies hoe je de video toevoegt</h3>
-
+            <div id="signbank-react-upload-choice"></div>
             <div class="signbank-create-actions">
                 <button type="button" id="signbank-create-upload">
                     Video uploaden
