@@ -2482,8 +2482,8 @@ html[data-reading-mode="true"] #signbank-edit-modal .detail_inhoud .btn-outline-
 .signbank-list-page {
     --sb-list-outline: #6379ab;
     --sb-list-action: #313f69;
-    --sb-list-primary: #f3705d;
-    --sb-list-primary-text: #261511;
+    --sb-list-primary: #313f69;
+    --sb-list-primary-text: #fff;
     --sb-list-badge: #313f69;
     --sb-list-badge-text: #fff;
 }
@@ -2640,12 +2640,12 @@ html[data-reading-mode="true"] .signbank-list-page .signbank-filter-form {
     }
 }
 
+.signbank-list-page #signbank-react-controls form button[type="submit"],
 .signbank-list-page .signbank-filter-buttons button[type="submit"] {
-    background: var(--sb-list-primary, #f3705d);
-    border-color: var(--sb-list-primary, #f3705d);
-    color: var(--sb-list-primary-text, #261511);
+    background-color: var(--sb-list-primary);
+    border-color: var(--sb-list-primary);
+    color: var(--sb-list-primary-text);
 }
-
 #signbank-react-controls:not(:empty) + #signbank-legacy-controls {
     display: none;
 }
