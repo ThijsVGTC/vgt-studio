@@ -249,6 +249,62 @@
         max-height: 44vh;
         margin-inline: auto;
     }
+
+    #signbank-create-modal:has(#signbank-create-review:not([hidden])):has(#signbank-create-details[hidden]) {
+        width: min(720px, 94vw);
+        padding: clamp(14px, 2vw, 20px);
+    }
+
+    #signbank-create-review > h3 {
+        margin: 0 0 0.75rem;
+        font: 500 1.125rem/1.4 system-ui, sans-serif;
+    }
+
+    #signbank-create-modal #signbank-create-preview {
+        display: block;
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 44vh;
+        margin: 0 auto;
+        border-radius: 14px;
+    }
+
+    .signbank-review-actions {
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+
+    .signbank-review-actions button {
+        min-height: 44px;
+    }
+
+    #signbank-create-retry {
+        border: 1px solid #6379ab;
+        background: transparent;
+        color: #313f69;
+        box-shadow: none;
+    }
+
+    html[data-theme="dark"] #signbank-create-retry {
+        border-color: #a8b9e6;
+        color: #c8d5ff;
+    }
+
+    #signbank-create-continue {
+        background: #f3705d;
+        color: #261511;
+    }
+
+    html[data-reading-mode="true"] #signbank-create-retry {
+        border-color: #ffe500;
+        color: #ffe500;
+    }
+
+    html[data-reading-mode="true"] #signbank-create-continue {
+        background: #ffe500;
+        color: #000;
+    }
 </style>
 
 <dialog
@@ -336,25 +392,22 @@
         </section>
 
         <section id="signbank-create-review" hidden>
-            <h3>2. Bekijk de video</h3>
+            <h3>Bekijk je video</h3>
 
             <video
                 id="signbank-create-preview"
                 controls
                 playsinline
+                aria-label="Voorvertoning van je video"
             ></video>
 
-            <div class="signbank-create-actions">
-                <button
-                    type="button"
-                    id="signbank-create-retry"
-                    class="button-secondary"
-                >
+            <div class="signbank-create-actions signbank-review-actions">
+                <button type="button" id="signbank-create-retry" class="button-secondary">
                     Opnieuw opnemen
                 </button>
 
-                <button type="button" id="signbank-create-continue">
-                    Video gebruiken en gegevens invullen
+                <button type="button" id="signbank-create-continue" disabled>
+                    Video gebruiken
                 </button>
             </div>
         </section>

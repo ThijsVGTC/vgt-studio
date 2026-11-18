@@ -73,6 +73,9 @@
             const camera = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
+                    width: { ideal: 1280 },
+                    height: { ideal: 720 },
+                    aspectRatio: { ideal: 16 / 9 },
                     frameRate: { ideal: 30 },
                     resizeMode: { ideal: "none" },
                 },
