@@ -21,788 +21,804 @@
 
             <h2>Signbankgegevens</h2>
 
-            <p>
-                <strong>Gloss:</strong><br>
-                {{ entry.gloss|default:"-" }}
+            <div class="signbank-edit-meta">
+                <div>
+                    <p>
+                        <strong>Gloss:</strong><br>
+                        {{ entry.gloss|default:"-" }}
 
-                <button type="button" class="btn btn-sm btn-outline-primary"
-                    onclick="this.closest('.detail_inhoud').querySelector('#gloss-edit-form').hidden = false;">
-                    ✏️ Bewerken
-                </button>
-            </p>
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="this.closest('.detail_inhoud').querySelector('#gloss-edit-form').hidden = false;">
+                            ✏️ Bewerken
+                        </button>
+                    </p>
 
-            <form id="gloss-edit-form" method="post" action="{% url 'signbank_update_gloss' entry.signbank_id %}" hidden>
-
-                {% csrf_token %}
-
-                <label for="new-gloss">Nieuwe GLOSS</label>
-
-                <input type="text" id="new-gloss" name="new_gloss" value="{{ entry.gloss }}" class="form-control"
-                    required>
-
-                <button type="submit" class="btn btn-primary">
-                    Opslaan
-                </button>
-
-                <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('gloss-edit-form').hidden = true;">
-                    Annuleren
-                </button>
-            </form>
-
-            <p>
-                <strong>Signbank ID:</strong><br>
-                {{ entry.signbank_id }}
-            </p>
-
-            <p>
-                <strong>In woordenboek:</strong><br>
-
-                {% if entry.in_woordenboek %}
-                Ja
-                {% else %}
-                Nee
-                {% endif %}
-
-                <button type="button" class="btn btn-sm btn-outline-primary"
-                    onclick="document.getElementById('woordenboek-edit-form').hidden = false;">
-                    ✏️ Bewerken
-                </button>
-            </p>
-
-            <form id="woordenboek-edit-form" method="post"
-                action="{% url 'signbank_update_woordenboek' entry.signbank_id %}" hidden>
-
-                {% csrf_token %}
-
-                <label for="in-woordenboek">In woordenboek</label>
-
-                <select id="in-woordenboek" name="in_woordenboek" class="form-control">
-
-                    <option value="1" {% if entry.in_woordenboek %}selected{% endif %}>
-                        Ja
-                    </option>
-
-                    <option value="0" {% if not entry.in_woordenboek %}selected{% endif %}>
-                        Nee
-                    </option>
-
-                </select>
-
-                <button type="submit" class="btn btn-primary">
-                    Opslaan
-                </button>
-
-                <button type="button" class="btn btn-secondary"
-                    onclick="document.getElementById('woordenboek-edit-form').hidden = true;">
-                    Annuleren
-                </button>
-
-            </form>
-
-            <hr>
-
-            <h3>Handvorm</h3>
-            <form class="handvorm-edit" method="post" action="{% url 'signbank_update_handvormen' entry.signbank_id %}">
-                {% csrf_token %}
-                <div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
-
-                    <div>
-                        <label for="handvorm-begin"><strong>Begin wijzigen</strong></label><br>
-                        <div class="handshape-picker">
-                            <input type="hidden" id="handvorm-begin" name="handvorm_begin"
-                                value="{{ entry.handvorm_begin_code|default:'' }}">
-
-                            <button type="button" class="handshape-picker-button" onclick="
-                                        this.nextElementSibling.hidden =
-                                            !this.nextElementSibling.hidden;
-
-                                        document.querySelectorAll('.handshape-picker-options').forEach(
-                                            el => {
-                                                if (el !== this.nextElementSibling) {
-                                                    el.hidden = true;
-                                                }
-                                            }
-                                        );
-                                    ">
-
-                                {% if entry.handvorm_begin_image %}
-                                <img src="{% static entry.handvorm_begin_image %}" alt="{{ entry.handvorm_begin }}"
-                                    width="65">
-                                {% else %}
-                                Kies handvorm
-                                {% endif %}
-                            </button>
-
-                            <div class="handshape-picker-options" hidden>
-                                {% for handshape in handshape_choices %}
-                                <button type="button" class="handshape-option" title="{{ handshape.name }}"
-                                    data-code="{{ handshape.code }}" onclick="
-                                                this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
-                                                this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
-                                                this.parentElement.hidden = true;
-                                            ">
-                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
-                                        alt="{{ handshape.name }}" loading="lazy" width="65">
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                    <div>
-                        <label for="handvorm-einde"><strong>Einde wijzigen</strong></label><br>
-                        <div class="handshape-picker">
-                            <input type="hidden" id="handvorm-einde" name="handvorm_einde"
-                                value="{{ entry.handvorm_einde_code|default:'' }}">
-
-                            <button type="button" class="handshape-picker-button" onclick="
-                                        this.nextElementSibling.hidden =
-                                            !this.nextElementSibling.hidden;
-
-                                        document.querySelectorAll('.handshape-picker-options').forEach(
-                                            el => {
-                                                if (el !== this.nextElementSibling) {
-                                                    el.hidden = true;
-                                                }
-                                            }
-                                        );
-                                    ">
-                                {% if entry.handvorm_einde_code %}
-                                <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ entry.handvorm_einde_code }}.png"
-                                    alt="{{ entry.handvorm_einde }}" width="65">
-                                {% else %}
-                                Kies handvorm
-                                {% endif %}
-                            </button>
-
-                            <div class="handshape-picker-options" hidden>
-                                {% for handshape in handshape_choices %}
-                                <button type="button" class="handshape-option" title="{{ handshape.name }}"
-                                    data-code="{{ handshape.code }}" onclick="
-                                                this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
-                                                this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
-                                                this.closest('.handshape-picker-options').hidden = true;
-                                            ">
-                                    <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
-                                        alt="{{ handshape.name }}" loading="lazy" width="65">
-                                </button>
-                                {% endfor %}
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-                <button type="submit" class="btn btn-primary">
-                    Handvormen opslaan
-                </button>
-            </form>
-
-            <div style="display:flex; gap:40px; flex-wrap:wrap;">
-
-            </div>
-
-            <hr>
-            <h3>Locatie</h3>
-
-            <form method="post"
-                action="{% url 'signbank_update_locaties' entry.signbank_id %}"
-                class="locatie-edit">
-
-                {% csrf_token %}
-
-                <div style="display:flex; gap:20px; flex-wrap:wrap; margin:15px 0;">
-
-                    <div>
-                        <label for="locatie-begin"><strong>Locatie begin</strong></label><br>
-
-                        <select id="locatie-begin" name="locatie_begin">
-                            <option value="0">Geen locatie</option>
-
-                            {% for location in location_choices %}
-                            <option value="{{ location.code }}" {% if entry.locatie_begin_code|stringformat:"s" == location.code %}selected{% endif %}>
-                                {{ location.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                    <div>
-                        <label for="locatie-einde"><strong>Locatie einde</strong></label><br>
-
-                        <select id="locatie-einde" name="locatie_einde">
-                            <option value="0">Geen locatie</option>
-
-                            {% for location in location_choices %}
-                            <option value="{{ location.code }}" {% if entry.locatie_einde_code|stringformat:"s" == location.code %}selected{% endif %}>
-                                {{ location.name }}
-                            </option>
-                            {% endfor %}
-                        </select>
-                    </div>
-
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    Locaties opslaan
-                </button>
-
-            </form>
-            <hr>
-
-            <h3>Mogelijke vertaling</h3>
-
-            <div class="mogelijke-vertaling">
-
-                {% for translation in translations %}
-                <div class="translation-item"
-                    style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-
-                    <form method="post"
-                        action="{% url 'signbank_update_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
-                        style="display:flex; align-items:center; gap:10px; flex:1;">
+                    <form id="gloss-edit-form" method="post" action="{% url 'signbank_update_gloss' entry.signbank_id %}" hidden>
 
                         {% csrf_token %}
 
-                        <input type="text"
-                            name="new_text"
-                            class="form-control"
-                            value="{{ translation.text }}"
-                            maxlength="100"
-                            required
-                            style="flex:1;">
+                        <label for="new-gloss">Nieuwe GLOSS</label>
 
-                        <button type="submit"
-                                class="btn btn-sm btn-outline-primary">
+                        <input type="text" id="new-gloss" name="new_gloss" value="{{ entry.gloss }}" class="form-control"
+                            required>
+
+                        <button type="submit" class="btn btn-primary">
                             Opslaan
                         </button>
 
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('gloss-edit-form').hidden = true;">
+                            Annuleren
+                        </button>
                     </form>
+                </div>
+                <div>
+                    <p>
+                        <strong>Signbank ID:</strong><br>
+                        {{ entry.signbank_id }}
+                    </p>
+                </div>
+                <div>
+                    <p>
+                        <strong>In woordenboek:</strong><br>
 
-                    <form method="post"
-                        action="{% url 'signbank_delete_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
-                        onsubmit="return confirm('Weet je zeker dat je deze vertaling wilt verwijderen?');"
-                        style="margin:0;">
+                        {% if entry.in_woordenboek %}
+                        Ja
+                        {% else %}
+                        Nee
+                        {% endif %}
+
+                        <button type="button" class="btn btn-sm btn-outline-primary"
+                            onclick="document.getElementById('woordenboek-edit-form').hidden = false;">
+                            ✏️ Bewerken
+                        </button>
+                    </p>
+
+                    <form id="woordenboek-edit-form" method="post"
+                        action="{% url 'signbank_update_woordenboek' entry.signbank_id %}" hidden>
 
                         {% csrf_token %}
 
-                        <button type="submit"
-                                class="btn btn-sm btn-outline-danger"
-                                title="Vertaling verwijderen">
-                            ✕
+                        <label for="in-woordenboek">In woordenboek</label>
+
+                        <select id="in-woordenboek" name="in_woordenboek" class="form-control">
+
+                            <option value="1" {% if entry.in_woordenboek %}selected{% endif %}>
+                                Ja
+                            </option>
+
+                            <option value="0" {% if not entry.in_woordenboek %}selected{% endif %}>
+                                Nee
+                            </option>
+
+                        </select>
+
+                        <button type="submit" class="btn btn-primary">
+                            Opslaan
+                        </button>
+
+                        <button type="button" class="btn btn-secondary"
+                            onclick="document.getElementById('woordenboek-edit-form').hidden = true;">
+                            Annuleren
                         </button>
 
                     </form>
-
                 </div>
-                {% empty %}
-                <p>Geen mogelijke vertalingen beschikbaar.</p>
-                {% endfor %}
-
-                <form method="post"
-                    action="{% url 'signbank_add_translation' signbank_id=entry.signbank_id %}"
-                    style="display:flex; gap:10px; margin-top:15px;">
-
-                    {% csrf_token %}
-
-                    <input type="text"
-                        name="new_text"
-                        class="form-control"
-                        placeholder="Nieuwe vertaling..."
-                        maxlength="100"
-                        required
-                        style="flex:1;">
-
-                    <button type="submit" class="btn btn-primary">
-                        + Vertaling toevoegen
-                    </button>
-
-                </form>
-
             </div>
 
-            <hr>
-            <h3>Categorieën</h3>
+            <div class="signbank-field-grid">
+                <section class="signbank-field-panel signbank-field-panel--wide">
+                    <hr>
+                    <h3>Mogelijke vertaling</h3>
 
-            <form method="post"
-                action="{% url 'signbank_update_categories' signbank_id=entry.signbank_id %}"
-                id="categories-form">
+                    <div class="mogelijke-vertaling">
 
-                {% csrf_token %}
+                        {% for translation in translations %}
+                        <div class="translation-item"
+                            style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
 
-                <div id="selected-categories">
-                    {% for selected in selected_categories %}
-                        {% for category in category_choices %}
-                            {% if category.code == selected %}
-                            <div class="selected-category"
-                                data-id="{{ category.code }}"
-                                style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+                            <form method="post"
+                                action="{% url 'signbank_update_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
+                                style="display:flex; align-items:center; gap:10px; flex:1;">
 
-                                <span>{{ category.name }}</span>
+                                {% csrf_token %}
 
-                                <input type="hidden"
-                                    name="categories"
-                                    value="{{ category.code }}">
+                                <input type="text"
+                                    name="new_text"
+                                    class="form-control"
+                                    value="{{ translation.text }}"
+                                    maxlength="100"
+                                    required
+                                    style="flex:1;">
 
-                                <button type="button"
-                                        class="remove-category btn btn-sm btn-outline-danger">
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-primary">
+                                    Opslaan
+                                </button>
+
+                            </form>
+
+                            <form method="post"
+                                action="{% url 'signbank_delete_translation' signbank_id=entry.signbank_id translation_id=translation.id %}"
+                                onsubmit="return confirm('Weet je zeker dat je deze vertaling wilt verwijderen?');"
+                                style="margin:0;">
+
+                                {% csrf_token %}
+
+                                <button type="submit"
+                                        class="btn btn-sm btn-outline-danger"
+                                        title="Vertaling verwijderen">
                                     ✕
                                 </button>
-                            </div>
-                            {% endif %}
-                        {% endfor %}
-                    {% endfor %}
-                </div>
 
-                <div style="display:flex; gap:10px; margin-top:12px;">
-
-                    <select id="category-select" class="form-control">
-                        <option value="">Selecteer categorie...</option>
-
-                        {% for category in category_choices %}
-                        <option value="{{ category.code }}">
-                            {{ category.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-
-                    <button type="button"
-                            id="add-category"
-                            class="btn btn-outline-primary">
-                        + Toevoegen
-                    </button>
-
-                </div>
-
-                <button type="submit"
-                        class="btn btn-primary"
-                        style="margin-top:15px;">
-                    Categorieën opslaan
-                </button>
-
-            </form>
-
-            <hr>
-
-            <h3>Varianten</h3>
-
-            <form method="post"
-                action="{% url 'signbank_update_variants' signbank_id=entry.signbank_id %}"
-                id="variants-form">
-
-                {% csrf_token %}
-
-                <div id="selected-variants">
-                    {% for variant in variant_choices %}
-                        {% if variant.id in selected_variants %}
-                        <div class="selected-variant"
-                            data-id="{{ variant.id }}"
-                            style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-
-                            <span>{{ variant.name }}</span>
-
-                            <input type="hidden"
-                                name="variants"
-                                value="{{ variant.id }}">
-
-                            <button type="button"
-                                    class="remove-variant btn btn-sm btn-outline-danger"
-                                    aria-label="Variant {{ variant.name }} verwijderen">
-                                ✕
-                            </button>
+                            </form>
 
                         </div>
-                        {% endif %}
-                    {% endfor %}
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:12px;">
-
-                    <select id="variant-select" class="form-control">
-                        <option value="">Selecteer variant...</option>
-
-                        {% for variant in variant_choices %}
-                        <option value="{{ variant.id }}">
-                            {{ variant.name }}
-                        </option>
+                        {% empty %}
+                        <p>Geen mogelijke vertalingen beschikbaar.</p>
                         {% endfor %}
-                    </select>
 
-                    <button type="button"
-                            id="add-variant"
-                            class="btn btn-outline-primary">
-                        + Toevoegen
-                    </button>
-
-                </div>
-
-                <button type="submit"
-                        class="btn btn-primary"
-                        style="margin-top:15px;">
-                    Varianten opslaan
-                </button>
-
-            </form>
-            <hr>
-            <h3>Functionele labels</h3>
-
-            <form method="post"
-                action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
-                class="signbank-functional-labels-form">
-
-                {% csrf_token %}
-                
-                <input type="hidden" name="label_type" value="functional">
-
-                <div style="display:flex; flex-wrap:wrap; gap:10px; margin-bottom:15px;">
-
-                    {% for label in functional_label_choices %}
-
-                    <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
-
-                        <input type="checkbox"
-                            name="labels"
-                            value="{{ label.id }}"
-                            {% if label.id in selected_labels %}checked{% endif %}>
-
-                        <span>{{ label.name }}</span>
-
-                    </label>
-
-                    {% endfor %}
-
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    Functionele labels opslaan
-                </button>
-
-            </form>
-
-            <hr>
-
-            <h3>Interne labels</h3>
-            <form method="post"
-                action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
-                id="labels-form">
-
-                {% csrf_token %}
-
-                <input type="hidden" name="label_type" value="internal">
-
-                <div id="selected-labels">
-
-                    {% for label in internal_label_choices %}
-                        {% if label.id in selected_labels %}
-
-                        <div class="selected-label"
-                            data-id="{{ label.id }}"
-                            style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
-
-                            <span>{{ label.name }}</span>
-
-                            <input type="hidden"
-                                name="labels"
-                                value="{{ label.id }}">
-
-                            <button type="button"
-                                    class="remove-label btn btn-sm btn-outline-danger"
-                                    aria-label="Label {{ label.name }} verwijderen">
-                                ✕
-                            </button>
-
-                        </div>
-
-                        {% endif %}
-                    {% endfor %}
-
-                </div>
-
-                <div style="display:flex; gap:10px; margin-top:12px;">
-
-                    <select id="label-select" class="form-control">
-                        <option value="">Selecteer intern label...</option>
-
-                        {% for label in internal_label_choices %}
-                        <option value="{{ label.id }}">
-                            {{ label.name }}
-                        </option>
-                        {% endfor %}
-                    </select>
-
-                    <button type="button"
-                            id="add-label"
-                            class="btn btn-outline-primary">
-                        + Toevoegen
-                    </button>
-
-                </div>
-
-                <button type="submit"
-                        class="btn btn-primary"
-                        style="margin-top:15px;">
-                    Interne labels opslaan
-                </button>
-
-            </form>
-
-            <hr>
-            <h3>Opmerkingen</h3>
-
-            <div class="signbank-comments">
-
-                <details open>
-                    <summary>
-                        <strong>Opnames ({{ recording_comments_count }})</strong>
-                    </summary>
-
-                    {% for comment in recording_comments %}
-                        {% if comment.source == "Opnames" %}
-                        <div class="signbank-comment">
-                            <p>{{ comment.text|linebreaksbr }}</p>
-                            {% if comment.author %}
-                                <small>Door: {{ comment.author }}</small>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                    {% if recording_comments_count == 0 %}
-                        <p>Geen opmerkingen.</p>
-                    {% endif %}
-                </details>
-
-                <details>
-                    <summary>
-                        <strong>Videocontrole ({{ video_review_comments_count }})</strong>
-                    </summary>
-
-                    {% for comment in recording_comments %}
-                        {% if comment.source == "Videocontrole" %}
-                        <div class="signbank-comment">
-                            <p>{{ comment.text|linebreaksbr }}</p>
-                            {% if comment.author %}
-                                <small>Door: {{ comment.author }}</small>
-                            {% endif %}
-                        </div>
-                        {% endif %}
-                    {% endfor %}
-                    {% if video_review_comments_count == 0 %}
-                        <p>Geen opmerkingen.</p>
-                    {% endif %}
-                </details>
-
-                <details>
-                    <summary>
-                        <strong>Gebarometer ({{ gebarometer_comments|length }})</strong>
-                    </summary>
-
-                    {% for comment in gebarometer_comments %}
-                    <div class="signbank-comment">
-                        <p>{{ comment.text|linebreaksbr }}</p>
-
-                        <small>
-                            {{ comment.type }}
-                            {% if comment.author %}
-                                · {{ comment.author }}
-                            {% endif %}
-                            {% if comment.date %}
-                                · Item bijgewerkt: {{ comment.date|date:"d/m/Y" }}
-                            {% endif %}
-                        </small>
-                    </div>
-                    {% empty %}
-                    <p>Geen opmerkingen.</p>
-                    {% endfor %}
-                </details>
-
-                <details>
-                    <summary>
-                        <strong>Gebaarcommissie</strong>
-                    </summary>
-
-                    <p>Nog geen opmerkingen gekoppeld.</p>
-                </details>
-
-                <details>
-                    <summary>
-                        <strong>Signbank ({{ signbank_comments|length }})</strong>
-                    </summary>
-
-                    {% for comment in signbank_comments %}
-                    <div class="signbank-comment">
-
-                        {% if comment.id %}
                         <form method="post"
-                            action="{% url 'signbank_update_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+                            action="{% url 'signbank_add_translation' signbank_id=entry.signbank_id %}"
+                            style="display:flex; gap:10px; margin-top:15px;">
 
                             {% csrf_token %}
 
-                            <textarea
-                                name="text"
+                            <input type="text"
+                                name="new_text"
                                 class="form-control"
-                                rows="3"
+                                placeholder="Nieuwe vertaling..."
+                                maxlength="100"
                                 required
-                                style="width:100%; margin-bottom:8px;">{{ comment.text }}</textarea>
+                                style="flex:1;">
 
-                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <button type="submit" class="btn btn-primary">
+                                + Vertaling toevoegen
+                            </button>
 
-                                <small>
-                                    {% if comment.author %}
-                                        Door: {{ comment.author }}
-                                    {% endif %}
-                                </small>
+                        </form>
 
-                                <div style="display:flex; gap:8px; align-items:center;">
+                    </div>
+                </section>
 
-                                    <button type="submit"
-                                            class="btn btn-sm btn-outline-primary">
-                                        Opslaan
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Handvorm</h3>
+                    <form class="handvorm-edit" method="post" action="{% url 'signbank_update_handvormen' entry.signbank_id %}">
+                        {% csrf_token %}
+                        <div class="signbank-field-pair">
+
+                            <div>
+                                <label for="handvorm-begin"><strong>Begin wijzigen</strong></label><br>
+                                <div class="handshape-picker">
+                                    <input type="hidden" id="handvorm-begin" name="handvorm_begin"
+                                        value="{{ entry.handvorm_begin_code|default:'' }}">
+
+                                    <button type="button" class="handshape-picker-button" onclick="
+                                                this.nextElementSibling.hidden =
+                                                    !this.nextElementSibling.hidden;
+
+                                                document.querySelectorAll('.handshape-picker-options').forEach(
+                                                    el => {
+                                                        if (el !== this.nextElementSibling) {
+                                                            el.hidden = true;
+                                                        }
+                                                    }
+                                                );
+                                            ">
+
+                                        {% if entry.handvorm_begin_image %}
+                                        <img src="{% static entry.handvorm_begin_image %}" alt="{{ entry.handvorm_begin }}"
+                                            width="65">
+                                        {% else %}
+                                        Kies handvorm
+                                        {% endif %}
                                     </button>
 
-                                    <button type="submit"
-                                            form="delete-signbank-comment-{{ comment.id }}"
-                                            class="btn btn-sm btn-outline-danger"
-                                            onclick="return confirm('Weet je zeker dat je deze opmerking definitief wilt verwijderen?');">
-                                        Verwijderen
+                                    <div class="handshape-picker-options" hidden>
+                                        {% for handshape in handshape_choices %}
+                                        <button type="button" class="handshape-option" title="{{ handshape.name }}"
+                                            data-code="{{ handshape.code }}" onclick="
+                                                        this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
+                                                        this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
+                                                        this.parentElement.hidden = true;
+                                                    ">
+                                            <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                                alt="{{ handshape.name }}" loading="lazy" width="65">
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label for="handvorm-einde"><strong>Einde wijzigen</strong></label><br>
+                                <div class="handshape-picker">
+                                    <input type="hidden" id="handvorm-einde" name="handvorm_einde"
+                                        value="{{ entry.handvorm_einde_code|default:'' }}">
+
+                                    <button type="button" class="handshape-picker-button" onclick="
+                                                this.nextElementSibling.hidden =
+                                                    !this.nextElementSibling.hidden;
+
+                                                document.querySelectorAll('.handshape-picker-options').forEach(
+                                                    el => {
+                                                        if (el !== this.nextElementSibling) {
+                                                            el.hidden = true;
+                                                        }
+                                                    }
+                                                );
+                                            ">
+                                        {% if entry.handvorm_einde_code %}
+                                        <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ entry.handvorm_einde_code }}.png"
+                                            alt="{{ entry.handvorm_einde }}" width="65">
+                                        {% else %}
+                                        Kies handvorm
+                                        {% endif %}
+                                    </button>
+
+                                    <div class="handshape-picker-options" hidden>
+                                        {% for handshape in handshape_choices %}
+                                        <button type="button" class="handshape-option" title="{{ handshape.name }}"
+                                            data-code="{{ handshape.code }}" onclick="
+                                                        this.closest('.handshape-picker').querySelector('input').value = this.dataset.code;
+                                                        this.closest('.handshape-picker').querySelector('.handshape-picker-button').innerHTML = this.innerHTML;
+                                                        this.closest('.handshape-picker-options').hidden = true;
+                                                    ">
+                                            <img src="{% static 'recordings/images/handshapes/' %}handshape_{{ handshape.code }}.png"
+                                                alt="{{ handshape.name }}" loading="lazy" width="65">
+                                        </button>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+
+                        </div>
+                        <button type="submit" class="btn btn-primary">
+                            Handvormen opslaan
+                        </button>
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Locatie</h3>
+
+                    <form method="post"
+                        action="{% url 'signbank_update_locaties' entry.signbank_id %}"
+                        class="locatie-edit">
+
+                        {% csrf_token %}
+
+                        <div class="signbank-field-pair">
+
+                            <div>
+                                <label for="locatie-begin"><strong>Locatie begin</strong></label><br>
+
+                                <select id="locatie-begin" name="locatie_begin">
+                                    <option value="0">Geen locatie</option>
+
+                                    {% for location in location_choices %}
+                                    <option value="{{ location.code }}" {% if entry.locatie_begin_code|stringformat:"s" == location.code %}selected{% endif %}>
+                                        {{ location.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div>
+                                <label for="locatie-einde"><strong>Locatie einde</strong></label><br>
+
+                                <select id="locatie-einde" name="locatie_einde">
+                                    <option value="0">Geen locatie</option>
+
+                                    {% for location in location_choices %}
+                                    <option value="{{ location.code }}" {% if entry.locatie_einde_code|stringformat:"s" == location.code %}selected{% endif %}>
+                                        {{ location.name }}
+                                    </option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Locaties opslaan
+                        </button>
+
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Categorieën</h3>
+
+                    <form method="post"
+                        action="{% url 'signbank_update_categories' signbank_id=entry.signbank_id %}"
+                        id="categories-form">
+
+                        {% csrf_token %}
+
+                        <div id="selected-categories">
+                            {% for selected in selected_categories %}
+                                {% for category in category_choices %}
+                                    {% if category.code == selected %}
+                                    <div class="selected-category"
+                                        data-id="{{ category.code }}"
+                                        style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                                        <span>{{ category.name }}</span>
+
+                                        <input type="hidden"
+                                            name="categories"
+                                            value="{{ category.code }}">
+
+                                        <button type="button"
+                                                class="remove-category btn btn-sm btn-outline-danger">
+                                            ✕
+                                        </button>
+                                    </div>
+                                    {% endif %}
+                                {% endfor %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="signbank-field-row">
+
+                            <select id="category-select" class="form-control">
+                                <option value="">Selecteer categorie...</option>
+
+                                {% for category in category_choices %}
+                                <option value="{{ category.code }}">
+                                    {{ category.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="button"
+                                    id="add-category"
+                                    class="btn btn-outline-primary">
+                                + Toevoegen
+                            </button>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                style="margin-top:15px;">
+                            Categorieën opslaan
+                        </button>
+
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Varianten</h3>
+
+                    <form method="post"
+                        action="{% url 'signbank_update_variants' signbank_id=entry.signbank_id %}"
+                        id="variants-form">
+
+                        {% csrf_token %}
+
+                        <div id="selected-variants">
+                            {% for variant in variant_choices %}
+                                {% if variant.id in selected_variants %}
+                                <div class="selected-variant"
+                                    data-id="{{ variant.id }}"
+                                    style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                                    <span>{{ variant.name }}</span>
+
+                                    <input type="hidden"
+                                        name="variants"
+                                        value="{{ variant.id }}">
+
+                                    <button type="button"
+                                            class="remove-variant btn btn-sm btn-outline-danger"
+                                            aria-label="Variant {{ variant.name }} verwijderen">
+                                        ✕
+                                    </button>
+
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                        </div>
+
+                        <div class="signbank-field-row">
+
+                            <select id="variant-select" class="form-control">
+                                <option value="">Selecteer variant...</option>
+
+                                {% for variant in variant_choices %}
+                                <option value="{{ variant.id }}">
+                                    {{ variant.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="button"
+                                    id="add-variant"
+                                    class="btn btn-outline-primary">
+                                + Toevoegen
+                            </button>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                style="margin-top:15px;">
+                            Varianten opslaan
+                        </button>
+
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Functionele labels</h3>
+
+                    <form method="post"
+                        action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
+                        class="signbank-functional-labels-form">
+
+                        {% csrf_token %}
+
+                        <input type="hidden" name="label_type" value="functional">
+
+                        <div class="signbank-label-options">
+
+                            {% for label in functional_label_choices %}
+
+                            <label style="display:flex; align-items:center; gap:6px; cursor:pointer;">
+
+                                <input type="checkbox"
+                                    name="labels"
+                                    value="{{ label.id }}"
+                                    {% if label.id in selected_labels %}checked{% endif %}>
+
+                                <span>{{ label.name }}</span>
+
+                            </label>
+
+                            {% endfor %}
+
+                        </div>
+
+                        <button type="submit" class="btn btn-primary">
+                            Functionele labels opslaan
+                        </button>
+
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel">
+                    <hr>
+                    <h3>Interne labels</h3>
+                    <form method="post"
+                        action="{% url 'signbank_update_labels' signbank_id=entry.signbank_id %}"
+                        id="labels-form">
+
+                        {% csrf_token %}
+
+                        <input type="hidden" name="label_type" value="internal">
+
+                        <div id="selected-labels">
+
+                            {% for label in internal_label_choices %}
+                                {% if label.id in selected_labels %}
+
+                                <div class="selected-label"
+                                    data-id="{{ label.id }}"
+                                    style="display:flex; gap:10px; align-items:center; margin-bottom:8px;">
+
+                                    <span>{{ label.name }}</span>
+
+                                    <input type="hidden"
+                                        name="labels"
+                                        value="{{ label.id }}">
+
+                                    <button type="button"
+                                            class="remove-label btn btn-sm btn-outline-danger"
+                                            aria-label="Label {{ label.name }} verwijderen">
+                                        ✕
                                     </button>
 
                                 </div>
 
-                            </div>
+                                {% endif %}
+                            {% endfor %}
 
-                        </form>
-                        <form id="delete-signbank-comment-{{ comment.id }}"
-                            method="post"
-                            action="{% url 'signbank_delete_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+                        </div>
 
-                            {% csrf_token %}
+                        <div class="signbank-field-row">
 
-                        </form>
-                        {% else %}
-                            <p>{{ comment.text|linebreaksbr }}</p>
-                            {% if comment.author %}
-                                <small>Door: {{ comment.author }}</small>
+                            <select id="label-select" class="form-control">
+                                <option value="">Selecteer intern label...</option>
+
+                                {% for label in internal_label_choices %}
+                                <option value="{{ label.id }}">
+                                    {{ label.name }}
+                                </option>
+                                {% endfor %}
+                            </select>
+
+                            <button type="button"
+                                    id="add-label"
+                                    class="btn btn-outline-primary">
+                                + Toevoegen
+                            </button>
+
+                        </div>
+
+                        <button type="submit"
+                                class="btn btn-primary"
+                                style="margin-top:15px;">
+                            Interne labels opslaan
+                        </button>
+
+                    </form>
+                </section>
+
+                <section class="signbank-field-panel signbank-field-panel--wide">
+                    <hr>
+                    <h3>Opmerking SB</h3>
+
+                    <div class="signbank-comments">
+
+                        <details open>
+                            <summary>
+                                <strong>Opnames ({{ recording_comments_count }})</strong>
+                            </summary>
+
+                            {% for comment in recording_comments %}
+                                {% if comment.source == "Opnames" %}
+                                <div class="signbank-comment">
+                                    <p>{{ comment.text|linebreaksbr }}</p>
+                                    {% if comment.author %}
+                                        <small>Door: {{ comment.author }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% if recording_comments_count == 0 %}
+                                <p>Geen opmerkingen.</p>
                             {% endif %}
-                        {% endif %}
+                        </details>
+
+                        <details>
+                            <summary>
+                                <strong>Videocontrole ({{ video_review_comments_count }})</strong>
+                            </summary>
+
+                            {% for comment in recording_comments %}
+                                {% if comment.source == "Videocontrole" %}
+                                <div class="signbank-comment">
+                                    <p>{{ comment.text|linebreaksbr }}</p>
+                                    {% if comment.author %}
+                                        <small>Door: {{ comment.author }}</small>
+                                    {% endif %}
+                                </div>
+                                {% endif %}
+                            {% endfor %}
+                            {% if video_review_comments_count == 0 %}
+                                <p>Geen opmerkingen.</p>
+                            {% endif %}
+                        </details>
+
+                        <details>
+                            <summary>
+                                <strong>Gebarometer ({{ gebarometer_comments|length }})</strong>
+                            </summary>
+
+                            {% for comment in gebarometer_comments %}
+                            <div class="signbank-comment">
+                                <p>{{ comment.text|linebreaksbr }}</p>
+
+                                <small>
+                                    {{ comment.type }}
+                                    {% if comment.author %}
+                                        · {{ comment.author }}
+                                    {% endif %}
+                                    {% if comment.date %}
+                                        · Item bijgewerkt: {{ comment.date|date:"d/m/Y" }}
+                                    {% endif %}
+                                </small>
+                            </div>
+                            {% empty %}
+                            <p>Geen opmerkingen.</p>
+                            {% endfor %}
+                        </details>
+
+                        <details>
+                            <summary>
+                                <strong>Gebaarcommissie</strong>
+                            </summary>
+
+                            <p>Nog geen opmerkingen gekoppeld.</p>
+                        </details>
+
+                        <details>
+                            <summary>
+                                <strong>Signbank ({{ signbank_comments|length }})</strong>
+                            </summary>
+
+                            {% for comment in signbank_comments %}
+                            <div class="signbank-comment">
+
+                                {% if comment.id %}
+                                <form method="post"
+                                    action="{% url 'signbank_update_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+
+                                    {% csrf_token %}
+
+                                    <textarea
+                                        name="text"
+                                        class="form-control"
+                                        rows="3"
+                                        required
+                                        style="width:100%; margin-bottom:8px;">{{ comment.text }}</textarea>
+
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+
+                                        <small>
+                                            {% if comment.author %}
+                                                Door: {{ comment.author }}
+                                            {% endif %}
+                                        </small>
+
+                                        <div style="display:flex; gap:8px; align-items:center;">
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                Opslaan
+                                            </button>
+
+                                            <button type="submit"
+                                                    form="delete-signbank-comment-{{ comment.id }}"
+                                                    class="btn btn-sm btn-outline-danger"
+                                                    onclick="return confirm('Weet je zeker dat je deze opmerking definitief wilt verwijderen?');">
+                                                Verwijderen
+                                            </button>
+
+                                        </div>
+
+                                    </div>
+
+                                </form>
+                                <form id="delete-signbank-comment-{{ comment.id }}"
+                                    method="post"
+                                    action="{% url 'signbank_delete_opmerking' signbank_id=entry.signbank_id opmerking_id=comment.id %}">
+
+                                    {% csrf_token %}
+
+                                </form>
+                                {% else %}
+                                    <p>{{ comment.text|linebreaksbr }}</p>
+                                    {% if comment.author %}
+                                        <small>Door: {{ comment.author }}</small>
+                                    {% endif %}
+                                {% endif %}
+
+                            </div>
+                            {% empty %}
+                            <p>Geen opmerkingen.</p>
+                            {% endfor %}
+                            <div class="signbank-add-comment">
+
+                                <form method="post"
+                                    action="{% url 'signbank_add_opmerking' signbank_id=entry.signbank_id %}">
+
+                                    {% csrf_token %}
+
+                                    <label for="new-signbank-comment"
+                                        style="display:block; margin-bottom:8px;">
+                                        <strong>Nieuwe opmerking</strong>
+                                    </label>
+
+                                    <textarea
+                                        id="new-signbank-comment"
+                                        name="text"
+                                        class="form-control"
+                                        rows="2"
+                                        placeholder="Schrijf hier een nieuwe opmerking..."
+                                        required
+                                        style="width:100%; margin-bottom:10px;"></textarea>
+
+                                    <button type="submit"
+                                            class="btn btn-primary">
+                                        + Opmerking toevoegen
+                                    </button>
+
+                                </form>
+
+                            </div>
+                        </details>
 
                     </div>
-                    {% empty %}
-                    <p>Geen opmerkingen.</p>
+                </section>
+
+                <section class="signbank-field-panel signbank-field-panel--wide">
+                    <hr>
+                    <h3>Etymologie</h3>
+
+                    {% if entry.etymologie %}
+                    {% for ety in entry.etymologie %}
+                    <div>
+                        {{ ety.text|default:"-"|linebreaksbr }}
+                    </div>
                     {% endfor %}
-                    <div class="signbank-add-comment"
-                        style="margin-top:20px; padding-top:15px; border-top:1px solid #ddd;">
+                    {% else %}
+                    <p>-</p>
+                    {% endif %}
+                </section>
+
+                <section class="signbank-field-panel signbank-field-panel--wide">
+                    <hr>
+                    <h3>Bron</h3>
+                    <div class="signbank-sources">
+
+                        {% for source in sources %}
 
                         <form method="post"
-                            action="{% url 'signbank_add_opmerking' signbank_id=entry.signbank_id %}">
+                            action="{% url 'signbank_update_source' signbank_id=entry.signbank_id source_id=source.id %}"
+                            class="source-item"
+                            style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
 
                             {% csrf_token %}
 
-                            <label for="new-signbank-comment"
-                                style="display:block; margin-bottom:8px;">
-                                <strong>Nieuwe opmerking</strong>
-                            </label>
-
-                            <textarea
-                                id="new-signbank-comment"
-                                name="text"
+                            <input type="text"
+                                name="new_text"
                                 class="form-control"
-                                rows="4"
-                                placeholder="Schrijf hier een nieuwe opmerking..."
+                                value="{{ source.text }}"
+                                maxlength="100"
                                 required
-                                style="width:100%; margin-bottom:10px;"></textarea>
+                                style="flex:1;">
 
                             <button type="submit"
-                                    class="btn btn-primary">
-                                + Opmerking toevoegen
+                                    class="btn btn-sm btn-outline-primary">
+                                Opslaan
+                            </button>
+
+                            <button type="submit"
+                                    class="btn btn-sm btn-outline-danger"
+                                    formaction="{% url 'signbank_delete_source' signbank_id=entry.signbank_id source_id=source.id %}"
+                                    formmethod="post"
+                                    formnovalidate
+                                    onclick="return confirm('Weet je zeker dat je deze bron wilt verwijderen?');">
+                                ✕
+                            </button>
+
+                        </form>
+
+                        {% empty %}
+                        <p>Geen bronnen beschikbaar.</p>
+                        {% endfor %}
+
+                        <form method="post"
+                            action="{% url 'signbank_add_source' signbank_id=entry.signbank_id %}"
+                            style="display:flex; gap:10px; margin-top:15px;">
+
+                            {% csrf_token %}
+
+                            <input type="text"
+                                name="new_text"
+                                class="form-control"
+                                placeholder="Nieuwe bron..."
+                                maxlength="100"
+                                required
+                                style="flex:1;">
+
+                            <button type="submit" class="btn btn-primary">
+                                + Bron toevoegen
                             </button>
 
                         </form>
 
                     </div>
-                </details>
-
+                </section>
             </div>
-
-            <hr>
-
-            <h3>Etymologie</h3>
-
-            {% if entry.etymologie %}
-            {% for ety in entry.etymologie %}
-            <div>
-                {{ ety.text|default:"-"|linebreaksbr }}
-            </div>
-            {% endfor %}
-            {% else %}
-            <p>-</p>
-            {% endif %}
-
-            <hr>
-
-            <h3>Bronnen</h3>
-            <div class="signbank-sources">
-
-                {% for source in sources %}
-
-                <form method="post"
-                    action="{% url 'signbank_update_source' signbank_id=entry.signbank_id source_id=source.id %}"
-                    class="source-item"
-                    style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-
-                    {% csrf_token %}
-
-                    <input type="text"
-                        name="new_text"
-                        class="form-control"
-                        value="{{ source.text }}"
-                        maxlength="100"
-                        required
-                        style="flex:1;">
-
-                    <button type="submit"
-                            class="btn btn-sm btn-outline-primary">
-                        Opslaan
-                    </button>
-
-                    <button type="submit"
-                            class="btn btn-sm btn-outline-danger"
-                            formaction="{% url 'signbank_delete_source' signbank_id=entry.signbank_id source_id=source.id %}"
-                            formmethod="post"
-                            formnovalidate
-                            onclick="return confirm('Weet je zeker dat je deze bron wilt verwijderen?');">
-                        ✕
-                    </button>
-
-                </form>
-
-                {% empty %}
-                <p>Geen bronnen beschikbaar.</p>
-                {% endfor %}
-                
-                <form method="post"
-                    action="{% url 'signbank_add_source' signbank_id=entry.signbank_id %}"
-                    style="display:flex; gap:10px; margin-top:15px;">
-
-                    {% csrf_token %}
-
-                    <input type="text"
-                        name="new_text"
-                        class="form-control"
-                        placeholder="Nieuwe bron..."
-                        maxlength="100"
-                        required
-                        style="flex:1;">
-
-                    <button type="submit" class="btn btn-primary">
-                        + Bron toevoegen
-                    </button>
-
-                </form>
-
-                </div>
-
-            </div>
-
 
             <hr>
 
