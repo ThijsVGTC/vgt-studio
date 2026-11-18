@@ -163,6 +163,92 @@
         background: #ffe500;
         color: #000;
     }
+
+    /* Compacte timer rechtsonder in het camerabeeld */
+    #signbank-create-timer {
+        right: 14px;
+        bottom: 14px;
+        min-width: 4rem;
+        padding: 0.35rem 0.65rem;
+        border: 1px solid #aab3c5;
+        border-radius: 999px;
+        background: #1c2844;
+        color: #fff;
+        text-align: center;
+        font: 600 0.875rem/1.2 system-ui, sans-serif;
+        font-variant-numeric: tabular-nums;
+    }
+
+    #signbank-create-camera-back {
+        border: 1px solid #6379ab;
+        border-radius: 8px;
+        background: transparent;
+        color: #313f69;
+        box-shadow: none;
+    }
+
+    html[data-theme="dark"] #signbank-create-camera-back {
+        border-color: #a8b9e6;
+        color: #c8d5ff;
+    }
+
+    html[data-reading-mode="true"] #signbank-create-camera-back {
+        border-color: #ffe500;
+        color: #ffe500;
+    }
+
+    /* Alleen het kruisje is zichtbaar, met een klikvlak van 44 × 44 px */
+    #signbank-create-close,
+    #signbank-create-close:hover {
+        display: grid;
+        place-items: center;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: 0;
+        background: transparent;
+        box-shadow: none;
+        color: var(--text-color, #313f69);
+        font: 400 1.75rem/1 system-ui, sans-serif;
+    }
+
+    #signbank-create-close:focus-visible {
+        outline: 2px solid currentColor;
+        outline-offset: 2px;
+    }
+
+    #signbank-create-modal:has(#signbank-create-camera:not([hidden])) {
+        width: min(720px, 94vw);
+        padding: clamp(14px, 2vw, 20px);
+    }
+
+    #signbank-create-camera .signbank-camera-frame {
+        --camera-ratio: 1.333333;
+        width: min(100%, calc(44vh * var(--camera-ratio)));
+        aspect-ratio: var(--camera-ratio);
+        margin-inline: auto;
+        border: 0;
+        box-shadow: 0 0 0 1px var(--border-color, #d1d5db);
+    }
+
+    #signbank-create-modal #signbank-create-live {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        max-height: none;
+        aspect-ratio: auto;
+        object-fit: contain;
+        margin: 0;
+    }
+
+    #signbank-create-modal #signbank-create-preview {
+        width: auto;
+        height: auto;
+        max-width: 100%;
+        max-height: 44vh;
+        margin-inline: auto;
+    }
 </style>
 
 <dialog

@@ -50,7 +50,7 @@
         state.showError();
     };
 
-    state.showVideo = (file) => {
+    state.showVideo = (file, source = "upload") => {
         if (!file || file.size === 0) {
             state.showError("De video is leeg. Kies een andere video.");
             return;
@@ -58,6 +58,9 @@
 
         state.showChoice();
         state.video = file;
+        state.videoSource = source;
+        get("retry").textContent =
+            source === "webcam" ? "Opnieuw opnemen" : "Andere video kiezen";
         state.previewUrl = URL.createObjectURL(file);
 
         next.disabled = true;
@@ -105,7 +108,13 @@
         get("gloss").focus();
     });
 
-    get("retry").addEventListener("click", state.showChoice);
+    get("retry").addEventListener("click", () => {
+        if (state.videoSource === "webcam") {
+            state.openCamera({ recordImmediately: true });
+        } else {
+            state.showChoice();
+        }
+    });
 
     document.addEventListener("click", (event) => {
         const button = event.target.closest("[data-signbank-create]");

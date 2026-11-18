@@ -8,6 +8,17 @@
     const modal = get("modal");
     const live = get("live");
 
+    const frame = live.closest(".signbank-camera-frame");
+
+    live.addEventListener("resize", () => {
+        if (!live.videoWidth || !live.videoHeight) return;
+
+        frame.style.setProperty(
+            "--camera-ratio",
+            String(live.videoWidth / live.videoHeight)
+        );
+    });
+
     let stream = null;
     let recorder = null;
     let timer = null;
@@ -40,7 +51,7 @@
         get("stop").disabled = true;
     };
 
-    get("webcam").addEventListener("click", async () => {
+    state.openCamera = async ({ recordImmediately = false } = {}) => {
         state.showChoice();
 
         if (!navigator.mediaDevices?.getUserMedia ||
@@ -62,9 +73,8 @@
             const camera = await navigator.mediaDevices.getUserMedia({
                 audio: false,
                 video: {
-                    width: { ideal: 1280 },
-                    height: { ideal: 720 },
                     frameRate: { ideal: 30 },
+                    resizeMode: { ideal: "none" },
                 },
             });
 
@@ -84,6 +94,9 @@
             get("start").disabled = false;
             get("status").textContent =
                 "Zorg dat je handen en gezicht volledig in beeld zijn.";
+            if (recordImmediately) {
+                get("start").click();
+            }
         } catch (error) {
             if (version !== generation) return;
 
@@ -96,7 +109,7 @@
                       "Controleer of een andere app de camera gebruikt."
             );
         }
-    });
+    };
 
     get("start").addEventListener("click", () => {
         if (!stream || recorder) return;
@@ -138,7 +151,7 @@
                     { type }
                 );
 
-                state.showVideo(file);
+                state.showVideo(file, "webcam");
             };
 
             recorder.onerror = () => {
