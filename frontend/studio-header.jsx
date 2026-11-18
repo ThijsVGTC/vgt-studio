@@ -81,6 +81,10 @@ function StudioHeader() {
     };
 
     const theme = studioThemes[reading ? "contrast" : dark ? "dark" : "light"];
+    const displayUsername = (links.username ?? "").replace(
+        /^./u,
+        (letter) => letter.toLocaleUpperCase("nl-BE")
+    );
 
     return (
         <ThemeProvider theme={theme}>
@@ -177,7 +181,7 @@ function StudioHeader() {
                         },
                     }}>
                         <Typography sx={{ fontSize: "0.8125rem" }}>
-                            {links.username}
+                            {displayUsername}
                         </Typography>
                         <Button type="submit" form="studio-react-logout"
                                 variant="contained" disableElevation size="small"
