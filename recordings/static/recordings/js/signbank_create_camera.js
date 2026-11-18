@@ -155,6 +155,7 @@
 
             get("start").disabled = true;
             get("stop").disabled = false;
+            get("stop").focus();
             get("status").textContent = "Opname loopt…";
 
             const startedAt = Date.now();

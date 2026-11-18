@@ -77,6 +77,92 @@
         font-size: 1.5rem;
         line-height: 1;
     }
+
+    #signbank-create-modal:has(#signbank-create-camera:not([hidden])) {
+        width: min(860px, 94vw);
+    }
+
+    #signbank-create-camera > h3 {
+        margin: 0 0 0.75rem;
+        font-family: system-ui, sans-serif;
+        font-size: 1.125rem;
+        font-weight: 500;
+    }
+
+    #signbank-create-camera .signbank-camera-frame {
+        position: relative;
+        overflow: hidden;
+        border: 1px solid var(--border-color, #d1d5db);
+        border-radius: 14px;
+        background: #111827;
+    }
+
+    #signbank-create-modal #signbank-create-live {
+        display: block;
+        width: 100%;
+        aspect-ratio: 16 / 9;
+        max-height: 56vh;
+        object-fit: contain;
+        margin: 0;
+        border-radius: 0;
+    }
+
+    #signbank-create-timer,
+    .signbank-camera-rec {
+        position: absolute;
+        padding: 0.3rem 0.55rem;
+        border-radius: 6px;
+        color: #fff;
+        font: 600 0.875rem system-ui, sans-serif;
+    }
+
+    #signbank-create-timer {
+        right: 12px;
+        bottom: 12px;
+        background: #111827;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .signbank-camera-rec {
+        display: none;
+        top: 12px;
+        left: 12px;
+        background: #b42318;
+    }
+
+    .signbank-camera-actions {
+        justify-content: flex-end;
+        margin-top: 1rem;
+    }
+
+    #signbank-create-camera .signbank-camera-actions button {
+        min-height: 44px;
+    }
+
+    #signbank-create-start {
+        background: #f3705d;
+        color: #261511;
+    }
+
+    #signbank-create-stop {
+        background: #b42318;
+        color: #fff;
+    }
+
+    #signbank-create-stop:disabled,
+    #signbank-create-camera:has(#signbank-create-stop:enabled) #signbank-create-start {
+        display: none;
+    }
+
+    #signbank-create-camera:has(#signbank-create-stop:enabled) .signbank-camera-rec {
+        display: inline-block;
+    }
+
+    html[data-reading-mode="true"] #signbank-create-start,
+    html[data-reading-mode="true"] #signbank-create-stop {
+        background: #ffe500;
+        color: #000;
+    }
 </style>
 
 <dialog
@@ -142,34 +228,23 @@
         <section id="signbank-create-camera" hidden>
             <h3>Webcamopname</h3>
 
-            <video
-                id="signbank-create-live"
-                autoplay
-                muted
-                playsinline
-            ></video>
+            <div class="signbank-camera-frame">
+                <video id="signbank-create-live" autoplay muted playsinline></video>
+                <span class="signbank-camera-rec" aria-hidden="true">● REC</span>
+                <span id="signbank-create-timer" aria-hidden="true">00:00</span>
+            </div>
 
-            <p id="signbank-create-timer">00:00</p>
-
-            <div class="signbank-create-actions">
-                <button type="button" id="signbank-create-start">
-                    Opname starten
+            <div class="signbank-create-actions signbank-camera-actions">
+                <button type="button" id="signbank-create-camera-back" class="button-secondary">
+                    Terug
                 </button>
 
-                <button
-                    type="button"
-                    id="signbank-create-stop"
-                    disabled
-                >
-                    Opname stoppen
+                <button type="button" id="signbank-create-start" disabled>
+                    ● Opname starten
                 </button>
 
-                <button
-                    type="button"
-                    id="signbank-create-camera-back"
-                    class="button-secondary"
-                >
-                    Terug naar de keuze
+                <button type="button" id="signbank-create-stop" disabled>
+                    ■ Opname stoppen
                 </button>
             </div>
         </section>
