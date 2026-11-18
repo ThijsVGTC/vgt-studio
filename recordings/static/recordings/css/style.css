@@ -2639,3 +2639,9 @@ html[data-reading-mode="true"] .signbank-list-page .signbank-filter-form {
         position: static;
     }
 }
+
+.signbank-list-page .signbank-filter-buttons button[type="submit"] {
+    background: var(--sb-list-primary, #f3705d);
+    border-color: var(--sb-list-primary, #f3705d);
+    color: var(--sb-list-primary-text, #261511);
+}

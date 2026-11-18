@@ -2558,6 +2558,7 @@ def signbank_list(request):
             "labels": labels,
             "selected_categories": selected_categories,
             "selected_functional_labels": selected_functional_labels,
+            "default_hidden_internal_labels": SIGNBANK_DEFAULT_HIDDEN_LABELS,
             "selected_internal_labels": selected_internal_labels,
             "selected_in_dictionary": selected_in_dictionary,
             "filtered_count": paginator.count,
