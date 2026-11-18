@@ -22,8 +22,9 @@ from django.utils import timezone
 from django.urls import reverse
 from .thumbnail_utils import ( generate_thumbnail_for_item,)
 from django.core.management import call_command
-from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
+from django.templatetags.static import static
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -2405,6 +2406,45 @@ def get_filtered_signbank_entries(request):
         )
     return entries
 
+def serialize_signbank_row(entry):
+    begin_image = entry.handvorm_begin_image
+    einde_image = entry.handvorm_einde_image
+
+    return {
+        "id": entry.signbank_id,
+        "gloss": entry.gloss,
+        "detailUrl": reverse("signbank_detail", args=[entry.signbank_id]),
+        "thumbnailUrl": entry.thumbnail_url,
+        "videoUrl": entry.video_url,
+        "handshapes": [
+            {
+                "name": entry.handvorm_begin,
+                "imageUrl": static(begin_image) if begin_image else "",
+            },
+            {
+                "name": entry.handvorm_einde,
+                "imageUrl": static(einde_image) if einde_image else "",
+            },
+        ],
+        "locations": [entry.locatie_begin, entry.locatie_einde],
+        "translations": entry.mogelijke_vertaling,
+        "variants": entry.variant_badges,
+        "categories": [
+            category for category in (
+                entry.categorie_1,
+                entry.categorie_2,
+                entry.categorie_3,
+                entry.categorie_4,
+                entry.categorie_5,
+            ) if category
+        ],
+        "functionalLabels": entry.functional_labels,
+        "internalLabels": entry.internal_labels,
+        "notes": entry.opmerkingen,
+        "etymology": entry.etymologie,
+        "sources": entry.bronnen,
+        "inDictionary": entry.in_woordenboek,
+    }
 
 @login_required
 def signbank_list(request):
@@ -2497,6 +2537,14 @@ def signbank_list(request):
     page_obj = paginator.get_page(
         page_number
     )
+
+    if request.GET.get("format") == "json":
+        return JsonResponse({
+            "rows": [serialize_signbank_row(entry) for entry in page_obj],
+            "nextPage": (
+                page_obj.next_page_number() if page_obj.has_next() else None
+            ),
+        })
 
     functional_label_options = [
         "expliciet",
