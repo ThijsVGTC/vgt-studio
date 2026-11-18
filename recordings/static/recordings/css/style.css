@@ -2157,3 +2157,58 @@ html[data-reading-mode="true"] :is(#signbank-create-details, #signbank-edit-moda
 :is(#signbank-create-details, #signbank-edit-modal) .signbank-field-panel--wide {
     grid-column: 1 / -1;
 }
+
+#signbank-edit-modal .signbank-modal-content {
+    display: flex;
+    flex-direction: column;
+    width: min(820px, 94vw);
+    max-height: 90dvh;
+    overflow: hidden;
+    border-radius: 14px;
+    background: var(--surface-color, #fff);
+    color: var(--text-color, #1f2937);
+}
+
+#signbank-edit-modal .signbank-modal-header {
+    display: flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.4rem 1rem;
+    background: var(--surface-color, #fff);
+    border-bottom: 1px solid var(--border-color, #d1d5db);
+}
+
+#signbank-edit-modal .signbank-modal-header h2 {
+    margin: 0;
+    font: 600 1.125rem/1.35 system-ui, sans-serif;
+}
+
+#signbank-edit-modal .signbank-modal-close,
+#signbank-edit-modal .signbank-modal-close:hover {
+    display: grid;
+    place-items: center;
+    flex: 0 0 44px;
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    box-shadow: none;
+    color: inherit;
+    font: 400 1.75rem/1 system-ui, sans-serif;
+}
+
+#signbank-edit-modal .signbank-modal-close:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+#signbank-edit-modal .signbank-modal-body {
+    flex: 1 1 auto;
+    min-height: 0;
+    max-height: none;
+    padding: 0.65rem 1rem;
+    overflow: auto;
+}
