@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
     Box, Button, Checkbox, Chip, FormControlLabel, Paper,
-    Popover, Radio, Stack, TextField, Typography,
+    Popover, Radio, Stack, TextField, Typography, MenuItem,
 } from "@mui/material";
 
 const NO_LABEL = "__geen_label__";
@@ -112,6 +112,15 @@ function FilterMenu({
     );
 }
 
+const sortOptions = [
+    ["signbank_id:asc", "Signbank-ID oplopend"],
+    ["signbank_id:desc", "Signbank-ID aflopend"],
+    ["gloss:asc", "GLOSS A–Z"],
+    ["gloss:desc", "GLOSS Z–A"],
+    ["categorie:asc", "Categorieën A–Z"],
+    ["categorie:desc", "Categorieën Z–A"],
+];
+
 export function SignbankListControls({ data, listUrl, totalCount, highContrast }) {
     const [query, setQuery] = useState(data.query);
     const [categories, setCategories] = useState(data.selectedCategories);
@@ -172,6 +181,24 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
         internal.forEach((value) => params.append("internal_label", value));
 
         window.location.assign(target.href);
+    }
+
+    const appliedParams = new URLSearchParams(window.location.search);
+    const activeSort = appliedParams.get("sort") || "signbank_id";
+    const activeDirection = appliedParams.get("dir") === "desc" ? "desc" : "asc";
+    const sortValue = `${activeSort}:${activeDirection}`;
+    const selectedSort = sortOptions.some(([value]) => value === sortValue)
+        ? sortValue
+        : "signbank_id:asc";
+
+    function changeSort(event) {
+        const [sort, direction] = event.target.value.split(":");
+        const url = new URL(listUrl, window.location.origin);
+        url.search = window.location.search;
+        url.searchParams.set("sort", sort);
+        url.searchParams.set("dir", direction);
+        url.searchParams.delete("page");
+        window.location.assign(url.href);
     }
 
     const primarySx = {
@@ -238,6 +265,20 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
                     </Button>
 
                     <Button href={listUrl} sx={{ textTransform: "none" }}>Wissen</Button>
+                    <TextField
+                        select
+                        size="small"
+                        label="Sorteren"
+                        value={selectedSort}
+                        onChange={changeSort}
+                        sx={{ minWidth: 195 }}
+                    >
+                        {sortOptions.map(([value, label]) => (
+                            <MenuItem key={value} value={value}>
+                                {label}
+                            </MenuItem>
+                        ))}
+                    </TextField>
                 </Stack>
 
                 {chips.length > 0 && (
