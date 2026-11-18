@@ -2212,3 +2212,121 @@ html[data-reading-mode="true"] :is(#signbank-create-details, #signbank-edit-moda
     padding: 0.65rem 1rem;
     overflow: auto;
 }
+
+#signbank-edit-modal .signbank-edit-meta,
+#signbank-edit-modal .signbank-field-pair {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 8rem), 1fr));
+    gap: 0.5rem 0.75rem;
+}
+
+#signbank-edit-modal .signbank-edit-meta p {
+    margin: 0 0 0.5rem;
+}
+
+#signbank-edit-modal .signbank-field-row,
+#signbank-edit-modal .signbank-label-options {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.4rem 0.55rem;
+    margin: 0.4rem 0;
+}
+
+#signbank-edit-modal .signbank-field-row > select {
+    flex: 1 1 8rem;
+    min-width: 0;
+}
+
+#signbank-edit-modal .signbank-label-options label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+
+#signbank-edit-modal .signbank-add-comment {
+    margin-top: 0.5rem;
+}
+
+/* Twee kolommen in de formulieren voor toevoegen en bewerken */
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    gap: 0.35rem 1rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-panel {
+    min-width: 0;
+    margin: 0;
+    padding: 0.45rem 0;
+    border-top: 1px solid var(--border-color, #d1d5db);
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-panel--wide {
+    grid-column: 1 / -1;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-panel > h3 {
+    margin: 0 0 0.35rem;
+    font-size: 0.95rem;
+}
+
+/* Begin en Einde naast elkaar binnen Handvorm en Locatie */
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-pair {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0.45rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-pair > div {
+    min-width: 0;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-pair :is(label, strong) {
+    display: block;
+    margin-bottom: 0.2rem;
+    font-size: 0.8rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-pair :is(.handshape-picker, select) {
+    width: 100%;
+    min-width: 0;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .handshape-picker-button {
+    width: 100%;
+    height: auto;
+    min-height: 42px;
+    padding: 0.3rem 0.45rem;
+    border: 1px solid var(--sb-outline, #6379ab);
+    background: transparent;
+    color: var(--sb-action-text, #313f69);
+    font-size: 0.8rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .handshape-picker-button img {
+    max-width: 100%;
+    max-height: 36px;
+    object-fit: contain;
+}
+
+/* Veld en toevoegknop op dezelfde rij waar er ruimte is */
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-row {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+}
+
+:is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-row > :is(input[type="text"], select) {
+    flex: 1 1 8rem;
+    width: auto;
+    min-width: 0;
+}
+
+@media (max-width: 700px) {
+    :is(#signbank-create-details, #signbank-edit-modal .detail_inhoud) .signbank-field-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
