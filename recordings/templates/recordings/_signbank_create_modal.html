@@ -62,6 +62,21 @@
     #signbank-create-modal:has(#signbank-create-choice:not([hidden])) {
         width: min(600px, 94vw);
     }
+    #signbank-create-choice > h3 {
+        font-family: system-ui, sans-serif;
+        font-size: 1.0625rem;
+        font-weight: 500;
+        line-height: 1.4;
+        margin: 0 0 0.875rem;
+    }
+
+    #signbank-create-close {
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        font-size: 1.5rem;
+        line-height: 1;
+    }
 </style>
 
 <dialog
@@ -77,7 +92,7 @@
             class="button-secondary"
             aria-label="Venster sluiten"
         >
-            Sluiten
+            <span aria-hidden="true">×</span>
         </button>
     </div>
 

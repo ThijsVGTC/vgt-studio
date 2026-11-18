@@ -138,6 +138,8 @@
     get("close").addEventListener("click", close);
 
     modal.addEventListener("cancel", (event) => {
+        if (event.target === input) return;
+
         event.preventDefault();
         close();
     });

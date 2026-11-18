@@ -8,7 +8,7 @@ export function SignbankUploadChoice({ highContrast }) {
                 type="button"
                 variant="contained"
                 disableElevation
-                onClick={() => document.getElementById("signbank-create-upload").click()}
+                onClick={() => document.getElementById("signbank-create-webcam").click()}
                 sx={{
                     bgcolor: highContrast ? "#FFE500" : "#F3705D",
                     color: "#1B1412",
@@ -18,16 +18,16 @@ export function SignbankUploadChoice({ highContrast }) {
                     },
                 }}
             >
-                Video uploaden
+                Webcamopname maken
             </Button>
 
             <Button
                 type="button"
                 variant="outlined"
-                onClick={() => document.getElementById("signbank-create-webcam").click()}
+                onClick={() => document.getElementById("signbank-create-upload").click()}
                 sx={{ textTransform: "none" }}
             >
-                Webcamopname maken
+                Video uploaden
             </Button>
         </Stack>
     );
