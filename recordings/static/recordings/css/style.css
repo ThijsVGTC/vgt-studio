@@ -2582,3 +2582,60 @@ html[data-reading-mode="true"] .signbank-list-page {
     color: var(--sb-list-action);
     overflow-wrap: anywhere;
 }
+
+.signbank-list-page {
+    --sb-filter-bg: #eef3fc;
+    --sb-filter-border: #cfdaee;
+    --sb-sticky-bg: #fff;
+}
+
+html[data-theme="dark"] .signbank-list-page {
+    --sb-filter-bg: #202b44;
+    --sb-filter-border: #546582;
+    --sb-sticky-bg: #181818;
+}
+
+html[data-reading-mode="true"] .signbank-list-page {
+    --sb-filter-bg: #121212;
+    --sb-filter-border: #a6a6a6;
+    --sb-sticky-bg: #000;
+}
+
+.signbank-list-page .signbank-sticky-controls {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-block: 0.4rem;
+    background: var(--sb-sticky-bg);
+}
+
+.signbank-list-page .signbank-sticky-controls .page-heading {
+    margin-bottom: 0.6rem;
+}
+
+.signbank-list-page .signbank-sticky-controls .signbank-filter-form {
+    margin-bottom: 0.4rem;
+    background: var(--sb-filter-bg);
+    border-color: var(--sb-filter-border);
+}
+
+html[data-reading-mode="true"] .signbank-list-page .signbank-filter-form {
+    background-color: var(--sb-filter-bg) !important;
+    border-color: var(--sb-filter-border) !important;
+}
+
+.signbank-list-page .signbank-count-total {
+    margin-inline-start: 0.2rem;
+    font-weight: 400;
+}
+
+.signbank-list-page .signbank-active-filters {
+    max-height: 4.5rem;
+    overflow-y: auto;
+}
+
+@media (max-width: 700px), (max-height: 650px) {
+    .signbank-list-page .signbank-sticky-controls {
+        position: static;
+    }
+}

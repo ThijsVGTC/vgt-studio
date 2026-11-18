@@ -6,265 +6,269 @@ Signbank | VGT Studio
 {% endblock %}
 {% block content %}
 <div class="signbank-list-page">
-    <div class="page-heading">
-        <div>
-            <h1>Signbank</h1>
+    <div class="signbank-sticky-controls">
+            <div class="page-heading">
+            <div>
+                <h1>Signbank</h1>
 
-            <p class="page-intro">
-                Gesynchroniseerde gegevens uit Signbank.
-            </p>
-        </div>
-
-        <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
-            <div class="signbank-count">
-                {{ filtered_count }} resultaten
+                <p class="page-intro">
+                    Gesynchroniseerde gegevens uit Signbank.
+                </p>
             </div>
 
-            {% if user.is_staff %}
-            <button type="button" data-signbank-create>
-                + Nieuw gebaar toevoegen
-            </button>
-            {% endif %}
-        </div>
-    </div>
+            <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                <div class="signbank-count">
+                    <strong>{{ filtered_count }} resultaten</strong>
+                    <span class="signbank-count-total">/ {{ total_count }} totaal</span>
+                </div>
 
-    <form method="get" class="signbank-filter-form">
-
-        <div class="signbank-filter-grid">
-
-            <div>
-                <label for="q">
-                    <strong>Zoeken</strong>
-                </label>
-
-                <input
-                    type="search"
-                    id="q"
-                    name="q"
-                    value="{{ search_query }}"
-                    placeholder="GLOSS, ID, vertaling..."
-                >
+                {% if user.is_staff %}
+                <button type="button" data-signbank-create>
+                    + Nieuw gebaar toevoegen
+                </button>
+                {% endif %}
             </div>
+        </div>
+
+        <form method="get" class="signbank-filter-form">
+
+            <div class="signbank-filter-grid">
+
+                <div>
+                    <label for="q">
+                        <strong>Zoeken</strong>
+                    </label>
+
+                    <input
+                        type="search"
+                        id="q"
+                        name="q"
+                        value="{{ search_query }}"
+                        placeholder="GLOSS, ID, vertaling..."
+                    >
+                </div>
 
 
-            <div>
-                <div class="filter-dropdown" id="category-dropdown">
-                    <button type="button" class="filter-dropdown-toggle">
-                        Categorieën
-                        {% if selected_categories %}
-                            <span class="signbank-filter-count">{{ selected_categories|length }}</span>
-                        {% endif %}
-                    </button>
+                <div>
+                    <div class="filter-dropdown" id="category-dropdown">
+                        <button type="button" class="filter-dropdown-toggle">
+                            Categorieën
+                            {% if selected_categories %}
+                                <span class="signbank-filter-count">{{ selected_categories|length }}</span>
+                            {% endif %}
+                        </button>
 
-                    <div class="filter-dropdown-menu">
-                        <input
-                            type="text"
-                            class="filter-dropdown-search"
-                            placeholder="Zoek categorie..."
-                            autocomplete="off"
-                        >
-                        {% for category in categories %}
-                            <label class="filter-checkbox filter-category-option">
-                                <input
-                                    type="checkbox"
-                                    name="category"
-                                    value="{{ category }}"
-                                    {% if category in selected_categories %}checked{% endif %}
-                                >
-                                <span>{{ category }}</span>
-                            </label>
-                        {% endfor %}
+                        <div class="filter-dropdown-menu">
+                            <input
+                                type="text"
+                                class="filter-dropdown-search"
+                                placeholder="Zoek categorie..."
+                                autocomplete="off"
+                            >
+                            {% for category in categories %}
+                                <label class="filter-checkbox filter-category-option">
+                                    <input
+                                        type="checkbox"
+                                        name="category"
+                                        value="{{ category }}"
+                                        {% if category in selected_categories %}checked{% endif %}
+                                    >
+                                    <span>{{ category }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
-            </div>
 
 
-            <div>
-                <div class="filter-dropdown">
-                    <button type="button" class="filter-dropdown-toggle">
-                        Functionele labels
-                        {% if selected_functional_labels %}
-                            <span class="signbank-filter-count">{{ selected_functional_labels|length }}</span>
-                        {% endif %}
-                    </button>
+                <div>
+                    <div class="filter-dropdown">
+                        <button type="button" class="filter-dropdown-toggle">
+                            Functionele labels
+                            {% if selected_functional_labels %}
+                                <span class="signbank-filter-count">{{ selected_functional_labels|length }}</span>
+                            {% endif %}
+                        </button>
 
-                    <div class="filter-dropdown-menu">
-                        <label class="filter-checkbox filter-select-all">
+                        <div class="filter-dropdown-menu">
+                            <label class="filter-checkbox filter-select-all">
+
+                                <input
+
+                                    type="checkbox"
+
+                                    class="functional-label-select-all"
+
+                                >
+
+                                <span>Alles selecteren</span>
+
+                            </label>
+
+                            <div class="filter-dropdown-separator"></div>
+                            {% for label in functional_label_options %}
+                                <label class="filter-checkbox">
+                                    <input
+                                        type="checkbox"
+                                        name="functional_label"
+                                        value="{{ label }}"
+                                        class="functional-label-checkbox"
+                                        {% if label in selected_functional_labels %}checked{% endif %}
+                                    >
+                                    <span>{{ label }}</span>
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <div class="filter-dropdown" id="internal-label-dropdown">
+                        <button type="button" class="filter-dropdown-toggle">
+                            Interne labels
+                            <span class="signbank-filter-count">
+                                {% if selected_internal_labels %}
+                                    {{ selected_internal_labels|length }}
+                                {% else %}
+                                    {{ default_hidden_internal_labels|length }}
+                                {% endif %}
+                            </span>
+                        </button>
+
+                        <div class="filter-dropdown-menu">
 
                             <input
-
-                                type="checkbox"
-
-                                class="functional-label-select-all"
-
+                                type="text"
+                                class="filter-dropdown-search internal-label-search"
+                                placeholder="Zoek label..."
+                                autocomplete="off"
                             >
+                                <label class="filter-checkbox filter-select-all">
+                                    <input type="checkbox" class="internal-label-select-all">
+                                    <span>Alles selecteren</span>
+                                </label>
+                                <label class="filter-checkbox internal-label-option">
+                                    <input
+                                        type="checkbox"
+                                        name="internal_label"
+                                        value="__geen_label__"
+                                        {% if "__geen_label__" in selected_internal_labels %}checked{% endif %}
+                                    >
+                                    <span>Geen label</span>
+                                </label>            
+                            {% for label in internal_label_options %}
+                                <label class="filter-checkbox internal-label-option">
+                                    <input
+                                        type="checkbox"
+                                        name="internal_label"
+                                        value="{{ label }}"
+                                        {% if label in selected_internal_labels %}checked{% endif %}
+                                    >
+                                    <span>{{ label }}</span>
+                                </label>
+                            {% endfor %}
 
-                            <span>Alles selecteren</span>
+                        </div>
+                    </div>
+                </div>
 
-                        </label>
+                <div>
+                <div class="filter-dropdown" id="dictionary-dropdown">
+                        <button type="button" class="filter-dropdown-toggle">
+                            In woordenboek
+                            {% if selected_in_dictionary == "yes" or selected_in_dictionary == "no" %}
+                                <span class="signbank-filter-count">1</span>
+                            {% endif %}
+                        </button>
 
-                        <div class="filter-dropdown-separator"></div>
-                        {% for label in functional_label_options %}
+                        <div class="filter-dropdown-menu">
+
                             <label class="filter-checkbox">
                                 <input
-                                    type="checkbox"
-                                    name="functional_label"
-                                    value="{{ label }}"
-                                    class="functional-label-checkbox"
-                                    {% if label in selected_functional_labels %}checked{% endif %}
+                                    type="radio"
+                                    name="in_dictionary"
+                                    value=""
+                                    {% if not selected_in_dictionary %}checked{% endif %}
                                 >
-                                <span>{{ label }}</span>
+                                <span>Alles</span>
                             </label>
-                        {% endfor %}
+
+                            <label class="filter-checkbox">
+                                <input
+                                    type="radio"
+                                    name="in_dictionary"
+                                    value="yes"
+                                    {% if selected_in_dictionary == "yes" %}checked{% endif %}
+                                >
+                                <span>Ja</span>
+                            </label>
+
+                            <label class="filter-checkbox">
+                                <input
+                                    type="radio"
+                                    name="in_dictionary"
+                                    value="no"
+                                    {% if selected_in_dictionary == "no" %}checked{% endif %}
+                                >
+                                <span>Nee</span>
+                            </label>
+
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div>
-                <div class="filter-dropdown" id="internal-label-dropdown">
-                    <button type="button" class="filter-dropdown-toggle">
-                        Interne labels
-                        <span class="signbank-filter-count">
-                            {% if selected_internal_labels %}
-                                {{ selected_internal_labels|length }}
-                            {% else %}
-                                {{ default_hidden_internal_labels|length }}
-                            {% endif %}
-                        </span>
+
+                <div class="signbank-filter-buttons">
+                    <button type="submit">
+                        Filteren
                     </button>
 
-                    <div class="filter-dropdown-menu">
-
-                        <input
-                            type="text"
-                            class="filter-dropdown-search internal-label-search"
-                            placeholder="Zoek label..."
-                            autocomplete="off"
-                        >
-                            <label class="filter-checkbox filter-select-all">
-                                <input type="checkbox" class="internal-label-select-all">
-                                <span>Alles selecteren</span>
-                            </label>
-                            <label class="filter-checkbox internal-label-option">
-                                <input
-                                    type="checkbox"
-                                    name="internal_label"
-                                    value="__geen_label__"
-                                    {% if "__geen_label__" in selected_internal_labels %}checked{% endif %}
-                                >
-                                <span>Geen label</span>
-                            </label>            
-                        {% for label in internal_label_options %}
-                            <label class="filter-checkbox internal-label-option">
-                                <input
-                                    type="checkbox"
-                                    name="internal_label"
-                                    value="{{ label }}"
-                                    {% if label in selected_internal_labels %}checked{% endif %}
-                                >
-                                <span>{{ label }}</span>
-                            </label>
-                        {% endfor %}
-
-                    </div>
+                    <a
+                        href="{% url 'signbank_list' %}"
+                        class="button button-secondary"
+                    >
+                        Wissen
+                    </a>
                 </div>
+
             </div>
 
-            <div>
-            <div class="filter-dropdown" id="dictionary-dropdown">
-                    <button type="button" class="filter-dropdown-toggle">
-                        In woordenboek
-                        {% if selected_in_dictionary == "yes" or selected_in_dictionary == "no" %}
-                            <span class="signbank-filter-count">1</span>
-                        {% endif %}
-                    </button>
+            <section class="signbank-active-filters" aria-label="Actieve filters">
+                <strong>Actieve filters</strong>
 
-                    <div class="filter-dropdown-menu">
+                {% if search_query %}
+                    <span class="signbank-filter-chip">Zoeken: {{ search_query }}</span>
+                {% endif %}
 
-                        <label class="filter-checkbox">
-                            <input
-                                type="radio"
-                                name="in_dictionary"
-                                value=""
-                                {% if not selected_in_dictionary %}checked{% endif %}
-                            >
-                            <span>Alles</span>
-                        </label>
+                {% for category in selected_categories %}
+                    <span class="signbank-filter-chip">Categorie: {{ category }}</span>
+                {% endfor %}
 
-                        <label class="filter-checkbox">
-                            <input
-                                type="radio"
-                                name="in_dictionary"
-                                value="yes"
-                                {% if selected_in_dictionary == "yes" %}checked{% endif %}
-                            >
-                            <span>Ja</span>
-                        </label>
+                {% for label in selected_functional_labels %}
+                    <span class="signbank-filter-chip">Functioneel: {{ label }}</span>
+                {% endfor %}
 
-                        <label class="filter-checkbox">
-                            <input
-                                type="radio"
-                                name="in_dictionary"
-                                value="no"
-                                {% if selected_in_dictionary == "no" %}checked{% endif %}
-                            >
-                            <span>Nee</span>
-                        </label>
+                {% for label in selected_internal_labels %}
+                    <span class="signbank-filter-chip">
+                        Intern: {% if label == "__geen_label__" %}Geen label{% else %}{{ label }}{% endif %}
+                    </span>
+                {% empty %}
+                    <span class="signbank-filter-chip">
+                        Standaard verborgen: {{ default_hidden_internal_labels|join:", " }}
+                    </span>
+                {% endfor %}
 
-                    </div>
-                </div>
-            </div>
+                {% if selected_in_dictionary == "yes" %}
+                    <span class="signbank-filter-chip">In woordenboek: Ja</span>
+                {% elif selected_in_dictionary == "no" %}
+                    <span class="signbank-filter-chip">In woordenboek: Nee</span>
+                {% endif %}
+            </section>
 
+        </form>
 
-            <div class="signbank-filter-buttons">
-                <button type="submit">
-                    Filteren
-                </button>
-
-                <a
-                    href="{% url 'signbank_list' %}"
-                    class="button button-secondary"
-                >
-                    Wissen
-                </a>
-            </div>
-
-        </div>
-
-        <section class="signbank-active-filters" aria-label="Actieve filters">
-            <strong>Actieve filters</strong>
-
-            {% if search_query %}
-                <span class="signbank-filter-chip">Zoeken: {{ search_query }}</span>
-            {% endif %}
-
-            {% for category in selected_categories %}
-                <span class="signbank-filter-chip">Categorie: {{ category }}</span>
-            {% endfor %}
-
-            {% for label in selected_functional_labels %}
-                <span class="signbank-filter-chip">Functioneel: {{ label }}</span>
-            {% endfor %}
-
-            {% for label in selected_internal_labels %}
-                <span class="signbank-filter-chip">
-                    Intern: {% if label == "__geen_label__" %}Geen label{% else %}{{ label }}{% endif %}
-                </span>
-            {% empty %}
-                <span class="signbank-filter-chip">
-                    Standaard verborgen: {{ default_hidden_internal_labels|join:", " }}
-                </span>
-            {% endfor %}
-
-            {% if selected_in_dictionary == "yes" %}
-                <span class="signbank-filter-chip">In woordenboek: Ja</span>
-            {% elif selected_in_dictionary == "no" %}
-                <span class="signbank-filter-chip">In woordenboek: Nee</span>
-            {% endif %}
-        </section>
-
-    </form>
-
+    </div>
+    
     <div class="handshape-view-toggle">
         <span>Handvormen:</span>
 

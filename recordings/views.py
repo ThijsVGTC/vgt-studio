@@ -2561,6 +2561,7 @@ def signbank_list(request):
             "selected_internal_labels": selected_internal_labels,
             "selected_in_dictionary": selected_in_dictionary,
             "filtered_count": paginator.count,
+            "total_count": SignbankEntry.objects.count(),
             "functional_label_options": functional_label_options,
             "internal_label_options": internal_label_options,
             **create_context,
