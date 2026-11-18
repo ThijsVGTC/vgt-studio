@@ -1988,3 +1988,11 @@ html[data-reading-mode="true"] :focus-visible {
     outline: 2px solid var(--studio-contrast-accent);
     outline-offset: 3px;
 }
+
+html[data-font-size="contrast"] {
+    font-size: 120%;
+}
+
+html[data-font-size="contrast"] body {
+    font-size: 1rem;
+}

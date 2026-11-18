@@ -62,7 +62,7 @@ function StudioHeader() {
     useLayoutEffect(() => {
         const page = document.documentElement;
         page.dataset.theme = dark ? "dark" : "light";
-        page.dataset.fontSize = reading ? "xlarge" : "normal";
+        page.dataset.fontSize = reading ? "contrast" : "normal";
         page.dataset.readingMode = String(reading);
 
         localStorage.setItem("vgt-studio-theme", page.dataset.theme);
