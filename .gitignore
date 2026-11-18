@@ -30,4 +30,5 @@ media//data/signbank/
 compose.override.yaml
 
 #REACT
-/frontend/node_modules/
+frontend/node_modules/
+recordings/static/recordings/js/studio-header.js
