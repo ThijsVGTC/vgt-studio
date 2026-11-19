@@ -2743,3 +2743,26 @@ html[data-reading-mode="true"] #signbank-react-table .label-functional {
     white-space: nowrap;
     box-shadow: -4px 0 6px -4px rgb(0 0 0 / 30%);
 }
+
+#signbank-create-modal #signbank-create-webcam {
+    background-color: #6379ab;
+    color: #000;
+}
+
+html[data-reading-mode="true"] #signbank-create-modal #signbank-create-webcam,
+html[data-reading-mode="true"] #signbank-create-modal #signbank-create-start {
+    background-color: #ffe500;
+    color: #000;
+}
+
+html[data-reading-mode="true"] #signbank-react-table .MuiChip-root.signbank-wdb-yes {
+    background-color: #fff;
+    border-color: #fff;
+    color: #000;
+}
+
+html[data-reading-mode="true"] #signbank-react-table .MuiChip-root.signbank-wdb-no {
+    background-color: transparent;
+    border-color: #fff;
+    color: #fff;
+}

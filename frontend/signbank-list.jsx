@@ -122,55 +122,109 @@ const sortOptions = [
 ];
 
 export function SignbankListControls({ data, listUrl, totalCount, highContrast }) {
+    const appliedParams = new URLSearchParams(window.location.search);
+    const explicitExclusions = appliedParams.get("internal_mode") === "exclude";
+    const useExclusions = explicitExclusions || data.selectedInternalLabels.length === 0;
+    const hiddenLabels = explicitExclusions
+        ? appliedParams.getAll("hidden_internal_label")
+        : data.defaultHiddenLabels;
+
+    const normalizeLabel = (value) => value.trim().toLowerCase();
+    const hiddenKeys = new Set(hiddenLabels.map(normalizeLabel));
+    const internalValues = [...new Set([NO_LABEL, ...data.internalLabels])];
+
     const [query, setQuery] = useState(data.query);
     const [categories, setCategories] = useState(data.selectedCategories);
     const [functional, setFunctional] = useState(data.selectedFunctionalLabels);
-    const [internal, setInternal] = useState(data.selectedInternalLabels);
+    const [internal, setInternal] = useState(() =>
+        useExclusions
+            ? internalValues.filter((value) => !hiddenKeys.has(normalizeLabel(value)))
+            : data.selectedInternalLabels
+    );
     const [dictionary, setDictionary] = useState([data.inDictionary]);
+
+    const labelText = (value) =>
+        value === NO_LABEL ? "Geen label" : value.replaceAll("_", " ");
 
     const options = (values) => values.map((value) => ({
         value,
-        text: value === NO_LABEL ? "Geen label" : value,
+        text: labelText(value),
     }));
 
-    const internalOptions = options([NO_LABEL, ...data.internalLabels]);
+    const internalOptions = options(internalValues);
     const dictionaryOptions = [
         { value: "", text: "Alles" },
         { value: "yes", text: "Ja" },
         { value: "no", text: "Nee" },
     ];
 
-    const allInternalApplied = internalOptions.every((option) =>
-        data.selectedInternalLabels.includes(option.value)
-    );
+    const internalCount = useExclusions
+        ? hiddenKeys.size
+        : data.selectedInternalLabels.length;
+
+    function writeExclusions(params, labels) {
+        params.delete("internal_label");
+        params.delete("hidden_internal_label");
+        params.set("internal_mode", "exclude");
+
+        for (const label of labels) {
+            params.append("hidden_internal_label", label);
+        }
+    }
+
+    function removeFilter(key, value) {
+        const target = new URL(listUrl, window.location.href);
+        target.search = window.location.search;
+        const params = target.searchParams;
+        params.delete("page");
+
+        if (key === "hidden_internal_label") {
+            writeExclusions(params, hiddenLabels.filter(
+                (label) => normalizeLabel(label) !== normalizeLabel(value)
+            ));
+        } else if (key === "q" || key === "in_dictionary") {
+            params.delete(key);
+        } else {
+            const remaining = params.getAll(key).filter((item) => item.trim() !== value);
+            params.delete(key);
+            remaining.forEach((item) => params.append(key, item));
+        }
+
+        window.location.assign(target.href);
+    }
 
     const chips = [
-        ...(data.query ? [`Zoeken: ${data.query}`] : []),
-        ...data.selectedCategories.map((value) => `Categorie: ${value}`),
-        ...data.selectedFunctionalLabels.map((value) => `Functioneel: ${value}`),
-        ...(allInternalApplied
-            ? ["Alle interne labels en Geen label"]
-            : data.selectedInternalLabels.length > 0
-                ? data.selectedInternalLabels.map((value) =>
-                    `Intern: ${value === NO_LABEL ? "Geen label" : value}`
-                )
-                : data.defaultHiddenLabels.map((value) =>
-                    `Standaard verborgen: ${value.replaceAll("_", " ")}`
-                )),
-        ...(data.inDictionary
-            ? [`In woordenboek: ${data.inDictionary === "yes" ? "Ja" : "Nee"}`]
-            : []),
+        ...(data.query ? [["q", data.query, `Zoeken: ${data.query}`]] : []),
+        ...data.selectedCategories.map((value) => [
+            "category", value, `Categorie: ${value}`,
+        ]),
+        ...data.selectedFunctionalLabels.map((value) => [
+            "functional_label", value, `Functioneel: ${value}`,
+        ]),
+        ...(useExclusions
+            ? hiddenLabels.map((value) => [
+                "hidden_internal_label",
+                value,
+                `${explicitExclusions ? "Verborgen" : "Standaard verborgen"}: ${labelText(value)}`,
+            ])
+            : data.selectedInternalLabels.map((value) => [
+                "internal_label", value, `Intern: ${labelText(value)}`,
+            ])),
+        ...(data.inDictionary ? [[
+            "in_dictionary",
+            data.inDictionary,
+            `In woordenboek: ${data.inDictionary === "yes" ? "Ja" : "Nee"}`,
+        ]] : []),
     ];
 
     function applyFilters(event) {
         event.preventDefault();
 
-        const current = new URLSearchParams(window.location.search);
         const target = new URL(listUrl, window.location.href);
         const params = target.searchParams;
 
         for (const key of ["sort", "dir"]) {
-            if (current.has(key)) params.set(key, current.get(key));
+            if (appliedParams.has(key)) params.set(key, appliedParams.get(key));
         }
 
         if (query.trim()) params.set("q", query.trim());
@@ -178,12 +232,21 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
 
         categories.forEach((value) => params.append("category", value));
         functional.forEach((value) => params.append("functional_label", value));
-        internal.forEach((value) => params.append("internal_label", value));
+
+        if (useExclusions) {
+            const checked = new Set(internal);
+            const unchecked = internalValues.filter((value) => !checked.has(value));
+            const defaultKeys = new Set(data.defaultHiddenLabels.map(normalizeLabel));
+            const isDefault = unchecked.length === defaultKeys.size
+                && unchecked.every((label) => defaultKeys.has(normalizeLabel(label)));
+
+            if (!isDefault) writeExclusions(params, unchecked);
+        } else {
+            internal.forEach((value) => params.append("internal_label", value));
+        }
 
         window.location.assign(target.href);
     }
-
-    const appliedParams = new URLSearchParams(window.location.search);
     const activeSort = appliedParams.get("sort") || "signbank_id";
     const activeDirection = appliedParams.get("dir") === "desc" ? "desc" : "asc";
     const sortValue = `${activeSort}:${activeDirection}`;
@@ -253,7 +316,7 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
 
                     <FilterMenu label="Interne labels" options={internalOptions}
                                 value={internal}
-                                count={data.selectedInternalLabels.length || data.defaultHiddenLabels.length}
+                                count={internalCount}
                                 onChange={setInternal} selectAll />
 
                     <FilterMenu label="In woordenboek" options={dictionaryOptions}
@@ -285,9 +348,15 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
                     <Box component="section" className="signbank-active-filters"
                          aria-label="Actieve filters">
                         <strong>Actieve filters</strong>
-                        {chips.map((label, index) => (
-                            <Chip key={`${label}-${index}`} label={label}
-                                  size="small" variant="outlined" />
+                        {chips.map(([key, value, label]) => (
+                            <Chip
+                                key={`${key}-${value}`}
+                                label={label}
+                                aria-label={`Verwijder filter: ${label}`}
+                                size="small"
+                                variant="outlined"
+                                onDelete={() => removeFilter(key, value)}
+                            />
                         ))}
                     </Box>
                 )}

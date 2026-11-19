@@ -224,11 +224,9 @@ function StudioHeader() {
                         <Button type="submit" form="studio-react-logout"
                                 variant="contained" disableElevation size="small"
                                 sx={{
-                                    bgcolor: "#F3705D",
-                                    color: "#261511",
-                                    fontSize: "0.75rem",
-                                    textTransform: "none",
-                                    "&:hover": { bgcolor: "#FF8978" },
+                                    bgcolor: reading ? "#FFE500" : "#6379AB",
+                                    color: "#000",
+                                    "&:hover": { bgcolor: reading ? "#FFF36A" : "#7287B8" },
                                 }}>
                             Uitloggen
                         </Button>

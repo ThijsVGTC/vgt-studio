@@ -2294,6 +2294,23 @@ def signbank_list_row(request, signbank_id):
     )
 
 SIGNBANK_DEFAULT_HIDDEN_LABELS = ("afgekeurd", "gebaar_verplaatst")
+
+def exclude_signbank_internal_labels(entries, hidden_labels):
+    functional_labels = "expliciet|verouderd|beledigend|neologisme|negatief"
+
+    for label in set(hidden_labels):
+        if label == "__geen_label__":
+            functional_only = (
+                rf"^\s*(?:(?:{functional_labels})?\s*;\s*)*"
+                rf"(?:{functional_labels})?\s*$"
+            )
+            entries = entries.exclude(labels__iregex=functional_only)
+        else:
+            exact_label = rf"(^|;)\s*{re.escape(label)}\s*(;|$)"
+            entries = entries.exclude(labels__iregex=exact_label)
+
+    return entries
+
 @login_required
 def get_filtered_signbank_entries(request):
     entries = SignbankEntry.objects.all()
@@ -2302,7 +2319,7 @@ def get_filtered_signbank_entries(request):
     selected_categories = [
         value.strip()
         for value in request.GET.getlist("category")
-        if value.strip()
+        if value.strip() not in {"", "0", "1"}
     ]
     selected_functional_labels = [
         value.strip()
@@ -2364,7 +2381,14 @@ def get_filtered_signbank_entries(request):
         entries = entries.filter(functional_filter)
 
 
-    if selected_internal_labels:
+    if request.GET.get("internal_mode") == "exclude":
+        hidden_labels = [
+            value.strip()
+            for value in request.GET.getlist("hidden_internal_label")
+            if value.strip()
+        ]
+        entries = exclude_signbank_internal_labels(entries, hidden_labels)
+    elif selected_internal_labels:
         internal_filter = Q()
 
         for label in selected_internal_labels:
@@ -2393,10 +2417,10 @@ def get_filtered_signbank_entries(request):
 
         entries = entries.filter(internal_filter)
 
-    if not selected_internal_labels:
-        for label in SIGNBANK_DEFAULT_HIDDEN_LABELS:
-            entries = entries.exclude(labels__icontains=label)
-    # -------------------------------------------------
+    else:
+        entries = exclude_signbank_internal_labels(
+            entries, SIGNBANK_DEFAULT_HIDDEN_LABELS
+        )
     # In woordenboek
     # -------------------------------------------------
     if selected_in_dictionary == "yes":
@@ -2454,7 +2478,11 @@ def signbank_list(request):
     entries = get_filtered_signbank_entries(request)
 
     search_query = request.GET.get("q", "").strip()
-    selected_categories = request.GET.getlist("category")
+    selected_categories = [
+        value.strip()
+        for value in request.GET.getlist("category")
+        if value.strip() not in {"", "0", "1"}
+    ]
     selected_functional_labels = request.GET.getlist("functional_label")
     selected_internal_labels = request.GET.getlist("internal_label")
     selected_in_dictionary = request.GET.get("in_dictionary", "").strip()
@@ -2481,7 +2509,7 @@ def signbank_list(request):
         categories.update(
             value
             for value in values
-            if value
+            if value and str(value).strip() not in {"", "0", "1"}
         )
 
     categories = sorted(

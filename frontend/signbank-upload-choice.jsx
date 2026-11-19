@@ -10,12 +10,9 @@ export function SignbankUploadChoice({ highContrast }) {
                 disableElevation
                 onClick={() => document.getElementById("signbank-create-webcam").click()}
                 sx={{
-                    bgcolor: highContrast ? "#FFE500" : "#F3705D",
-                    color: "#1B1412",
-                    textTransform: "none",
-                    "&:hover": {
-                        bgcolor: highContrast ? "#FFF36A" : "#FF8978",
-                    },
+                    bgcolor: highContrast ? "#FFE500" : "#6379AB",
+                    color: "#000",
+                    "&:hover": { bgcolor: highContrast ? "#FFF36A" : "#7287B8" },
                 }}
             >
                 Webcamopname maken
