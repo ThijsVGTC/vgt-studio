@@ -426,6 +426,7 @@ function CreateSignDialog({ mount, options, highContrast, onClose }) {
     return (
         <>
             <Dialog
+                className="vgt-signbank-create-dialog"
                 open onClose={requestClose} fullWidth
                 maxWidth={step === "details" ? "md" : "sm"}
                 aria-labelledby="react-signbank-create-title"
@@ -613,7 +614,7 @@ function CreateSignDialog({ mount, options, highContrast, onClose }) {
                 )}
             </Dialog>
 
-            <Dialog open={confirmClose} onClose={() => setConfirmClose(false)}
+            <Dialog className="vgt-signbank-create-dialog" open={confirmClose} onClose={() => setConfirmClose(false)}
                     aria-labelledby="react-signbank-discard-title">
                 <DialogTitle id="react-signbank-discard-title">Invoer wissen?</DialogTitle>
                 <DialogContent>

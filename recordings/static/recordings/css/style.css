@@ -2766,3 +2766,104 @@ html[data-reading-mode="true"] #signbank-react-table .MuiChip-root.signbank-wdb-
     border-color: #fff;
     color: #fff;
 }
+
+.vgt-signbank-create-dialog {
+    --create-heading: #313f69;
+    --create-surface: #fff;
+    --create-accent-surface: #eef3fc;
+    --create-border: #cfdaee;
+    --create-text: #182333;
+    --create-action: #313f69;
+    --create-focus: #6075a6;
+}
+
+html[data-theme="dark"] .vgt-signbank-create-dialog {
+    --create-surface: #161c29;
+    --create-accent-surface: #202b44;
+    --create-border: #546582;
+    --create-text: #f3f4f6;
+    --create-action: #c8d5ff;
+    --create-focus: #a8b9e6;
+}
+
+html[data-reading-mode="true"] .vgt-signbank-create-dialog {
+    --create-heading: #000;
+    --create-surface: #000;
+    --create-accent-surface: #121212;
+    --create-border: #fff;
+    --create-text: #fff;
+    --create-action: #ffe500;
+    --create-focus: #ffe500;
+}
+
+.vgt-signbank-create-dialog .MuiDialog-paper {
+    background-color: var(--create-surface);
+    color: var(--create-text);
+    border: 1px solid var(--create-border);
+    border-radius: 14px;
+}
+
+.vgt-signbank-create-dialog .MuiDialogTitle-root {
+    position: relative;
+    background-color: var(--create-heading);
+    color: #fff;
+    font-weight: 700;
+    padding-block: 0.85rem;
+}
+
+.vgt-signbank-create-dialog .MuiDialogTitle-root .MuiIconButton-root {
+    background: transparent;
+    color: #fff;
+}
+
+.vgt-signbank-create-dialog .MuiDialogTitle-root .MuiIconButton-root:hover {
+    background-color: rgb(255 255 255 / 14%);
+}
+
+.vgt-signbank-create-dialog .MuiDialogContent-root {
+    padding: 1.25rem;
+    border-color: var(--create-border);
+}
+
+.vgt-signbank-create-dialog .MuiDialogActions-root {
+    background-color: var(--create-accent-surface);
+    border-top: 1px solid var(--create-border);
+}
+
+.vgt-signbank-create-dialog .MuiButton-root {
+    border-radius: 8px;
+    font-weight: 600;
+    text-transform: none;
+}
+
+.vgt-signbank-create-dialog .MuiButton-outlined:not(.Mui-disabled),
+.vgt-signbank-create-dialog .MuiButton-text:not(.Mui-disabled) {
+    color: var(--create-action);
+}
+
+.vgt-signbank-create-dialog .MuiButton-outlined:not(.Mui-disabled) {
+    background-color: var(--create-surface);
+    border-color: var(--create-focus);
+}
+
+.vgt-signbank-create-dialog .MuiButton-outlined:hover:not(.Mui-disabled) {
+    background-color: var(--create-accent-surface);
+}
+
+.vgt-signbank-create-dialog .MuiOutlinedInput-root {
+    background-color: var(--create-accent-surface);
+    border-radius: 8px;
+}
+
+.vgt-signbank-create-dialog .MuiOutlinedInput-notchedOutline {
+    border-color: var(--create-border);
+}
+
+.vgt-signbank-create-dialog .MuiOutlinedInput-root.Mui-focused .MuiOutlinedInput-notchedOutline {
+    border-color: var(--create-focus);
+}
+
+.vgt-signbank-create-dialog .Mui-focusVisible {
+    outline: 2px solid var(--create-focus);
+    outline-offset: 2px;
+}
