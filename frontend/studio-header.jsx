@@ -12,6 +12,7 @@ import { createPortal } from "react-dom";
 import { SignbankUploadChoice } from "./signbank-upload-choice.jsx";
 import { SignbankListControls } from "./signbank-list.jsx";
 import { SignbankTable } from "./signbank-table.jsx";
+import { SignbankCreateDialog } from "./signbank-create-dialog.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -120,7 +121,7 @@ function StudioHeader() {
         /^./u,
         (letter) => letter.toLocaleUpperCase("nl-BE")
     );
-    const uploadChoice = document.getElementById("signbank-react-upload-choice");
+    const signbankCreate = document.getElementById("signbank-react-create");
     const signbankControls = document.getElementById("signbank-react-controls");
     const signbankTable = document.getElementById("signbank-react-table");
 
@@ -234,11 +235,11 @@ function StudioHeader() {
                 </Toolbar>
             </AppBar>
 
-            {uploadChoice && createPortal(
+            {signbankCreate && createPortal(
                 <UploadChoiceBoundary>
-                    <SignbankUploadChoice highContrast={reading} />
+                    <SignbankCreateDialog mount={signbankCreate} highContrast={reading} />
                 </UploadChoiceBoundary>,
-                uploadChoice
+                signbankCreate
             )}
 
             {signbankControls && createPortal(

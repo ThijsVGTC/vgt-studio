@@ -2657,6 +2657,7 @@ def signbank_list(request):
                 "filteredCount": page_obj.paginator.count,
                 "canCreate": request.user.is_staff,
             },
+            "signbank_create_options": create_context,
             **create_context,
         },
     )
