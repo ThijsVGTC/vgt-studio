@@ -225,7 +225,7 @@ function StudioHeader() {
                                 variant="contained" disableElevation size="small"
                                 sx={{
                                     bgcolor: reading ? "#FFE500" : "#6379AB",
-                                    color: "#000",
+                                    color: reading ? "#000" : "#fff",
                                     "&:hover": { bgcolor: reading ? "#FFF36A" : "#7287B8" },
                                 }}>
                             Uitloggen

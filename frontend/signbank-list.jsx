@@ -233,16 +233,23 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
         categories.forEach((value) => params.append("category", value));
         functional.forEach((value) => params.append("functional_label", value));
 
-        if (useExclusions) {
-            const checked = new Set(internal);
-            const unchecked = internalValues.filter((value) => !checked.has(value));
-            const defaultKeys = new Set(data.defaultHiddenLabels.map(normalizeLabel));
-            const isDefault = unchecked.length === defaultKeys.size
-                && unchecked.every((label) => defaultKeys.has(normalizeLabel(label)));
+        const checked = new Set(internal);
+        const unchecked = internalValues.filter((value) => !checked.has(value));
+        const defaultKeys = new Set(data.defaultHiddenLabels.map(normalizeLabel));
+        const isDefault = unchecked.length === defaultKeys.size
+            && unchecked.every((value) => defaultKeys.has(normalizeLabel(value)));
 
-            if (!isDefault) writeExclusions(params, unchecked);
-        } else {
-            internal.forEach((value) => params.append("internal_label", value));
+        if (!isDefault) {
+            const narrowedSelection = unchecked.some(
+                (value) => !hiddenKeys.has(normalizeLabel(value))
+            );
+
+            if (internal.length === 0 || unchecked.length === 0 ||
+                (useExclusions && !narrowedSelection)) {
+                writeExclusions(params, unchecked);
+            } else {
+                internal.forEach((value) => params.append("internal_label", value));
+            }
         }
 
         window.location.assign(target.href);

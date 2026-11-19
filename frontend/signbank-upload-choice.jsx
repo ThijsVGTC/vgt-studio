@@ -11,7 +11,7 @@ export function SignbankUploadChoice({ highContrast }) {
                 onClick={() => document.getElementById("signbank-create-webcam").click()}
                 sx={{
                     bgcolor: highContrast ? "#FFE500" : "#6379AB",
-                    color: "#000",
+                    color: highContrast ? "#000" : "#fff",
                     "&:hover": { bgcolor: highContrast ? "#FFF36A" : "#7287B8" },
                 }}
             >
