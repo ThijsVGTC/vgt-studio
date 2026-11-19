@@ -2235,6 +2235,109 @@ def signbank_detail(request, signbank_id):
         1 for comment in recording_comments
         if comment["source"] == "Videocontrole"
     )
+    if request.GET.get("format") == "edit-json":
+        from django.http import JsonResponse
+        from django.middleware.csrf import get_token
+        from django.templatetags.static import static
+
+        def action(name, **kwargs):
+            return reverse(name, kwargs={"signbank_id": signbank_id, **kwargs})
+
+        def editable_items(items, update_name, delete_name, id_key):
+            return [
+                {
+                    **item,
+                    "updateUrl": action(update_name, **{id_key: item["id"]}),
+                    "deleteUrl": action(delete_name, **{id_key: item["id"]}),
+                }
+                if item.get("id") else item
+                for item in items
+            ]
+
+        return JsonResponse({
+            "id": entry.signbank_id,
+            "gloss": entry.gloss,
+            "videoUrl": entry.video_url,
+            "inDictionary": "1" if entry.in_woordenboek else "0",
+            "csrfToken": get_token(request),
+            "canEditLabels": request.user.is_staff,
+            "handshapes": [
+                {
+                    "value": str(item["code"]),
+                    "label": item["name"],
+                    "imageUrl": static(
+                        f"recordings/images/handshapes/handshape_{item['code']}.png"
+                    ),
+                }
+                for item in handshape_choices
+                if str(item["code"]) not in {"", "0"}
+            ],
+            "locations": [
+                {"value": str(item["code"]), "label": item["name"]}
+                for item in location_choices
+                if str(item["code"]) not in {"", "0"}
+            ],
+            "categories": [
+                {"value": str(item["code"]), "label": item["name"]}
+                for item in category_choices
+            ],
+            "variants": [
+                {"value": str(item["id"]), "label": item["name"]}
+                for item in variant_choices
+            ],
+            "functionalLabels": [
+                {"value": str(item["id"]), "label": item["name"]}
+                for item in functional_label_choices
+            ],
+            "internalLabels": [
+                {"value": str(item["id"]), "label": item["name"]}
+                for item in internal_label_choices
+            ],
+            "selected": {
+                "handvorm_begin": str(entry.handvorm_begin_code or "0"),
+                "handvorm_einde": str(entry.handvorm_einde_code or "0"),
+                "locatie_begin": str(entry.locatie_begin_code or "0"),
+                "locatie_einde": str(entry.locatie_einde_code or "0"),
+                "categories": selected_categories,
+                "variants": [str(value) for value in selected_variants],
+                "functional": [
+                    str(item["id"]) for item in functional_label_choices
+                    if item["id"] in selected_labels
+                ],
+                "internal": [
+                    str(item["id"]) for item in internal_label_choices
+                    if item["id"] in selected_labels
+                ],
+            },
+            "translations": editable_items(
+                translations, "signbank_update_translation",
+                "signbank_delete_translation", "translation_id",
+            ),
+            "sources": editable_items(
+                sources, "signbank_update_source",
+                "signbank_delete_source", "source_id",
+            ),
+            "notes": editable_items(
+                signbank_comments, "signbank_update_opmerking",
+                "signbank_delete_opmerking", "opmerking_id",
+            ),
+            "otherNotes": recording_comments + gebarometer_comments,
+            "etymology": [
+                item.get("text", "") for item in (entry.etymologie or [])
+            ],
+            "actions": {
+                "gloss": action("signbank_update_gloss"),
+                "dictionary": action("signbank_update_woordenboek"),
+                "handshapes": action("signbank_update_handvormen"),
+                "locations": action("signbank_update_locaties"),
+                "categories": action("signbank_update_categories"),
+                "variants": action("signbank_update_variants"),
+                "labels": action("signbank_update_labels"),
+                "addTranslation": action("signbank_add_translation"),
+                "addNote": action("signbank_add_opmerking"),
+                "addSource": action("signbank_add_source"),
+            },
+        })
     template_name = (
         "recordings/_signbank_details.html"
         if request.GET.get("modal") == "1"

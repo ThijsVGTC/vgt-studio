@@ -4,6 +4,7 @@ import {
     FormControlLabel, Link, Popover, Stack, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Typography, TableSortLabel,
 } from "@mui/material";
+import { SignbankEditDialog } from "./signbank-edit-dialog.jsx";
 
 const columns = [
     { id: 1, label: "GLOSS", sortKey: "gloss" },
@@ -95,6 +96,7 @@ export function SignbankTable({ listUrl }) {
     const [columnPreferences, setColumnPreferences] = useState(readColumnPreferences);
     const [columnAnchor, setColumnAnchor] = useState(null);
     const [info, setInfo] = useState(null);
+    const [editingRow, setEditingRow] = useState(null);
 
     const visibleColumns = columns.filter(
         ({ id, pinned }) => pinned || id <= 2 || columnPreferences[id] !== false
@@ -338,7 +340,7 @@ export function SignbankTable({ listUrl }) {
                         variant="contained"
                         disableElevation
                         className="signbank-edit-button"
-                        onClick={() => window.openSignbankEditModal(row.id)}
+                        onClick={() => setEditingRow(row)}
                     >
                         Bewerken
                     </Button>
@@ -474,6 +476,13 @@ export function SignbankTable({ listUrl }) {
                 )}
             </Stack>
 
+            {editingRow && (
+                <SignbankEditDialog
+                    key={editingRow.id}
+                    row={editingRow}
+                    onClose={() => setEditingRow(null)}
+                />
+            )}
             {info && (
                 <Dialog open onClose={() => setInfo(null)}
                         fullWidth maxWidth="sm" aria-labelledby="signbank-react-info-title">
