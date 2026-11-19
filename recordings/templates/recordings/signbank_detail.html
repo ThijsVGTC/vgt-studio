@@ -1,20 +1,18 @@
 {% extends "recordings/base.html" %}
 
+{% block title %}{{ entry.gloss|default:"Signbank-entry" }} | VGT Studio{% endblock %}
+
 {% block content %}
+<div
+    id="signbank-react-detail"
+    data-entry-id="{{ entry.signbank_id }}"
+    data-gloss="{{ entry.gloss }}"
+    data-detail-url="{% url 'signbank_detail' entry.signbank_id %}"
+    data-list-url="{% url 'signbank_list' %}"
+></div>
 
-<div class="page-header">
-    <div>
-        <h1>{{ entry.gloss|default:"Signbank-entry" }}</h1>
-        <p>Signbank ID: {{ entry.signbank_id }}</p>
-    </div>
-
-    <div>
-        <a href="{% url 'signbank_list' %}">
-            ← Terug naar Signbank
-        </a>
-    </div>
-</div>
-
-{% include "recordings/_signbank_details.html" %}
-
+<noscript>
+    <p>Schakel JavaScript in om dit gebaar te bekijken en te bewerken.</p>
+    <a href="{% url 'signbank_list' %}">Terug naar Signbank</a>
+</noscript>
 {% endblock %}

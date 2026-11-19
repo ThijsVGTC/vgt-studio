@@ -13,6 +13,7 @@ import { SignbankUploadChoice } from "./signbank-upload-choice.jsx";
 import { SignbankListControls } from "./signbank-list.jsx";
 import { SignbankTable } from "./signbank-table.jsx";
 import { SignbankCreateDialog } from "./signbank-create-dialog.jsx";
+import { SignbankEditDialog } from "./signbank-edit-dialog.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -124,6 +125,7 @@ function StudioHeader() {
     const signbankCreate = document.getElementById("signbank-react-create");
     const signbankControls = document.getElementById("signbank-react-controls");
     const signbankTable = document.getElementById("signbank-react-table");
+    const signbankDetail = document.getElementById("signbank-react-detail");
 
     return (
         <ThemeProvider theme={theme}>
@@ -257,6 +259,19 @@ function StudioHeader() {
                     <SignbankTable listUrl={signbankTable.dataset.listUrl} />
                 </UploadChoiceBoundary>,
                 signbankTable
+            )}
+
+            {signbankDetail && createPortal(
+                <SignbankEditDialog
+                    page
+                    listUrl={signbankDetail.dataset.listUrl}
+                    row={{
+                        id: signbankDetail.dataset.entryId,
+                        gloss: signbankDetail.dataset.gloss,
+                        detailUrl: signbankDetail.dataset.detailUrl,
+                    }}
+                />,
+                signbankDetail
             )}
         </ThemeProvider>
     );

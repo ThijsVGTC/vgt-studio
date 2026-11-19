@@ -2257,6 +2257,8 @@ def signbank_detail(request, signbank_id):
         return JsonResponse({
             "id": entry.signbank_id,
             "gloss": entry.gloss,
+            "lastUpdated": entry.signbank_last_updated,
+            "syncedAt": entry.synced_at,
             "videoUrl": entry.video_url,
             "inDictionary": "1" if entry.in_woordenboek else "0",
             "csrfToken": get_token(request),

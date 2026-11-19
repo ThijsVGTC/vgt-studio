@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import {
     Alert, Autocomplete, Box, Button, Dialog, DialogActions, DialogContent,
-    DialogTitle, IconButton, MenuItem, Stack, TextField, Typography,
+    DialogTitle, IconButton, MenuItem, Stack, TextField, Typography, Pager,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 
@@ -15,6 +15,16 @@ const saveStyle = {
         "&:hover": { bgcolor: "#fff36a" },
     },
 };
+
+const detailDateFormat = new Intl.DateTimeFormat("nl-BE", {
+    dateStyle: "short",
+    timeStyle: "short",
+    timeZone: "Europe/Brussels",
+});
+
+function formatDetailDate(value) {
+    return value ? detailDateFormat.format(new Date(value)) : "–";
+}
 
 function Section({ title, children, wide = false }) {
     return (
@@ -142,7 +152,7 @@ function TextItems({ items, addUrl, label, name, save, disabled, confirmDelete, 
     );
 }
 
-export function SignbankEditDialog({ row, onClose }) {
+export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
     const [data, setData] = useState(null);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -307,19 +317,7 @@ export function SignbankEditDialog({ row, onClose }) {
         );
     }
 
-    return (
-        <>
-            <Dialog open onClose={close} className="vgt-signbank-create-dialog"
-                    fullWidth maxWidth="md" scroll="paper"
-                    aria-labelledby="react-signbank-edit-title">
-                <DialogTitle id="react-signbank-edit-title" sx={{ pr: 7 }}>
-                    Signbankgegevens bewerken
-                    <IconButton aria-label="Venster sluiten" onClick={close} disabled={saving}
-                                sx={{ position: "absolute", right: 12, top: 10 }}>
-                        <CloseIcon />
-                    </IconButton>
-                </DialogTitle>
-
+    const editorContent = (
                 <DialogContent dividers>
                     <Stack spacing={1.5}>
                         {loading && <Typography role="status">Gegevens laden…</Typography>}
@@ -432,19 +430,87 @@ export function SignbankEditDialog({ row, onClose }) {
                                                    label="Bron" name="new_text" save={save}
                                                    disabled={disabled} confirmDelete={askDelete} />
                                     </Section>
+                                    {page && (
+                                        <Typography
+                                            variant="body2"
+                                            color="text.secondary"
+                                            sx={{ gridColumn: "1 / -1" }}
+                                        >
+                                            Laatste wijziging in Signbank {formatDetailDate(data.lastUpdated)}
+                                            {" · "}
+                                            Laatst gesynchroniseerd {formatDetailDate(data.syncedAt)}
+                                        </Typography>
+                                    )}
                                 </Box>
                             </>
                         )}
                     </Stack>
                 </DialogContent>
+            );
+        return (
+        <>
+            {page ? (
+                <Stack spacing={2}>
+                    <Stack>
+                        <Button
+                            href={listUrl}
+                            variant="text"
+                            sx={{ alignSelf: "flex-start", textTransform: "none" }}
+                        >
+                            ← Terug naar Signbank
+                        </Button>
+                    </Stack>
 
-                <DialogActions>
-                    <Button variant="outlined" onClick={close} disabled={saving}>
-                        Sluiten
-                    </Button>
-                </DialogActions>
-            </Dialog>
+                    <Paper
+                        component="section"
+                        variant="outlined"
+                        className="vgt-signbank-create-dialog"
+                        aria-labelledby="react-signbank-edit-title"
+                        sx={{
+                            bgcolor: "var(--create-surface)",
+                            color: "var(--create-text)",
+                            borderColor: "var(--create-border)",
+                            borderRadius: "14px",
+                            overflow: "hidden",
+                        }}
+                    >
+                        <DialogTitle component="h1" id="react-signbank-edit-title">
+                            {data?.gloss || row.gloss || "Signbank-entry"}
+                        </DialogTitle>
+                        {editorContent}
+                    </Paper>
+                </Stack>
+            ) : (
+                <Dialog
+                    open
+                    onClose={close}
+                    className="vgt-signbank-create-dialog"
+                    fullWidth
+                    maxWidth="md"
+                    scroll="paper"
+                    aria-labelledby="react-signbank-edit-title"
+                >
+                    <DialogTitle id="react-signbank-edit-title" sx={{ pr: 7 }}>
+                        Signbankgegevens bewerken
+                        <IconButton
+                            aria-label="Venster sluiten"
+                            onClick={close}
+                            disabled={saving}
+                            sx={{ position: "absolute", right: 12, top: 10 }}
+                        >
+                            <CloseIcon />
+                        </IconButton>
+                    </DialogTitle>
 
+                    {editorContent}
+
+                    <DialogActions>
+                        <Button variant="outlined" onClick={close} disabled={saving}>
+                            Sluiten
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+            )}
             {deletion && (
                 <Dialog open className="vgt-signbank-create-dialog"
                         onClose={() => { if (!savingNow.current) setDeletion(null); }}
