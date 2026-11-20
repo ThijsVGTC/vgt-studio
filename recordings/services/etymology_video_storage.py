@@ -4,12 +4,17 @@ import shutil
 import tempfile
 
 from pathlib import Path
-from urllib.parse import quote
+from urllib.parse import quote, unquote, urlsplit
+from datetime import datetime
+from zoneinfo import ZoneInfo
+from uuid import uuid4
 
 from django.conf import settings
-
 from .signbank_service import SignbankService
-
+from .signbank_video_archive import (
+    _checked_copy,
+    _sync_directory,
+)
 
 def _target_path(signbank_id, gloss, pair_number):
     if type(signbank_id) is not int or signbank_id <= 0:
@@ -53,6 +58,93 @@ def _sha256(path):
     with path.open("rb") as source:
         return hashlib.file_digest(source, "sha256").hexdigest()
 
+def archive_etymology_video(video_url):
+    original_url = (video_url or "").strip()
+
+    if not original_url:
+        return None
+
+    base = urlsplit(
+        settings.SIGNBANK_ETYMOLOGYVIDEO_BASE_URL.rstrip("/") + "/"
+    )
+    parsed = urlsplit(original_url)
+
+    # Alleen bestanden uit onze eigen etymologievideomap.
+    # Een Vimeo-link heeft hier geen lokaal videobestand.
+    if (
+        parsed.scheme != base.scheme
+        or parsed.netloc != base.netloc
+        or not parsed.path.startswith(base.path)
+    ):
+        return None
+
+    video_root = Path(
+        settings.SIGNBANK_ETYMOLOGYVIDEO_ROOT
+    ).resolve()
+
+    archive_root = Path(
+        settings.SIGNBANK_ETYMOLOGY_ARCHIVE_ROOT
+    ).resolve()
+
+    if (
+        archive_root.is_relative_to(video_root)
+        or video_root.is_relative_to(archive_root)
+    ):
+        raise ValueError(
+            "Het etymologiearchief moet buiten de videomap staan."
+        )
+
+    relative_url = parsed.path[len(base.path):]
+    candidate = video_root / unquote(relative_url)
+
+    if candidate.is_symlink():
+        raise ValueError(
+            "Een symbolische koppeling kan niet worden gearchiveerd."
+        )
+
+    source = candidate.resolve()
+
+    if (
+        not source.is_relative_to(video_root)
+        or source.suffix.lower() != ".mp4"
+    ):
+        raise ValueError("Ongeldig etymologievideopad.")
+
+    if not source.is_file() or source.stat().st_size == 0:
+        raise ValueError(
+            "De oude etymologievideo ontbreekt of is leeg. "
+            "Vervangen is gestopt."
+        )
+
+    relative = source.relative_to(video_root)
+    archive_directory = archive_root / relative.parent
+    archive_directory.mkdir(parents=True, exist_ok=True)
+
+    stamp = datetime.now(
+        ZoneInfo("Europe/Brussels")
+    ).strftime("%y-%m-%d-%H-%M-%S")
+
+    archived = archive_directory / (
+        f"{source.stem}-{stamp}-{uuid4().hex}.mp4"
+    )
+
+    temporary = _checked_copy(source, archive_directory)
+
+    try:
+        checksum = _sha256(temporary)
+
+        # Publiceer alleen een volledig gecontroleerde kopie.
+        os.link(temporary, archived)
+        _sync_directory(archive_directory)
+    finally:
+        temporary.unlink(missing_ok=True)
+
+    return {
+        "path": source,
+        "url": _video_url(video_root, source),
+        "archive_path": archived,
+        "sha256": checksum,
+    }
 
 def store_etymology_video(
     prepared_video_path,
