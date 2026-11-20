@@ -2572,6 +2572,10 @@ def serialize_signbank_row(entry):
         "internalLabels": entry.internal_labels,
         "notes": entry.opmerkingen,
         "etymology": entry.etymologie,
+        "etymologyPairsUrl": reverse(
+            "signbank_etymology_pairs",
+            args=[entry.signbank_id],
+        ),
         "sources": entry.bronnen,
         "inDictionary": entry.in_woordenboek,
     }

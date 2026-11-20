@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import {
-    Alert, Box, Button, Checkbox, Chip, Dialog, DialogContent, DialogTitle,
-    FormControlLabel, Link, Popover, Stack, Table, TableBody, TableCell,
+    Alert, Box, Button, Checkbox, Chip, FormControlLabel, Link, Popover, Stack, Table, TableBody, TableCell,
     TableContainer, TableHead, TableRow, Typography, TableSortLabel,
 } from "@mui/material";
 import { SignbankEditDialog } from "./signbank-edit-dialog.jsx";
+import { SignbankInfoDialog } from "./signbank-info-dialog.jsx";
 
 const columns = [
     { id: 1, label: "GLOSS", sortKey: "gloss" },
@@ -51,34 +51,6 @@ function Badges({ items, functional = false }) {
     );
 }
 
-function EtymologyValue({ text }) {
-    const embed = React.useRef(null);
-
-    useEffect(() => {
-        const match = text?.trim().match(
-            /^https:\/\/(?:www\.|player\.)?vimeo\.com\/(?:video\/)?\d+(?:[/?#]|$)/i
-        );
-
-        if (!match || !window.Vimeo?.Player) return;
-
-        const player = new window.Vimeo.Player(embed.current, {
-            url: text.trim(),
-            responsive: true,
-        });
-
-        player.ready().catch(() => {});
-        return () => { player.destroy().catch(() => {}); };
-    }, [text]);
-
-    return (
-        <Stack spacing={0.5}>
-            <div ref={embed} />
-            <Typography variant="body2" sx={{ overflowWrap: "anywhere" }}>
-                {text}
-            </Typography>
-        </Stack>
-    );
-}
 
 export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
     const [rows, setRows] = useState(null);
@@ -337,9 +309,24 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
 
     function renderCell(row, id) {
         const infoActions = [
-            ["Opm", "Opmerkingen", row.notes],
-            ["Et", "Etymologie", row.etymology],
-            ["Bron", "Bronnen", row.sources],
+        [
+            "Opm",
+            "Opmerkingen",
+            row.notes.filter(
+            (item) => item.type?.toLowerCase() !== "etymology_text"
+            ),
+        ],
+        [
+            "Et",
+            "Etymologie",
+            [
+            ...row.etymology,
+            ...row.notes.filter(
+                (item) => item.type?.toLowerCase() === "etymology_text"
+            ),
+            ],
+        ],
+        ["Bron", "Bronnen", row.sources],
         ];
 
         switch (id) {
@@ -624,29 +611,11 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
                 />
             )}
             {info && (
-                <Dialog open onClose={() => setInfo(null)}
-                        fullWidth maxWidth="sm" aria-labelledby="signbank-react-info-title">
-                    <DialogTitle id="signbank-react-info-title">
-                        {info.title} voor {info.row.gloss}
-                    </DialogTitle>
-                    <DialogContent>
-                        <Stack spacing={1.5}>
-                            {info.items.map((item, index) =>
-                                info.title === "Etymologie" ? (
-                                    <EtymologyValue key={index} text={item.text} />
-                                ) : (
-                                    <Typography key={index} sx={{ whiteSpace: "pre-wrap" }}>
-                                        {item.type && <strong>{item.type} </strong>}
-                                        {item.text}
-                                    </Typography>
-                                )
-                            )}
-                            <Button onClick={() => setInfo(null)} sx={{ alignSelf: "flex-end" }}>
-                                Sluiten
-                            </Button>
-                        </Stack>
-                    </DialogContent>
-                </Dialog>
+            <SignbankInfoDialog
+                key={`${info.row.id}-${info.title}`}
+                info={info}
+                onClose={() => setInfo(null)}
+            />
             )}
         </>
     );

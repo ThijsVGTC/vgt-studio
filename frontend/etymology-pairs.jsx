@@ -3,7 +3,7 @@ import { Alert, Button, Paper, Stack, Typography } from "@mui/material";
 import { EtymologyPairForm } from "./etymology-pair-form.jsx";
 import { EtymologyVideoField } from "./etymology-video-field.jsx";
 
-function EtymologyPlayer({ url, resolveUrl }) {
+export function EtymologyPlayer({ url, resolveUrl }) {
   let parsed;
 
   try {
