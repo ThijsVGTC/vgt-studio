@@ -2867,3 +2867,7 @@ html[data-reading-mode="true"] .vgt-signbank-create-dialog {
     outline: 2px solid var(--create-focus);
     outline-offset: 2px;
 }
+
+.vgt-signbank-create-dialog textarea.MuiInputBase-input {
+    min-height: 0;
+}

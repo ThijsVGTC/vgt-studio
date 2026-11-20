@@ -490,7 +490,7 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                             label="Etymologietekst"
                                             name="text"
                                             multiline
-                                            minRows={4}
+                                            minRows={1}
                                             save={save}
                                             disabled={
                                                 disabled ||
