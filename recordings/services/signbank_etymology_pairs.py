@@ -73,10 +73,13 @@ def _pair_data(pair_number, rows):
         if row["role"] == "etymology_text"
     ]
 
+    
+
     return {
         "pairNumber": pair_number,
         "videos": videos,
         "texts": texts,
+        "published": bool(rows) and all(bool(row["published"]) for row in rows),
         "revision": _revision(rows),
         "ambiguous": (
             type(pair_number) is not int
@@ -84,6 +87,7 @@ def _pair_data(pair_number, rows):
             or len(videos) > 1
             or len(texts) > 1
         ),
+        
     }
 
 
@@ -112,6 +116,7 @@ def save_etymology_pair(
     expected_revision=None,
     prepared_video_path=None,
     keep_video=False,
+    published=False,
 ):
     video_url = (video_url or "").strip()
     text = (text or "").strip()
@@ -249,7 +254,7 @@ def save_etymology_pair(
                             role,
                             value,
                             pair_number,
-                            0,
+                            int(published),
                         ),
                     )
 
@@ -257,7 +262,7 @@ def save_etymology_pair(
                     conn.execute(
                         """
                         UPDATE dictionary_definition
-                        SET text = ?
+                        SET text = ?, published = ?
                         WHERE id = ?
                           AND gloss_id = ?
                           AND LOWER(role) = ?
@@ -265,6 +270,7 @@ def save_etymology_pair(
                         """,
                         (
                             value,
+                            int(published),
                             previous["id"],
                             signbank_id,
                             role,
