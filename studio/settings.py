@@ -207,6 +207,16 @@ SIGNBANK_ARCHIVE_ROOT = os.getenv(
     "/app/signbank-mov/glossvideo",
 )
 
+STUDIO_DELETE_API_TOKEN = os.getenv(
+    "STUDIO_DELETE_API_TOKEN",
+    "",
+)
+
+SIGNBANK_DELETE_API_BASE_URL = (
+    "https://vlaamsegebarentaal.be/signbank/"
+    "dictionary/studio/delete/gloss/"
+)
+
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
 

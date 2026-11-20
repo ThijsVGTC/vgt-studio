@@ -4,6 +4,7 @@ import {
     DialogTitle, IconButton, MenuItem, Stack, TextField, Typography, Paper,
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
+import { SignbankDeleteEntry } from "./signbank-delete-entry.jsx";
 
 const saveStyle = {
     bgcolor: "var(--create-heading)",
@@ -502,6 +503,17 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                         <DialogTitle component="h1" id="react-signbank-edit-title">
                             {data?.gloss || row.gloss || "Signbank-entry"}
                         </DialogTitle>
+
+                        {page && data?.canDeleteEntry && (
+                            <Box sx={{ px: 3, pb: 1.5 }}>
+                                <SignbankDeleteEntry
+                                    url={data.deleteEntryUrl}
+                                    csrfToken={data.csrfToken}
+                                    disabled={disabled}
+                                />
+                            </Box>
+                        )}
+
                         {editorContent}
                     </Paper>
                 </Stack>

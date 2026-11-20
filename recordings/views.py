@@ -2224,6 +2224,12 @@ def signbank_detail(request, signbank_id):
             "inDictionary": "1" if entry.in_woordenboek else "0",
             "csrfToken": get_token(request),
             "canEditLabels": request.user.is_staff,
+            "canDeleteEntry": request.user.is_staff,
+            "deleteEntryUrl": (
+                action("signbank_delete_entry")
+                if request.user.is_staff
+                else None
+            ),
             "handshapes": [
                 {
                     "value": str(item["code"]),
