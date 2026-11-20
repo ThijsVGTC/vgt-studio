@@ -2869,10 +2869,18 @@ def signbank_add_to_recordings(request):
             if created:
                 added_count += 1
             else:
+                item.signbank_entry = entry
+                item.gloss_id = entry.gloss
                 item.recording_workflow_status = "TODO"
-                item.save(
-                    update_fields=["recording_workflow_status"]
-                )
+                item.review_status = ""
+
+                item.save(update_fields=[
+                    "signbank_entry",
+                    "gloss_id",
+                    "recording_workflow_status",
+                    "review_status",
+                ])
+
                 replanned_count += 1
 
     notification = (
@@ -3234,69 +3242,121 @@ def bulk_update_recordings(request):
 
 @login_required
 def start_recording_series(request):
+    from urllib.parse import urlencode
+
+    from django.db import transaction
 
     if request.method != "POST":
         return redirect("recording_list")
-    signbank_ids = request.POST.getlist("signbank_ids")
-    if not signbank_ids:
-        request.session["opnamereeks_actief"] = False
-        return redirect("recording_list")
-    signbank_ids = [int(signbank_id) for signbank_id in signbank_ids]
 
-    # Permanente opnamereeks aanmaken
-    recording_series_name = request.POST.get(
+    filters = {
+        key: request.POST.get(key, "").strip()
+        for key in (
+            "q",
+            "status",
+            "recording_by",
+            "recording_date",
+            "review_status",
+            "variant",
+            "tab",
+            "sort",
+            "direction",
+        )
+    }
+
+    target = reverse("recording_list") + "?" + urlencode({
+        key: value
+        for key, value in filters.items()
+        if value
+    })
+
+    raw_ids = (
+        request.POST.get("signbank_ids_csv", "").split(",")
+        if "signbank_ids_csv" in request.POST
+        else request.POST.getlist("signbank_ids")
+    )
+
+    try:
+        signbank_ids = list(dict.fromkeys(
+            int(value.strip())
+            for value in raw_ids
+            if value.strip()
+        ))
+
+        if any(
+            value <= 0 or value > 9223372036854775807
+            for value in signbank_ids
+        ):
+            raise ValueError
+
+    except (ValueError, TypeError):
+        messages.error(
+            request,
+            "De selectie bevat een ongeldig Signbank-ID.",
+        )
+        return redirect(target)
+
+    if not signbank_ids:
+        messages.info(
+            request,
+            "Selecteer eerst opnames voor de reeks.",
+        )
+        return redirect(target)
+
+    name = request.POST.get(
         "recording_series_name",
         "",
     ).strip()
 
-    recording_series = RecordingSeries.objects.create(
-        name=recording_series_name,
-        status="ACTIEF",
-        current_index=0,
-    )
+    if len(name) > 255:
+        messages.error(
+            request,
+            "De reeksnaam mag maximaal 255 tekens bevatten.",
+        )
+        return redirect(target)
 
-    recording_items = RecordingItem.objects.in_bulk(
-        signbank_ids,
-        field_name="signbank_id",
-    )
-
-    series_items = []
-
-    for position, signbank_id in enumerate(signbank_ids):
-        recording_item = recording_items.get(signbank_id)
-
-        if recording_item is None:
-            continue
-
-        series_items.append(
-            RecordingSeriesItem(
-                series=recording_series,
-                recording_item=recording_item,
-                position=position,
+    with transaction.atomic():
+        items = (
+            RecordingItem.objects
+            .select_for_update()
+            .in_bulk(
+                signbank_ids,
+                field_name="signbank_id",
             )
         )
 
-    RecordingSeriesItem.objects.bulk_create(series_items)
+        if set(items) != set(signbank_ids):
+            messages.error(
+                request,
+                "Een geselecteerde opname bestaat niet meer. "
+                "Vernieuw de lijst.",
+            )
+            return redirect(target)
 
-    # Bestaande sessieflow behouden
+        series = RecordingSeries.objects.create(
+            name=name,
+            status="ACTIEF",
+            current_index=0,
+        )
+
+        RecordingSeriesItem.objects.bulk_create([
+            RecordingSeriesItem(
+                series=series,
+                recording_item=items[signbank_id],
+                position=position,
+            )
+            for position, signbank_id in enumerate(signbank_ids)
+        ])
+
     request.session["recording_series"] = signbank_ids
     request.session["recording_series_index"] = 0
-
-    # Koppeling met de permanente reeks
-    request.session["recording_series_db_id"] = recording_series.id
-    request.session["recording_series_filters"]={
-        "status": request.POST.get("status", ""),
-        "recording_by": request.POST.get("recording_by", ""),
-        "recording_date": request.POST.get("recording_date", ""),
-        "review_status": request.POST.get("review_status", ""),
-        "variant": request.POST.get("variant", ""),
-        "q": request.POST.get("q", ""),
-    }
+    request.session["recording_series_db_id"] = series.pk
+    request.session["recording_series_filters"] = filters
     request.session["opnamereeks_actief"] = True
-    first_id = signbank_ids[0]
+
     return redirect(
         "recording_detail",
-        signbank_id=first_id,
+        signbank_id=signbank_ids[0],
     )
 
 @login_required

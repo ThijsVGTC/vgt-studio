@@ -145,6 +145,8 @@ export function RecordingListActions({
         ))}
 
         <Hidden name="tab" value={data.tab} />
+        <Hidden name="sort" value={data.sort} />
+        <Hidden name="direction" value={data.direction} />
 
         <Stack spacing={2}>
           <Typography component="h2" variant="h6" fontWeight={700}>
