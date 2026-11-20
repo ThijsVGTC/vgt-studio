@@ -32,3 +32,7 @@ compose.override.yaml
 #REACT
 frontend/node_modules/
 recordings/static/recordings/js/studio-header.js
+
+#ARCHIVE
+/media/
+/data/mov/

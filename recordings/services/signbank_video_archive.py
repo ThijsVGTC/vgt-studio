@@ -6,6 +6,7 @@ import tempfile
 from datetime import datetime
 from pathlib import Path
 from zoneinfo import ZoneInfo
+from uuid import uuid4
 
 from django.conf import settings
 
@@ -75,7 +76,8 @@ def replace_signbank_video(source_path, target_path):
                 archive_directory = archive_root / relative.parent
                 archive_directory.mkdir(parents=True, exist_ok=True)
                 old_copy = _checked_copy(target, archive_directory)
-                stamp = datetime.now(ZoneInfo("Europe/Brussels")).strftime("%y-%m-%d-%H-%M")
+                stamp = datetime.now(ZoneInfo("Europe/Brussels")).strftime("%y-%m-%d-%H-%M-%S")
+                stamp += "-" + uuid4().hex
                 number = 0
 
                 while True:
