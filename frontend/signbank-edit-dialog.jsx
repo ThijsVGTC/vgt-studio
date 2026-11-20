@@ -491,7 +491,17 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                     )}
 
                                     <Section title="Etymologie" wide>
-                                        <EtymologyPairs url={data.actions.etymologyPairs} />
+                                        <EtymologyPairs
+                                        url={data.actions.etymologyPairs}
+                                        disabled={disabled}
+                                        onBusyChange={(busy) => {
+                                            savingNow.current = busy;
+                                            setSaving(busy);
+                                        }}
+                                        onChanged={() => {
+                                            changed.current = true;
+                                        }}
+                                        />
                                     </Section>
                                     <Section title="Bronnen" wide>
                                         <TextItems items={data.sources} addUrl={data.actions.addSource}
