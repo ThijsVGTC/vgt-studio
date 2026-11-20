@@ -5,6 +5,7 @@ import {
 } from "@mui/material";
 import CloseIcon from "@mui/icons-material/Close";
 import { SignbankDeleteEntry } from "./signbank-delete-entry.jsx";
+import { EtymologyVideoField } from "./etymology-video-field.jsx";
 
 const saveStyle = {
     bgcolor: "var(--create-heading)",
@@ -123,6 +124,13 @@ function MultiField({ name, label, initial, options, disabled, limit }) {
     );
 }
 
+function TextItemInput({ videoPreview, ...props }) {
+    return videoPreview
+        ? <EtymologyVideoField {...props} />
+        : <TextField {...props} />;
+}
+
+
 function TextItems({
     items,
     addUrl,
@@ -135,6 +143,7 @@ function TextItems({
     type = "text",
     maxLength = 100,
     minRows = 1,
+    videoPreview = false,
 }) {
     const inputOptions = multiline
         ? undefined
@@ -153,7 +162,8 @@ function TextItems({
                             confirmDelete(item.deleteUrl, item.text)
                         }
                     >
-                        <TextField
+                        <TextItemInput
+                            videoPreview={videoPreview}
                             name={name}
                             label={item.author || label}
                             defaultValue={item.text}
@@ -186,7 +196,8 @@ function TextItems({
                 disabled={disabled}
                 add
             >
-                <TextField
+                <TextItemInput
+                    videoPreview={videoPreview}
                     name={name}
                     label={`${label} toevoegen`}
                     size="small"
@@ -473,6 +484,7 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                             label="Etymologievideo"
                                             name="text"
                                             type="url"
+                                            videoPreview
                                             maxLength={1000}
                                             save={save}
                                             disabled={
