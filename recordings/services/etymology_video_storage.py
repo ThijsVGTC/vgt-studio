@@ -16,7 +16,7 @@ from .signbank_video_archive import (
     _sync_directory,
 )
 
-def _target_path(signbank_id, gloss, pair_number):
+def _target_path(signbank_id, gloss, pair_number, version=None):
     if type(signbank_id) is not int or signbank_id <= 0:
         raise ValueError("Ongeldig Signbank-ID.")
 
@@ -35,7 +35,16 @@ def _target_path(signbank_id, gloss, pair_number):
     root = Path(settings.SIGNBANK_ETYMOLOGYVIDEO_ROOT).resolve()
 
     folder = gloss[:2].upper()
-    filename = f"{gloss}-{pair_number}-{signbank_id}.mp4"
+    if version is not None:
+        if (
+            not isinstance(version, str)
+            or len(version) != 32
+            or any(character not in "0123456789abcdef" for character in version)
+        ):
+            raise ValueError("Ongeldige videoversie.")
+
+    suffix = f"-{version}" if version else ""
+    filename = f"{gloss}-{pair_number}-{signbank_id}{suffix}.mp4"
     target = (root / folder / filename).resolve()
 
     if not target.is_relative_to(root):
@@ -161,10 +170,13 @@ def store_etymology_video(
     ):
         raise ValueError("Er is geen verwerkte MP4-video beschikbaar.")
 
+    version = uuid4().hex
+
     root, target = _target_path(
         signbank_id,
         gloss,
         pair_number,
+        version=version,
     )
 
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -192,15 +204,17 @@ def store_etymology_video(
         if _sha256(source) != _sha256(temporary):
             raise OSError("De videokopie wijkt af van het origineel.")
 
-        # Bestaande video's worden hier niet overschreven.
-        # Vervangen met archivering sluiten we apart aan.
+        # De nieuwe video krijgt een eigen pad.
+        # Het oorspronkelijke bestand blijft voorlopig beschikbaar.
         os.link(temporary, target)
         published = True
+        _sync_directory(target.parent)
 
         return {
             "signbank_id": signbank_id,
             "gloss": gloss.strip(),
             "pair_number": pair_number,
+            "version": version,
             "path": target,
             "url": _video_url(root, target),
         }
@@ -225,6 +239,7 @@ def discard_unused_etymology_video(stored):
         stored["signbank_id"],
         stored["gloss"],
         stored["pair_number"],
+        version=stored.get("version"),
     )
 
     path = Path(stored["path"]).resolve()
