@@ -114,10 +114,7 @@ def save_etymology_pair(
     keep_video=False,
 ):
     video_url = (video_url or "").strip()
-    text = text.strip()
-
-    if not text:
-        raise ValueError("Vul de bijbehorende etymologietekst in.")
+    text = (text or "").strip()
 
     if pair_number is not None and (
         type(pair_number) is not int

@@ -43,7 +43,7 @@ class EtymologyPairForm(forms.Form):
     text = forms.CharField(
         label="Etymologietekst",
         strip=True,
-        required=True,
+        required=False,
         error_messages={
             "required": "Vul de tekst bij deze video in.",
         },

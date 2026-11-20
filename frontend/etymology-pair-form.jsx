@@ -163,7 +163,6 @@ export function EtymologyPairForm({
         name="text"
         label="Etymologietekst"
         defaultValue={pair?.texts?.[0]?.text || ""}
-        required
         multiline
         minRows={2}
         maxRows={8}
