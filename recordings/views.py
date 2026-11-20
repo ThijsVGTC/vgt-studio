@@ -2334,6 +2334,7 @@ def signbank_detail(request, signbank_id):
                 "addSource": action("signbank_add_source"),
                 "addEtymologyVideo": action("signbank_add_etymology",note_type="video",),
                 "addEtymologyText": action("signbank_add_etymology",note_type="tekst",),
+                "vimeoPreview": reverse("signbank_vimeo_preview"),
             },
         })
     template_name = (
