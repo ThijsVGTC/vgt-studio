@@ -49,8 +49,17 @@ def get_recording_state(item, today=None):
 
     needs_retake = (
         review == "OPNAME_AFGEKEURD"
-        or workflow == "REJECTED"
-        or video_status == "AFGEKEURD"
+        or (
+            review not in {
+                "OPGENOMEN",
+                "OVER-OPM",
+                "OVER-AL_VIDEO",
+            }
+            and (
+                workflow == "REJECTED"
+                or video_status == "AFGEKEURD"
+            )
+        )
     )
 
     if item.signbank_entry_id is None:
@@ -65,7 +74,6 @@ def get_recording_state(item, today=None):
     elif not needs_retake and (
         review == "OPGENOMEN"
         or workflow == "COMPLETED"
-        or bool(item.new_video)
     ):
         tab = "completed"
 

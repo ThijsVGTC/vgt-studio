@@ -178,8 +178,17 @@ def bulk_video_upload(request):
                 save=False,
             )
             matched_item.new_video_status = "WACHT_OP_CONTROLE"
+            matched_item.review_status = "OPGENOMEN"
             matched_item.recording_workflow_status = "TODO"
-            matched_item.save(update_fields=["new_video","new_video_status",])
+            matched_item.signbank_exported = False
+
+            matched_item.save(update_fields=[
+                "new_video",
+                "new_video_status",
+                "review_status",
+                "recording_workflow_status",
+                "signbank_exported",
+            ])
             # Thumbnail automatisch genereren voor de nieuwe opnamevideo
             thumbnail_success, thumbnail_message = generate_thumbnail_for_item(
                 matched_item,
@@ -3033,82 +3042,195 @@ def recording_list(request):
 
 @login_required
 def bulk_update_recordings(request):
+    from urllib.parse import urlsplit
+
+    from django.db import transaction
+
+    from .recording_list_state import parse_recording_date
+
+    list_url = reverse("recording_list")
+    target = list_url
+
+    proposed = urlsplit(request.POST.get("return_url", ""))
+
+    if (
+        not proposed.scheme
+        and not proposed.netloc
+        and proposed.path == list_url
+    ):
+        target = list_url + (
+            "?" + proposed.query
+            if proposed.query
+            else ""
+        )
+
     if request.method != "POST":
-        return redirect("recording_list")
-    select_all = request.POST.get("select_all") == "1"
+        return redirect(list_url)
 
-    if select_all:
-        all_item_ids = request.POST.get(
-            "all_item_ids",
-            ""
-        )
-        items_ids = [
-            item_id.strip()
-            for item_id in all_item_ids.split(",")
-            if item_id.strip().isdigit()
-        ]
-    else:
-        items_ids = request.POST.getlist(
-            "item_ids"
-        )
-    if not items_ids:
-        return redirect("recording_list")
-    items=RecordingItem.objects.filter(id__in=items_ids)
-    recording_by = request.POST.get("bulk_recording_by","__KEEP__")
-    recording_date = request.POST.get("bulk_recording_date","__KEEP__")
-    new_recording_by = request.POST.get("bulk_recording_by_new","").strip()
-    new_recording_date = request.POST.get("bulk_recording_date_new","").strip()
-    status = request.POST.get("bulk_status", "__KEEP__")
-    review_status = request.POST.get("bulk_review_status", "__KEEP__")
+    raw_ids = (
+        request.POST.get("all_item_ids", "").split(",")
+        if request.POST.get("select_all") == "1"
+        else request.POST.getlist("item_ids")
+    )
 
-    # Wie opname
-    if recording_by == "__NEW":
-        if new_recording_by:
-            items.update(recording_by=new_recording_by)
-    elif recording_by != "__KEEP__":
-        if recording_by == "__EMPTY__":
-            recording_by = ""
-        items.update(
-            recording_by=recording_by
-        )
+    try:
+        selected_ids = {
+            int(value.strip())
+            for value in raw_ids
+            if value.strip()
+        }
 
-    # Wanneer opname
-    if recording_date == "__NEW__":
-        if new_recording_date:
-            items.update(recording_date=new_recording_date)
-    elif recording_date != "__KEEP__":
-        if recording_date == "__EMPTY__":
-            recording_date = ""
-        items.update(
-            recording_date=recording_date
-        )
+        if any(
+            value <= 0 or value > 9223372036854775807
+            for value in selected_ids
+        ):
+            raise ValueError
 
-    # Status
-    if status != "__KEEP__":
-        if status == "__EMPTY__":
-            status = ""
-        items.update(
-            status=status
+    except (ValueError, TypeError):
+        messages.error(
+            request,
+            "De selectie bevat een ongeldig opname-ID.",
         )
+        return redirect(target)
 
-    # Opnamestatus
-    if review_status != "__KEEP__":
-        allowed_review_statuses = [
+    if not selected_ids:
+        messages.info(
+            request,
+            "Selecteer eerst minstens één opname.",
+        )
+        return redirect(target)
+
+    updates = {}
+
+    for field in (
+        "recording_by",
+        "recording_date",
+        "status",
+    ):
+        value = request.POST.get(
+            "bulk_" + field,
+            "__KEEP__",
+        ).strip()
+
+        if value == "__KEEP__":
+            continue
+
+        if value == "__EMPTY__":
+            value = ""
+
+        elif value == "__NEW__":
+            if field not in {
+                "recording_by",
+                "recording_date",
+            }:
+                messages.error(
+                    request,
+                    "Ongeldige statuskeuze.",
+                )
+                return redirect(target)
+
+            value = request.POST.get(
+                "bulk_" + field + "_new",
+                "",
+            ).strip()
+
+            if not value:
+                messages.error(
+                    request,
+                    "Vul de nieuwe naam of datum in.",
+                )
+                return redirect(target)
+
+            if field == "recording_date":
+                parsed = parse_recording_date(value)
+
+                if parsed is None:
+                    messages.error(
+                        request,
+                        "Vul een geldige opnamedatum in.",
+                    )
+                    return redirect(target)
+
+                value = parsed.isoformat()
+
+        maximum = RecordingItem._meta.get_field(
+            field
+        ).max_length
+
+        if len(value) > maximum:
+            messages.error(
+                request,
+                "Een ingevulde waarde is te lang.",
+            )
+            return redirect(target)
+
+        updates[field] = value
+
+    review = request.POST.get(
+        "bulk_review_status",
+        "__KEEP__",
+    )
+
+    if review != "__KEEP__":
+        review = "" if review == "__EMPTY__" else review
+
+        allowed = {
             "",
             "OPGENOMEN",
             "OVER-OPM",
             "OVER-AL_VIDEO",
             "OPNAME_AFGEKEURD",
-        ]
-        if review_status == "__EMPTY__":
-            review_status = ""
-        if review_status in allowed_review_statuses:
-            items.update(
-                review_status=review_status
+        }
+
+        if review not in allowed:
+            messages.error(
+                request,
+                "Ongeldige opnamestatus.",
             )
+            return redirect(target)
 
-    return redirect("recording_list")
+        updates["review_status"] = review
+        updates["recording_workflow_status"] = (
+            "REJECTED"
+            if review == "OPNAME_AFGEKEURD"
+            else "TODO"
+        )
 
+    if not updates:
+        messages.info(
+            request,
+            "Er zijn geen wijzigingen gekozen.",
+        )
+        return redirect(target)
+
+    with transaction.atomic():
+        items = RecordingItem.objects.filter(
+            pk__in=selected_ids
+        )
+
+        current_ids = set(
+            items.select_for_update().values_list(
+                "pk",
+                flat=True,
+            )
+        )
+
+        if current_ids != selected_ids:
+            messages.error(
+                request,
+                "Een geselecteerde opname bestaat niet meer. "
+                "Vernieuw de lijst.",
+            )
+            return redirect(target)
+
+        count = items.update(**updates)
+
+    messages.success(
+        request,
+        f"{count} opname(s) bijgewerkt.",
+    )
+
+    return redirect(target)
 
 @login_required
 def start_recording_series(request):
