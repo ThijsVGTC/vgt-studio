@@ -2214,7 +2214,28 @@ def signbank_detail(request, signbank_id):
                 if item.get("id") else item
                 for item in items
             ]
+        from .etymology_views import get_etymology_notes
 
+        etymology_notes = get_etymology_notes(signbank_id)
+
+        def etymology_items(note_type):
+            return [
+                {
+                    **item,
+                    "updateUrl": action(
+                        "signbank_update_etymology",
+                        note_type=note_type,
+                        note_id=item["id"],
+                    ),
+                    "deleteUrl": action(
+                        "signbank_delete_etymology",
+                        note_type=note_type,
+                        note_id=item["id"],
+                    ),
+                }
+                for item in etymology_notes[note_type]
+            ]
+        
         return JsonResponse({
             "id": entry.signbank_id,
             "gloss": entry.gloss,
@@ -2224,6 +2245,9 @@ def signbank_detail(request, signbank_id):
             "inDictionary": "1" if entry.in_woordenboek else "0",
             "csrfToken": get_token(request),
             "canEditLabels": request.user.is_staff,
+            "canEditEtymology": request.user.is_staff,
+            "etymologyVideoItems": etymology_items("video"),
+            "etymologyTextItems": etymology_items("tekst"),
             "canDeleteEntry": request.user.is_staff,
             "deleteEntryUrl": (
                 action("signbank_delete_entry")
@@ -2292,10 +2316,10 @@ def signbank_detail(request, signbank_id):
             ),
             "otherNotes": recording_comments + gebarometer_comments,
             "etymology": [
-                item.get("text", "") for item in (entry.etymologie or [])
+                item["text"] for item in etymology_notes["video"]
             ],
             "etymologyTexts": [
-                item["text"] for item in etymology_texts
+                item["text"] for item in etymology_notes["tekst"]
             ],
             "actions": {
                 "gloss": action("signbank_update_gloss"),
@@ -2308,6 +2332,8 @@ def signbank_detail(request, signbank_id):
                 "addTranslation": action("signbank_add_translation"),
                 "addNote": action("signbank_add_opmerking"),
                 "addSource": action("signbank_add_source"),
+                "addEtymologyVideo": action("signbank_add_etymology",note_type="video",),
+                "addEtymologyText": action("signbank_add_etymology",note_type="tekst",),
             },
         })
     template_name = (

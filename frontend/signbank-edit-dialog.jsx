@@ -123,31 +123,80 @@ function MultiField({ name, label, initial, options, disabled, limit }) {
     );
 }
 
-function TextItems({ items, addUrl, label, name, save, disabled, confirmDelete, multiline = false }) {
+function TextItems({
+    items,
+    addUrl,
+    label,
+    name,
+    save,
+    disabled,
+    confirmDelete,
+    multiline = false,
+    type = "text",
+    maxLength = 100,
+    minRows = 1,
+}) {
+    const inputOptions = multiline
+        ? undefined
+        : { htmlInput: { maxLength } };
+
     return (
         <>
             {items.map((item, index) => (
                 item.updateUrl ? (
-                    <EditForm key={JSON.stringify([item.id, item.text])}
-                              url={item.updateUrl} save={save} disabled={disabled}
-                              onDelete={() => confirmDelete(item.deleteUrl, item.text)}>
-                        <TextField name={name} label={item.author || label}
-                                   defaultValue={item.text} size="small" required
-                                   disabled={disabled} multiline={multiline}
-                                   slotProps={multiline ? undefined : { htmlInput: { maxLength: 100 } }} />
+                    <EditForm
+                        key={JSON.stringify([item.id, item.text])}
+                        url={item.updateUrl}
+                        save={save}
+                        disabled={disabled}
+                        onDelete={() =>
+                            confirmDelete(item.deleteUrl, item.text)
+                        }
+                    >
+                        <TextField
+                            name={name}
+                            label={item.author || label}
+                            defaultValue={item.text}
+                            size="small"
+                            required
+                            disabled={disabled}
+                            type={type}
+                            multiline={multiline}
+                            minRows={multiline ? minRows : undefined}
+                            slotProps={inputOptions}
+                        />
                     </EditForm>
                 ) : (
-                    <Typography key={`read-${index}`} variant="body2"
-                                sx={{ whiteSpace: "pre-wrap" }}>
-                        {item.author && <strong>{item.author} · </strong>}
+                    <Typography
+                        key={`read-${index}`}
+                        variant="body2"
+                        sx={{ whiteSpace: "pre-wrap" }}
+                    >
+                        {item.author && (
+                            <strong>{item.author} · </strong>
+                        )}
                         {item.text}
                     </Typography>
                 )
             ))}
-            <EditForm url={addUrl} save={save} disabled={disabled} add>
-                <TextField name={name} label={`${label} toevoegen`} size="small"
-                           required disabled={disabled} multiline={multiline}
-                           slotProps={multiline ? undefined : { htmlInput: { maxLength: 100 } }} />
+
+            <EditForm
+                url={addUrl}
+                save={save}
+                disabled={disabled}
+                add
+            >
+                <TextField
+                    name={name}
+                    label={`${label} toevoegen`}
+                    size="small"
+                    required
+                    disabled={disabled}
+                    type={type}
+                    multiline={multiline}
+                    minRows={multiline ? minRows : undefined}
+                    slotProps={inputOptions}
+                />
             </EditForm>
         </>
     );
@@ -418,37 +467,37 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                     )}
 
                                     <Section title="Etymologievideo" wide>
-                                        {data.etymology.length
-                                            ? data.etymology.map((text, index) => (
-                                                <Typography
-                                                    key={index}
-                                                    variant="body2"
-                                                    sx={{
-                                                        whiteSpace: "pre-wrap",
-                                                        overflowWrap: "anywhere",
-                                                    }}
-                                                >
-                                                    {text}
-                                                </Typography>
-                                            ))
-                                            : <Typography variant="body2">–</Typography>}
+                                        <TextItems
+                                            items={data.etymologyVideoItems ?? []}
+                                            addUrl={data.actions.addEtymologyVideo}
+                                            label="Etymologievideo"
+                                            name="text"
+                                            type="url"
+                                            maxLength={1000}
+                                            save={save}
+                                            disabled={
+                                                disabled ||
+                                                !data.canEditEtymology
+                                            }
+                                            confirmDelete={askDelete}
+                                        />
                                     </Section>
 
                                     <Section title="Etymologietekst" wide>
-                                        {data.etymologyTexts?.length
-                                            ? data.etymologyTexts.map((text, index) => (
-                                                <Typography
-                                                    key={index}
-                                                    variant="body2"
-                                                    sx={{
-                                                        whiteSpace: "pre-wrap",
-                                                        overflowWrap: "anywhere",
-                                                    }}
-                                                >
-                                                    {text}
-                                                </Typography>
-                                            ))
-                                            : <Typography variant="body2">–</Typography>}
+                                        <TextItems
+                                            items={data.etymologyTextItems ?? []}
+                                            addUrl={data.actions.addEtymologyText}
+                                            label="Etymologietekst"
+                                            name="text"
+                                            multiline
+                                            minRows={4}
+                                            save={save}
+                                            disabled={
+                                                disabled ||
+                                                !data.canEditEtymology
+                                            }
+                                            confirmDelete={askDelete}
+                                        />
                                     </Section>
 
                                     <Section title="Bronnen" wide>
