@@ -124,9 +124,18 @@ function MultiField({ name, label, initial, options, disabled, limit }) {
     );
 }
 
-function TextItemInput({ videoPreview, ...props }) {
+function TextItemInput({
+    videoPreview,
+    vimeoPreviewUrl,
+    ...props
+}) {
     return videoPreview
-        ? <EtymologyVideoField {...props} />
+        ? (
+            <EtymologyVideoField
+                {...props}
+                resolveUrl={vimeoPreviewUrl}
+            />
+        )
         : <TextField {...props} />;
 }
 
@@ -144,6 +153,7 @@ function TextItems({
     maxLength = 100,
     minRows = 1,
     videoPreview = false,
+    vimeoPreviewUrl,
 }) {
     const inputOptions = multiline
         ? undefined
@@ -174,6 +184,7 @@ function TextItems({
                             multiline={multiline}
                             minRows={multiline ? minRows : undefined}
                             slotProps={inputOptions}
+                            vimeoPreviewUrl={vimeoPreviewUrl}
                         />
                     </EditForm>
                 ) : (
@@ -207,6 +218,7 @@ function TextItems({
                     multiline={multiline}
                     minRows={multiline ? minRows : undefined}
                     slotProps={inputOptions}
+                    vimeoPreviewUrl={vimeoPreviewUrl}
                 />
             </EditForm>
         </>
@@ -485,6 +497,9 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                             name="text"
                                             type="url"
                                             videoPreview
+                                            vimeoPreviewUrl={
+                                                data.actions.vimeoPreview
+                                            }
                                             maxLength={1000}
                                             save={save}
                                             disabled={
