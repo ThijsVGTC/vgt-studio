@@ -7,7 +7,7 @@ import {
 const NO_LABEL = "__geen_label__";
 const formatNumber = new Intl.NumberFormat("nl-BE");
 
-function FilterMenu({
+export function FilterMenu({
     label, options, value, count, onChange, selectAll = false, single = false,
 }) {
     const [anchor, setAnchor] = useState(null);
