@@ -3,6 +3,16 @@ import { EtymologyCamera } from "./etymology-camera.jsx";
 import { Alert, Button, MenuItem, Stack, TextField, Checkbox, FormControlLabel } from "@mui/material";
 import { EtymologyVideoField } from "./etymology-video-field.jsx";
 
+const primaryButtonSx = {
+  backgroundColor: "#303f6b",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 700,
+  "&:hover": {
+    backgroundColor: "#253153",
+  },
+};
+
 export function EtymologyPairForm({
   pair = null,
   config,
@@ -191,8 +201,13 @@ export function EtymologyPairForm({
         <Button onClick={onCancel} disabled={disabled}>
           Annuleren
         </Button>
-        <Button type="submit" variant="contained" disabled={disabled}>
-          Paar opslaan
+        <Button
+        type="submit"
+        variant="contained"
+        disabled={disabled}
+        sx={primaryButtonSx}
+        >
+        Paar opslaan
         </Button>
       </Stack>
     </Stack>

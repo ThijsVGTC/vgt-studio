@@ -49,6 +49,16 @@ function EtymologyPlayer({ url, resolveUrl }) {
   return <Typography sx={{ overflowWrap: "anywhere" }}>{url}</Typography>;
 }
 
+const primaryButtonSx = {
+  backgroundColor: "#303f6b",
+  color: "#fff",
+  textTransform: "none",
+  fontWeight: 700,
+  "&:hover": {
+    backgroundColor: "#253153",
+  },
+};
+
 export function EtymologyPairs({
   url,
   disabled = false,
@@ -239,7 +249,7 @@ async function savePair(payload) {
     variant="contained"
     disabled={disabled || saving || blocked}
     onClick={() => setActivePair(null)}
-    sx={{ alignSelf: "flex-start" }}
+    sx={{ ...primaryButtonSx, alignSelf: "flex-start" }}
   >
     Etymologiepaar toevoegen
   </Button>

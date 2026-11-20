@@ -303,3 +303,61 @@ def save_etymology_pair(
                 )
 
         raise
+
+def delete_etymology_pair(
+    signbank_id,
+    pair_number,
+    expected_revision,
+    signbank_user_id,
+):
+    if type(pair_number) is not int or pair_number < 0:
+        raise ValueError("Ongeldig paarnummer.")
+
+    service = SignbankService()
+
+    with service.write_connection() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+
+        check_gloss_and_user(
+            conn,
+            signbank_id,
+            signbank_user_id,
+        )
+
+        rows = _read_notes(conn, signbank_id, pair_number)
+
+        if not rows:
+            raise ValueError(
+                "Dit etymologiepaar bestaat niet meer. "
+                "Laad de gegevens opnieuw."
+            )
+
+        pair = _pair_data(pair_number, rows)
+
+        if pair["ambiguous"]:
+            raise ValueError(
+                "Deze index bevat meerdere video's of teksten. "
+                "Koppel de bestaande notities eerst."
+            )
+
+        if expected_revision != pair["revision"]:
+            raise ValueError(
+                "Dit paar is ondertussen gewijzigd. "
+                "Laad de gegevens opnieuw."
+            )
+
+        conn.execute(
+            """
+            DELETE FROM dictionary_definition
+            WHERE gloss_id = ?
+              AND count = ?
+              AND LOWER(role) IN ('ety', 'etymology_text')
+            """,
+            (signbank_id, pair_number),
+        )
+
+        update_last_author(
+            conn,
+            signbank_id,
+            signbank_user_id,
+        )
