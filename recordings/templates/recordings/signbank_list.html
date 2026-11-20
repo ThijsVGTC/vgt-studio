@@ -280,6 +280,8 @@ Signbank | VGT Studio
     <div
         id="signbank-react-table"
         data-list-url="{% url 'signbank_list' %}"
+        data-add-recordings-url="{% url 'signbank_add_to_recordings' %}"
+        data-csrf-token="{{ csrf_token }}"
     ></div>
 
 

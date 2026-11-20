@@ -80,7 +80,7 @@ function EtymologyValue({ text }) {
     );
 }
 
-export function SignbankTable({ listUrl }) {
+export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
     const [rows, setRows] = useState(null);
     const [error, setError] = useState(false);
     const [loading, setLoading] = useState(true);
@@ -97,6 +97,81 @@ export function SignbankTable({ listUrl }) {
     const [columnAnchor, setColumnAnchor] = useState(null);
     const [info, setInfo] = useState(null);
     const [editingRow, setEditingRow] = useState(null);
+    const [selected, setSelected] = useState(() => new Set());
+    const [addingRecordings, setAddingRecordings] = useState(false);
+    const [recordingsError, setRecordingsError] = useState("");
+    const addingRecordingsRef = React.useRef(false);
+
+    const selectedIds = (rows ?? [])
+        .filter((row) => selected.has(row.id))
+        .map((row) => row.id);
+
+    function toggleSelection(id) {
+        setSelected((current) => {
+            const next = new Set(current);
+
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+
+            return next;
+        });
+    }
+
+    async function addToRecordings() {
+        if (!selectedIds.length || addingRecordingsRef.current) return;
+
+        addingRecordingsRef.current = true;
+        setAddingRecordings(true);
+        setRecordingsError("");
+
+        try {
+            const body = new URLSearchParams();
+
+            for (const id of selectedIds) {
+                body.append("signbank_ids", String(id));
+            }
+
+            const response = await fetch(addRecordingsUrl, {
+                method: "POST",
+                credentials: "same-origin",
+                headers: {
+                    "X-CSRFToken": csrfToken,
+                    "Accept": "application/json",
+                },
+                body,
+            });
+
+            const contentType = response.headers.get("content-type") || "";
+
+            if (!contentType.includes("application/json")) {
+                throw new Error(
+                    "Toevoegen kon niet worden bevestigd. " +
+                    "Controleer de opnamelijst en vernieuw zo nodig deze pagina."
+                );
+            }
+
+            const result = await response.json();
+
+            if (!response.ok || !result.success) {
+                throw new Error(
+                    result.error || "Toevoegen aan opnames is niet gelukt."
+                );
+            }
+
+            window.location.assign(result.redirectUrl);
+        } catch (error) {
+            setRecordingsError(
+                error.message ||
+                "Toevoegen kon niet worden bevestigd. Controleer de opnamelijst."
+            );
+        } finally {
+            addingRecordingsRef.current = false;
+            setAddingRecordings(false);
+        }
+    }
 
     const visibleColumns = columns.filter(
         ({ id, pinned }) => pinned || id <= 2 || columnPreferences[id] !== false
@@ -269,7 +344,25 @@ export function SignbankTable({ listUrl }) {
 
         switch (id) {
             case 1:
-                return <Link href={row.detailUrl} fontWeight={600}>{row.gloss}</Link>;
+                return (
+                    <Stack direction="row" spacing={0.5}
+                           sx={{ alignItems: "center" }}>
+                        <Checkbox
+                            size="small"
+                            checked={selected.has(row.id)}
+                            disabled={addingRecordings}
+                            onChange={() => toggleSelection(row.id)}
+                            slotProps={{
+                                input: {
+                                    "aria-label": `Selecteer ${row.gloss}`,
+                                },
+                            }}
+                        />
+                        <Link href={row.detailUrl} fontWeight={600}>
+                            {row.gloss}
+                        </Link>
+                    </Stack>
+                );
             case 2:
                 return row.thumbnailUrl && row.videoUrl ? (
                     <Link href={row.videoUrl} target="_blank" rel="noopener">
@@ -354,6 +447,30 @@ export function SignbankTable({ listUrl }) {
         <>
             <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}
                    sx={{ justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
+                                <Typography variant="body2" role="status">
+                    {selectedIds.length} geselecteerd
+                </Typography>
+
+                <Button
+                    size="small"
+                    variant="outlined"
+                    disabled={!selectedIds.length || addingRecordings}
+                    onClick={() => setSelected(new Set())}
+                >
+                    Selectie wissen
+                </Button>
+
+                <Button
+                    size="small"
+                    variant="contained"
+                    disableElevation
+                    disabled={!selectedIds.length || addingRecordings}
+                    onClick={addToRecordings}
+                >
+                    {addingRecordings
+                        ? "Bezig met toevoegen…"
+                        : "Toevoegen aan opnames"}
+                </Button>
                 <Button size="small" variant="outlined" onClick={toggleHandshapes}>
                     Handvormen · {showNames ? "Namen" : "Afbeeldingen"}
                 </Button>
@@ -396,7 +513,12 @@ export function SignbankTable({ listUrl }) {
                     ))}
                 </Stack>
             </Popover>
-
+            
+            {recordingsError && (
+                <Alert severity="error" sx={{ mb: 1 }}>
+                    {recordingsError}
+                </Alert>
+            )}
             <TableContainer className="signbank-table-wrapper">
                 <Table className="signbank-sticky-columns" size="small"
                        aria-label="Signbank-tabel"

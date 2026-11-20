@@ -23,6 +23,7 @@ urlpatterns = [
     path("signbank/<int:signbank_id>/opmerking/<int:opmerking_id>/update/",views.signbank_update_opmerking,name="signbank_update_opmerking",),
     path("signbank/<int:signbank_id>/opmerking/<int:opmerking_id>/delete/", views.signbank_delete_opmerking, name="signbank_delete_opmerking"),
     path("signbank/nieuw/",views.signbank_create,name="signbank_create"),
+    path("signbank/toevoegen-aan-opnames/",views.signbank_add_to_recordings,name="signbank_add_to_recordings",),
     path("", RedirectView.as_view(pattern_name="signbank_list"), name="studio_home"),
     path("opnames/", views.recording_list, name="recording_list"),
     path("bulk-update/",views.bulk_update_recordings,name="bulk_update_recordings"),

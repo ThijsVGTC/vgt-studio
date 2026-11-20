@@ -2767,7 +2767,85 @@ def signbank_list(request):
         },
     )
 
+@login_required
+def signbank_add_to_recordings(request):
+    from django.db import transaction
 
+    if request.method != "POST":
+        return HttpResponseNotAllowed(["POST"])
+
+    try:
+        signbank_ids = {
+            int(value)
+            for value in request.POST.getlist("signbank_ids")
+        }
+    except (TypeError, ValueError):
+        return JsonResponse(
+            {"error": "De selectie bevat een ongeldig Signbank-ID."},
+            status=400,
+        )
+
+    if not signbank_ids:
+        return JsonResponse(
+            {"error": "Selecteer eerst minstens één entry."},
+            status=400,
+        )
+
+    added_count = 0
+    replanned_count = 0
+
+    with transaction.atomic():
+        entries = list(
+            SignbankEntry.objects
+            .filter(signbank_id__in=signbank_ids)
+            .order_by("signbank_id")
+        )
+
+        if len(entries) != len(signbank_ids):
+            return JsonResponse(
+                {
+                    "error": (
+                        "Een geselecteerde entry bestaat niet meer. "
+                        "Vernieuw de Signbank-lijst en probeer opnieuw."
+                    )
+                },
+                status=400,
+            )
+
+        for entry in entries:
+            item, created = RecordingItem.objects.get_or_create(
+                signbank_id=entry.signbank_id,
+                defaults={
+                    "signbank_entry": entry,
+                    "gloss_id": entry.gloss,
+                    "old_video_url": entry.video_url or "",
+                    "thumbnail_path": entry.thumbnail_path or "",
+                    "recording_workflow_status": "TODO",
+                },
+            )
+
+            if created:
+                added_count += 1
+            else:
+                item.recording_workflow_status = "TODO"
+                item.save(
+                    update_fields=["recording_workflow_status"]
+                )
+                replanned_count += 1
+
+    notification = (
+        f"{added_count} entry(s) toegevoegd aan de opnamelijst. "
+        f"{replanned_count} entry(s) opnieuw ingepland voor heropname."
+    )
+
+    messages.success(request, notification)
+
+    return JsonResponse({
+        "success": True,
+        "added": added_count,
+        "replanned": replanned_count,
+        "redirectUrl": reverse("recording_list"),
+    })
 
 @login_required
 def recording_list(request):

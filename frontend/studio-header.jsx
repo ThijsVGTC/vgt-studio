@@ -256,7 +256,7 @@ function StudioHeader() {
 
             {signbankTable && createPortal(
                 <UploadChoiceBoundary>
-                    <SignbankTable listUrl={signbankTable.dataset.listUrl} />
+                    <SignbankTable listUrl={signbankTable.dataset.listUrl} addRecordingsUrl={signbankTable.dataset.addRecordingsUrl} csrfToken={signbankTable.dataset.csrfToken}/>
                 </UploadChoiceBoundary>,
                 signbankTable
             )}
