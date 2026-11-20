@@ -115,6 +115,7 @@ export function RecordingListFilters({
 
   return (
     <Stack
+    className="recording-sticky-controls"
   spacing={2}
   sx={{
     position: "sticky",

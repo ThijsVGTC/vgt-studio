@@ -226,6 +226,7 @@ export function RecordingListActions({
         action={data.urls.bulkUpdate}
         onSubmit={(event) => submit(event, selectedCount)}
         variant="outlined"
+        hidden={selectedCount === 0}
         aria-label="Opnames gezamenlijk aanpassen"
         sx={{
             p: 2,

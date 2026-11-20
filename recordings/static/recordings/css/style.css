@@ -2871,3 +2871,170 @@ html[data-reading-mode="true"] .vgt-signbank-create-dialog {
 .vgt-signbank-create-dialog textarea.MuiInputBase-input {
     min-height: 0;
 }
+
+/* Opnames: dezelfde maten en opmaak als Signbank */
+
+#recordings-react-list {
+    --op-accent: #924338;
+    --op-outline: #b5786e;
+    --op-panel: #fbefec;
+    --op-border: #ead2cc;
+    --op-surface: var(--surface-color, #fff);
+    --op-text: var(--text-color, #1f2937);
+}
+
+html[data-theme="dark"] #recordings-react-list {
+    --op-accent: #e8aa9d;
+    --op-outline: #d49b90;
+    --op-panel: #302321;
+    --op-border: #76554e;
+}
+
+html[data-reading-mode="true"] #recordings-react-list {
+    --op-accent: #ffe500;
+    --op-outline: #ffe500;
+    --op-panel: #000;
+    --op-border: #a6a6a6;
+    --op-surface: #000;
+    --op-text: #fff;
+}
+
+/* Titel */
+
+#recordings-react-list h1.MuiTypography-root {
+    font-size: 2.125rem;
+    line-height: 1.235;
+    font-weight: 700;
+    margin: 0;
+}
+
+/* Knoppen: dezelfde basismaat als Signbank */
+
+#recordings-react-list .MuiButton-root {
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: none;
+    border-radius: 4px;
+}
+
+/* Tabs en filters blijven bovenaan staan */
+
+#recordings-react-list .recording-sticky-controls {
+    position: sticky;
+    top: 0;
+    z-index: 30;
+    padding-block: 0.4rem;
+    background: var(--op-surface);
+}
+
+/* Filterblok */
+
+#recordings-react-list form[aria-label="Opnames filteren"] {
+    padding: 0.85rem 1rem;
+    border: 1px solid var(--op-border);
+    border-radius: 14px;
+    background: var(--op-panel);
+    box-shadow: none;
+}
+
+/* Compacte opnamereeks */
+
+#recordings-react-list form[aria-label="Opnamereeks starten"] {
+    align-self: flex-start;
+    width: fit-content;
+    max-width: 100%;
+    padding: 0.65rem 0.85rem;
+    border-radius: 14px;
+}
+
+#recordings-react-list form[aria-label="Opnamereeks starten"]
+    > .MuiStack-root {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+#recordings-react-list form[aria-label="Opnamereeks starten"]
+    > .MuiStack-root > * {
+    margin: 0;
+}
+
+#recordings-react-list form[aria-label="Opnamereeks starten"] h2 {
+    margin: 0;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    font-weight: 700;
+}
+
+#recordings-react-list form[aria-label="Opnamereeks starten"]
+    .MuiFormControl-root {
+    width: 220px;
+    min-width: 0;
+    max-width: 100%;
+}
+
+/* Selectieblok */
+
+#recordings-react-list form[aria-label="Opnames gezamenlijk aanpassen"] {
+    border-radius: 14px;
+}
+
+#recordings-react-list form[hidden] {
+    display: none;
+}
+
+/* Tabel */
+
+#recordings-react-list .MuiTableContainer-root {
+    border: 1px solid var(--op-border);
+    border-radius: 14px;
+}
+
+#recordings-react-list .MuiTableCell-root {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.875rem;
+    line-height: 1.5;
+    vertical-align: middle;
+    border-bottom-color: var(--op-border);
+    color: var(--op-text);
+}
+
+#recordings-react-list .MuiTableCell-head {
+    background-color: var(--op-panel);
+    font-weight: 700;
+}
+
+#recordings-react-list .MuiTableHead-root .MuiCheckbox-root {
+    padding: 0;
+}
+
+#recordings-react-list .MuiTableCell-body {
+    background-color: var(--op-surface);
+}
+
+#recordings-react-list .MuiTableRow-root:hover > .MuiTableCell-body,
+#recordings-react-list .MuiTableRow-root.Mui-selected > .MuiTableCell-body {
+    background-color: var(--op-panel);
+}
+
+#recordings-react-list .MuiTableContainer-root .MuiLink-root {
+    color: var(--op-accent);
+}
+
+#recordings-react-list .MuiTableContainer-root .MuiChip-root {
+    background: var(--op-panel);
+    border: 1px solid var(--op-border);
+    color: var(--op-text);
+}
+
+#recordings-react-list .MuiTableContainer-root .MuiButton-root {
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+#recordings-react-list .MuiTableContainer-root .MuiButton-outlined {
+    padding: 0.3rem 0.6rem;
+    border-color: var(--op-outline);
+    color: var(--op-accent);
+}
