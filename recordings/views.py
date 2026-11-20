@@ -2160,18 +2160,31 @@ def signbank_detail(request, signbank_id):
             })
 
     signbank_comments = []
+    etymology_texts = []
 
     for opmerking in entry.opmerkingen or []:
         text = (opmerking.get("text") or "").strip()
+        role = (
+            opmerking.get("type")
+            or opmerking.get("role")
+            or ""
+        ).strip()
 
         if not text:
+            continue
+
+        if role.lower() == "etymology_text":
+            etymology_texts.append({
+                "id": opmerking.get("id"),
+                "text": text,
+            })
             continue
 
         signbank_comments.append({
             "id": opmerking.get("id"),
             "source": "Signbank",
             "text": text,
-            "author": opmerking.get("type") or opmerking.get("role") or "",
+            "author": role,
             "date": None,
         })
     recording_comments_count = sum(
@@ -2274,6 +2287,9 @@ def signbank_detail(request, signbank_id):
             "otherNotes": recording_comments + gebarometer_comments,
             "etymology": [
                 item.get("text", "") for item in (entry.etymologie or [])
+            ],
+            "etymologyTexts": [
+                item["text"] for item in etymology_texts
             ],
             "actions": {
                 "gloss": action("signbank_update_gloss"),

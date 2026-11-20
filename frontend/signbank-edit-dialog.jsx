@@ -416,13 +416,38 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                         </Section>
                                     )}
 
-                                    <Section title="Etymologie" wide>
-                                        {data.etymology.length ? data.etymology.map((text, index) => (
-                                            <Typography key={index} variant="body2"
-                                                        sx={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
-                                                {text}
-                                            </Typography>
-                                        )) : <Typography variant="body2">–</Typography>}
+                                    <Section title="Etymologievideo" wide>
+                                        {data.etymology.length
+                                            ? data.etymology.map((text, index) => (
+                                                <Typography
+                                                    key={index}
+                                                    variant="body2"
+                                                    sx={{
+                                                        whiteSpace: "pre-wrap",
+                                                        overflowWrap: "anywhere",
+                                                    }}
+                                                >
+                                                    {text}
+                                                </Typography>
+                                            ))
+                                            : <Typography variant="body2">–</Typography>}
+                                    </Section>
+
+                                    <Section title="Etymologietekst" wide>
+                                        {data.etymologyTexts?.length
+                                            ? data.etymologyTexts.map((text, index) => (
+                                                <Typography
+                                                    key={index}
+                                                    variant="body2"
+                                                    sx={{
+                                                        whiteSpace: "pre-wrap",
+                                                        overflowWrap: "anywhere",
+                                                    }}
+                                                >
+                                                    {text}
+                                                </Typography>
+                                            ))
+                                            : <Typography variant="body2">–</Typography>}
                                     </Section>
 
                                     <Section title="Bronnen" wide>
