@@ -1,6 +1,7 @@
 from datetime import date, datetime
 
 from django.utils import timezone
+from zoneinfo import ZoneInfo
 
 
 RECORDING_TABS = (
@@ -40,7 +41,9 @@ def parse_recording_date(value):
 
 def get_recording_state(item, today=None):
     if today is None:
-        today = timezone.localdate()
+        today = timezone.localdate(
+            timezone=ZoneInfo("Europe/Brussels")
+        )
 
     planned_date = parse_recording_date(item.recording_date)
     review = item.review_status or ""

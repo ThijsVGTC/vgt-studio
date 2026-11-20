@@ -389,6 +389,18 @@ function RecordingListContent({ dataUrl }) {
           >
             Bulk video-upload
           </Button>
+
+          <Button href={data.urls.importUrls}>
+            URL-lijst importeren
+          </Button>
+
+          <Button href={data.urls.importGoogleSheet}>
+             Google Sheet koppelen
+          </Button>
+
+          <Button href={data.urls.syncGoogleSheet}>
+            Google Sheet synchroniseren
+        </Button>
         </Stack>
       </Stack>
 

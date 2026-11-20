@@ -14,6 +14,7 @@ import { SignbankListControls } from "./signbank-list.jsx";
 import { SignbankTable } from "./signbank-table.jsx";
 import { SignbankCreateDialog } from "./signbank-create-dialog.jsx";
 import { SignbankEditDialog } from "./signbank-edit-dialog.jsx";
+import { RecordingList } from "./recording-list.jsx";
 
 const mount = document.getElementById("studio-react-header");
 const links = mount.dataset;
@@ -126,6 +127,7 @@ function StudioHeader() {
     const signbankControls = document.getElementById("signbank-react-controls");
     const signbankTable = document.getElementById("signbank-react-table");
     const signbankDetail = document.getElementById("signbank-react-detail");
+    const recordingList = document.getElementById("recordings-react-list");
 
     return (
         <ThemeProvider theme={theme}>
@@ -272,6 +274,14 @@ function StudioHeader() {
                     }}
                 />,
                 signbankDetail
+            )}
+
+            {recordingList && createPortal(
+            <RecordingList
+                dataUrl={recordingList.dataset.apiUrl}
+                mode={reading ? "contrast" : dark ? "dark" : "light"}
+            />,
+            recordingList
             )}
         </ThemeProvider>
     );

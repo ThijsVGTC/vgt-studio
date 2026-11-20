@@ -8,7 +8,7 @@ from django.middleware.csrf import get_token
 from django.urls import reverse
 from django.utils import timezone
 from django.views.decorators.http import require_GET
-
+from zoneinfo import ZoneInfo
 from .models import RecordingItem, RecordingSeriesItem, SignbankEntry
 from .recording_list_data import serialize_recording_item
 from .recording_list_state import (
@@ -101,7 +101,9 @@ def recording_list_data(request):
 
         items = items.filter(search)
 
-    today = timezone.localdate()
+    today = timezone.localdate(
+        timezone=ZoneInfo("Europe/Brussels")
+    )
     matching = list(items.order_by("signbank_id"))
 
     states = {
@@ -257,5 +259,8 @@ def recording_list_data(request):
             "startSeries": reverse("start_recording_series"),
             "seriesList": reverse("recording_series_list"),
             "bulkVideoUpload": reverse("bulk_video_upload"),
+            "importUrls": reverse("import_urls"),
+            "importGoogleSheet": reverse("import_google_sheet"),
+            "syncGoogleSheet": reverse("sync_google_sheet"),
         },
     })
