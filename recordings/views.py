@@ -2534,7 +2534,7 @@ def get_filtered_signbank_entries(request):
         entries = entries.filter(
             in_woordenboek=False
         )
-    if request.GET.get("has_etymology") == "yes":
+    if request.GET.get("has_etymology") in {"yes", "no"}:
         text_only_ids = [
             pk
             for pk, notes in (
@@ -2551,10 +2551,15 @@ def get_filtered_signbank_entries(request):
             )
         ]
 
-        entries = entries.filter(
+        etymology_filter = (
             Q(etymologie__0__isnull=False)
             | Q(pk__in=text_only_ids)
         )
+
+        if request.GET.get("has_etymology") == "yes":
+            entries = entries.filter(etymology_filter)
+        else:
+            entries = entries.exclude(etymology_filter)
     return entries
 
 def serialize_signbank_row(entry):
@@ -2781,7 +2786,11 @@ def signbank_list(request):
                 "selectedFunctionalLabels": selected_functional_labels,
                 "selectedInternalLabels": selected_internal_labels,
                 "inDictionary": selected_in_dictionary,
-                "hasEtymology": request.GET.get("has_etymology") == "yes",
+                "etymologyFilter": (
+                    request.GET.get("has_etymology")
+                    if request.GET.get("has_etymology") in {"yes", "no"}
+                    else ""
+                ),
                 "defaultHiddenLabels": SIGNBANK_DEFAULT_HIDDEN_LABELS,
                 "filteredCount": page_obj.paginator.count,
                 "canCreate": request.user.is_staff,
