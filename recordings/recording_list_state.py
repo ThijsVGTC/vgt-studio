@@ -80,8 +80,12 @@ def get_recording_state(item, today=None):
     ):
         tab = "completed"
 
-    elif planned_date is not None and planned_date >= today:
-        tab = "planned"
+    elif planned_date is not None:
+        tab = (
+            "completed"
+            if planned_date < today
+            else "planned"
+        )
 
     else:
         tab = "unplanned"

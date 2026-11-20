@@ -10,7 +10,7 @@ import {
   Tabs,
   TextField,
 } from "@mui/material";
-
+import { alpha } from "@mui/material/styles";
 import { FilterMenu } from "./signbank-list.jsx";
 
 const filterLabels = {
@@ -114,7 +114,16 @@ export function RecordingListFilters({
   }
 
   return (
-    <Stack spacing={2}>
+    <Stack
+  spacing={2}
+  sx={{
+    position: "sticky",
+    top: 0,
+    zIndex: 30,
+    bgcolor: "background.default",
+    py: 0.75,
+  }}
+>
       <Box sx={{ borderBottom: 1, borderColor: "divider" }}>
         <Tabs
           value={data.tab}
@@ -164,15 +173,25 @@ export function RecordingListFilters({
         variant="outlined"
         onSubmit={submit}
         aria-label="Opnames filteren"
-        sx={{
-          p: 2,
-          borderRadius: 2,
-          bgcolor: "background.paper",
-          "& .signbank-filter-count": {
-            bgcolor: "primary.main",
-            color: "primary.contrastText",
-          },
-        }}
+        sx={(theme) => ({
+            p: 2,
+            borderRadius: 2,
+            bgcolor: alpha(theme.palette.primary.main, 0.08),
+            borderColor: alpha(theme.palette.primary.main, 0.25),
+            boxShadow: `0 6px 20px ${alpha(
+                theme.palette.primary.main,
+                0.07
+            )}`,
+            "& .signbank-filter-count": {
+                bgcolor: "primary.main",
+                color: "primary.contrastText",
+            },
+            'html[data-reading-mode="true"] &': {
+                bgcolor: "background.paper",
+                borderColor: "primary.main",
+                boxShadow: "none",
+            },
+        })}
       >
         <Stack
           direction="row"

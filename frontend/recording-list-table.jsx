@@ -15,6 +15,7 @@ import {
   TableRow,
   TableSortLabel,
   Typography,
+  useMediaQuery,
 } from "@mui/material";
 import { alpha, useTheme } from "@mui/material/styles";
 
@@ -51,6 +52,45 @@ export function RecordingListTable({
   loading = false,
 }) {
   const theme = useTheme();
+
+  const compact = useMediaQuery(
+  theme.breakpoints.down("sm")
+);
+
+const fixedWidths = {
+  gloss: compact ? 130 : 260,
+  oldVideo: compact ? 100 : 156,
+  action: compact ? 92 : 120,
+};
+
+function columnWidth(column) {
+  return fixedWidths[column.id] ?? 180;
+}
+
+function pinnedStyle(column, header = false) {
+  if (!column.required) return {};
+
+  return {
+    position: "sticky",
+    left:
+      column.id === "gloss"
+        ? 0
+        : column.id === "oldVideo"
+          ? fixedWidths.gloss
+          : undefined,
+    right: column.id === "action" ? 0 : undefined,
+    zIndex: header ? 4 : 2,
+    bgcolor: header
+      ? "primary.main"
+      : "background.paper",
+    boxShadow:
+      column.id === "oldVideo"
+        ? `4px 0 6px -4px ${theme.palette.divider}`
+        : column.id === "action"
+          ? `-4px 0 6px -4px ${theme.palette.divider}`
+          : "none",
+  };
+}
 
   const [preferences, setPreferences] = useState(readPreferences);
   const [columnAnchor, setColumnAnchor] = useState(null);
@@ -246,17 +286,29 @@ export function RecordingListTable({
           size="small"
           aria-label="Opnamelijst"
           aria-busy={loading}
-          sx={{
-            minWidth: Math.max(
-              700,
-              visibleColumns.length * 135
+            sx={{
+            tableLayout: "fixed",
+            width: visibleColumns.reduce(
+                (sum, column) => sum + columnWidth(column),
+                0
             ),
+            borderCollapse: "separate",
+            borderSpacing: 0,
             "& .MuiTableCell-root": {
-              py: 1.5,
-              verticalAlign: "top",
+                boxSizing: "border-box",
+                py: 1.5,
+                verticalAlign: "top",
             },
-          }}
+            }}
         >
+            <colgroup>
+            {visibleColumns.map((column) => (
+                <col
+                key={column.id}
+                style={{ width: columnWidth(column) }}
+                />
+            ))}
+            </colgroup>
           <TableHead>
             <TableRow>
               {visibleColumns.map((column) => (
@@ -272,13 +324,8 @@ export function RecordingListTable({
                     color: "primary.contrastText",
                     fontWeight: 700,
                     whiteSpace: "nowrap",
-                    ...(column.id === "action" && {
-                      position: "sticky",
-                      right: 0,
-                      zIndex: 2,
-                    }),
-                  }}
-                >
+                    ...pinnedStyle(column, true),
+                    }}>
                   {heading(column)}
                 </TableCell>
               ))}
@@ -297,16 +344,17 @@ export function RecordingListTable({
                   <TableCell
                     key={column.id}
                     sx={{
-                      minWidth:
-                        column.id === "gloss" ? 220 : 130,
-                      ...(column.id === "action" && {
-                        position: "sticky",
-                        right: 0,
-                        zIndex: 1,
-                        bgcolor: "background.paper",
-                        boxShadow:
-                          "-4px 0 6px -4px rgba(0,0,0,0.3)",
-                      }),
+                    width: columnWidth(column),
+                    overflow: "hidden",
+                    overflowWrap: "anywhere",
+                    "& .MuiChip-root": {
+                        maxWidth: "100%",
+                    },
+                    "& img": {
+                        maxWidth: "100%",
+                        height: "auto",
+                    },
+                    ...pinnedStyle(column),
                     }}
                   >
                     {column.id === "gloss" ? (

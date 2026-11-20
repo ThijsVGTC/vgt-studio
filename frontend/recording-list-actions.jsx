@@ -131,7 +131,12 @@ export function RecordingListActions({
         onSubmit={(event) => submit(event, seriesItems.length)}
         variant="outlined"
         aria-label="Opnamereeks starten"
-        sx={{ p: 2, borderRadius: 2 }}
+        sx={{
+            p: 1.25,
+            borderRadius: 2,
+            alignSelf: "flex-start",
+            maxWidth: "100%",
+        }}
       >
         <Hidden name="csrfmiddlewaretoken" value={data.csrfToken} />
 
@@ -148,8 +153,14 @@ export function RecordingListActions({
         <Hidden name="sort" value={data.sort} />
         <Hidden name="direction" value={data.direction} />
 
-        <Stack spacing={2}>
-          <Typography component="h2" variant="h6" fontWeight={700}>
+        <Stack
+            direction="row"
+            useFlexGap
+            flexWrap="wrap"
+            spacing={1}
+            sx={{ alignItems: "center" }}
+        >
+          <Typography component="h2" variant="subtitle2" fontWeight={700}>
             Opnamereeks
           </Typography>
 
@@ -169,7 +180,7 @@ export function RecordingListActions({
               slotProps={{
                 htmlInput: { maxLength: 255 },
               }}
-              sx={{ minWidth: 250 }}
+              sx={{ width: 220, maxWidth: "100%" }}
             />
 
             <TextField
@@ -179,7 +190,7 @@ export function RecordingListActions({
               value={scope}
               disabled={busy}
               onChange={(event) => setScope(event.target.value)}
-              sx={{ minWidth: 240 }}
+              sx={{ width: 220, maxWidth: "100%" }}
             >
               <MenuItem value="filtered">
                 Gefilterde lijst ({data.filteredCount})
@@ -216,7 +227,11 @@ export function RecordingListActions({
         onSubmit={(event) => submit(event, selectedCount)}
         variant="outlined"
         aria-label="Opnames gezamenlijk aanpassen"
-        sx={{ p: 2, borderRadius: 2 }}
+        sx={{
+            p: 2,
+            borderRadius: 2,
+            display: selectedCount > 0 ? "block" : "none",
+        }}
       >
         <Hidden name="csrfmiddlewaretoken" value={data.csrfToken} />
         <Hidden name="return_url" value={returnUrl} />
