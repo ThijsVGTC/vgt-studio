@@ -105,6 +105,7 @@ export function EtymologyPairs({
     load();
     return () => controller.abort();
   }, [url]);
+
 async function savePair(payload) {
   if (!data || disabled || blocked || savingNow.current) return;
 
@@ -177,6 +178,75 @@ async function savePair(payload) {
     onBusyChange?.(false);
   }
 }
+
+
+async function deletePair(pair) {
+  if (disabled || blocked || savingNow.current) return;
+
+  if (!window.confirm(
+    "Dit etymologiepaar verwijderen? De videoverwijzing en bijbehorende tekst worden uit Signbank verwijderd."
+  )) return;
+
+  savingNow.current = true;
+  setSaving(true);
+  setNotice(null);
+  onBusyChange?.(true);
+
+  try {
+    const payload = new FormData();
+    payload.set("pair_number", String(pair.pairNumber));
+    payload.set("expected_revision", pair.revision);
+
+    const response = await fetch(data.deleteUrl, {
+      method: "POST",
+      credentials: "same-origin",
+      headers: {
+        Accept: "application/json",
+        "X-CSRFToken": data.csrfToken,
+      },
+      body: payload,
+      signal: AbortSignal.timeout(180000),
+    });
+
+    const result = await response.json();
+
+    if (!response.ok || !result.success) {
+      if (result.outcomeUnknown !== false) {
+        throw new Error("Verwijdering niet bevestigd.");
+      }
+
+      setNotice({
+        severity: "error",
+        text: result.error || "Verwijderen mislukt.",
+      });
+      return;
+    }
+
+    setData((current) => ({
+      ...current,
+      pairs: current.pairs.filter(
+        (item) => item.pairNumber !== pair.pairNumber
+      ),
+    }));
+
+    onChanged?.();
+    setNotice({
+      severity: result.warning ? "warning" : "success",
+      text: result.warning || "Etymologiepaar verwijderd.",
+    });
+  } catch {
+    setBlocked(true);
+    setNotice({
+      severity: "error",
+      text: "Geen verwijderbevestiging ontvangen. Heropen het scherm om het resultaat te controleren.",
+    });
+  } finally {
+    savingNow.current = false;
+    setSaving(false);
+    onBusyChange?.(false);
+  }
+}
+
   if (error) return <Alert severity="error">{error}</Alert>;
   if (!data) return <Typography>Etymologie laden…</Typography>;
 
@@ -226,6 +296,19 @@ async function savePair(payload) {
                 sx={{ alignSelf: "flex-end" }}
             >
                 Paar bewerken
+            </Button>
+            )}
+            {data.canEdit && !pair.ambiguous && (
+            <Button
+                variant="outlined"
+                color="error"
+                disabled={
+                disabled || saving || blocked || activePair !== undefined
+                }
+                onClick={() => deletePair(pair)}
+                sx={{ alignSelf: "flex-end", textTransform: "none" }}
+            >
+                Paar verwijderen
             </Button>
             )}
           </Stack>
