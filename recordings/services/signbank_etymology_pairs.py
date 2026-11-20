@@ -1,19 +1,18 @@
 import hashlib
 import json
+import logging
 
 from django.core.validators import URLValidator
-
 from .signbank_service import SignbankService
 from .signbank_etymology import (
     check_gloss_and_user,
     update_last_author,
 )
-
-import logging
-
 from .etymology_video_storage import (
     store_etymology_video,
     discard_unused_etymology_video,
+    archive_etymology_video,
+    discard_archived_etymology_video,
 )
 
 logger = logging.getLogger(__name__)
@@ -144,6 +143,7 @@ def save_etymology_pair(
 
     service = SignbankService()
     stored = None
+    archived = None
 
     try:
         with service.write_connection() as conn:
@@ -235,6 +235,19 @@ def save_etymology_pair(
                 )
 
                 video_url = stored["url"]
+            previous_video = existing_by_role.get("ety")
+            previous_url = (
+                (previous_video["text"] or "").strip()
+                if previous_video is not None
+                else ""
+            )
+
+            if (
+                not keep_video
+                and previous_url
+                and previous_url != video_url
+            ):
+                archived = archive_etymology_video(previous_url)
 
             for role, value in (
                 ("ety", video_url),
@@ -288,6 +301,15 @@ def save_etymology_pair(
                 pair_number,
                 _read_notes(conn, signbank_id, pair_number),
             )
+        if archived is not None:
+            try:
+                discard_archived_etymology_video(archived)
+            except Exception:
+                logger.exception(
+                    "Etymologiepaar opgeslagen en oude video "
+                    "gearchiveerd, maar opruimen niet afgerond: %s",
+                    archived["url"],
+                )
 
         return saved
 

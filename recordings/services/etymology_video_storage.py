@@ -278,3 +278,60 @@ def discard_unused_etymology_video(stored):
         path.unlink(missing_ok=True)
 
     return True
+
+def discard_archived_etymology_video(archived):
+    if archived is None:
+        return False
+
+    root = Path(
+        settings.SIGNBANK_ETYMOLOGYVIDEO_ROOT
+    ).resolve()
+
+    path = Path(archived["path"]).resolve()
+
+    if (
+        not path.is_relative_to(root)
+        or archived["url"] != _video_url(root, path)
+    ):
+        raise ValueError("Ongeldig pad voor de oude etymologievideo.")
+
+    service = SignbankService()
+
+    with service.write_connection() as conn:
+        conn.execute("BEGIN IMMEDIATE")
+
+        referenced = conn.execute(
+            """
+            SELECT 1
+            FROM dictionary_definition
+            WHERE LOWER(role) = 'ety'
+              AND (
+                  TRIM(text) = ?
+                  OR instr(TRIM(text), ?) = 1
+                  OR instr(TRIM(text), ?) = 1
+              )
+            LIMIT 1
+            """,
+            (
+                archived["url"],
+                archived["url"] + "?",
+                archived["url"] + "#",
+            ),
+        ).fetchone()
+
+        if referenced:
+            return False
+
+        if not path.exists():
+            return True
+
+        if _sha256(path) != archived["sha256"]:
+            raise ValueError(
+                "De oude video is ondertussen gewijzigd. "
+                "Het bestand blijft behouden."
+            )
+
+        path.unlink()
+        _sync_directory(path.parent)
+
+    return True
