@@ -33,68 +33,21 @@ function readColumnPreferences() {
 
 function Badges({ items, functional = false }) {
     return (
-            <Stack
-                direction="row"
-                useFlexGap
-                flexWrap="wrap"
-                spacing={1}
-                sx={{ alignItems: "center", mb: 1 }}
-            >
-                <Button
-                    size="small"
-                    variant="outlined"
-                    disabled={!selectedIds.length || addingRecordings}
-                    onClick={addToRecordings}
-                >
-                    {addingRecordings
-                        ? "Bezig met toevoegen…"
-                        : "Toevoegen aan opnames"}
-                </Button>
+        <Stack direction="row" useFlexGap flexWrap="wrap" spacing={0.25}>
+            {items.map((item, index) => {
+                const isText = typeof item === "string";
 
-                <Typography variant="body2" role="status">
-                    {selectedIds.length} geselecteerd
-                </Typography>
-
-                <Button
-                    size="small"
-                    variant="outlined"
-                    disabled={!selectedIds.length || addingRecordings}
-                    onClick={() => setSelected(new Set())}
-                >
-                    Selectie wissen
-                </Button>
-
-                <Stack
-                    direction="row"
-                    useFlexGap
-                    flexWrap="wrap"
-                    spacing={1}
-                    sx={{ ml: "auto" }}
-                >
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        onClick={toggleHandshapes}
+                return (
+                    <span
+                        key={index}
+                        className={functional ? "label-functional" : "data-badge"}
+                        title={isText ? undefined : item.name}
                     >
-                        Handvormen · {showNames ? "Namen" : "Afbeeldingen"}
-                    </Button>
-
-                    <Button
-                        size="small"
-                        variant="outlined"
-                        aria-haspopup="dialog"
-                        aria-expanded={Boolean(columnAnchor)}
-                        aria-controls={
-                            columnAnchor ? "react-signbank-columns" : undefined
-                        }
-                        onClick={(event) =>
-                            setColumnAnchor(event.currentTarget)
-                        }
-                    >
-                        Kolommen kiezen
-                    </Button>
-                </Stack>
-            </Stack>
+                        {isText ? item : item.short}
+                    </span>
+                );
+            })}
+        </Stack>
     );
 }
 
@@ -493,7 +446,7 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
     return (
         <>
             <Stack direction="row" useFlexGap flexWrap="wrap" spacing={1}
-                   sx={{ justifyContent: "flex-end", alignItems: "center", mb: 1 }}>
+                   sx={{ justifyContent: "flex-start", alignItems: "center", mb: 1 }}>
                                 <Typography variant="body2" role="status">
                     {selectedIds.length} geselecteerd
                 </Typography>
@@ -509,7 +462,7 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
 
                 <Button
                     size="small"
-                    variant="contained"
+                    variant="outlined"
                     disableElevation
                     disabled={!selectedIds.length || addingRecordings}
                     onClick={addToRecordings}
@@ -518,7 +471,9 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
                         ? "Bezig met toevoegen…"
                         : "Toevoegen aan opnames"}
                 </Button>
-                <Button size="small" variant="outlined" onClick={toggleHandshapes}>
+                <Button size="small" variant="outlined"
+                        sx={{ ml: "auto" }}
+                        onClick={toggleHandshapes}>
                     Handvormen · {showNames ? "Namen" : "Afbeeldingen"}
                 </Button>
                 <Button size="small" variant="outlined"
