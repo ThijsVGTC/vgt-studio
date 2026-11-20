@@ -3,6 +3,7 @@ from . import views
 from django.views.generic import RedirectView
 from .signbank_deletion import delete_signbank_entry
 from .etymology_views import (save_etymology,delete_etymology,vimeo_preview,)
+from .etymology_pair_views import (etymology_pairs,save_etymology_pair_view,)
 
 urlpatterns = [
     path("signbank/", views.signbank_list, name="signbank_list"),
@@ -31,6 +32,8 @@ urlpatterns = [
     path("signbank/<int:signbank_id>/etymologie/<str:note_type>/<int:note_id>/wijzigen/",save_etymology,name="signbank_update_etymology",),
     path("signbank/<int:signbank_id>/etymologie/<str:note_type>/<int:note_id>/verwijderen/",delete_etymology,name="signbank_delete_etymology",),
     path("signbank/etymologie/vimeo-preview/",vimeo_preview,name="signbank_vimeo_preview",),
+    path("signbank/<int:signbank_id>/etymologie/paren/",etymology_pairs,name="signbank_etymology_pairs",),
+    path("signbank/<int:signbank_id>/etymologie/paren/opslaan/",save_etymology_pair_view,name="signbank_save_etymology_pair",),
     path("", RedirectView.as_view(pattern_name="signbank_list"), name="studio_home"),
     path("opnames/", views.recording_list, name="recording_list"),
     path("bulk-update/",views.bulk_update_recordings,name="bulk_update_recordings"),
