@@ -117,8 +117,13 @@ class NewSignbankEntryForm(forms.Form):
         required=False,
     )
 
-    etymology = forms.CharField(
-        label="Etymologie",
+    etymology = forms.URLField(
+        label="Etymologievideo",
+        required=False,
+    )
+
+    etymology_text = forms.CharField(
+        label="Etymologietekst",
         widget=forms.Textarea,
         strip=True,
         required=False,

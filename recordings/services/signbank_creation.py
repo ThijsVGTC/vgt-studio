@@ -297,6 +297,15 @@ def insert_signbank_entry(conn, data, signbank_user_id):
             "published": 0,
         })
 
+    if data.get("etymology_text"):
+        _insert(conn, "dictionary_definition", {
+            "gloss_id": signbank_id,
+            "role": "etymology_text",
+            "text": data["etymology_text"],
+            "count": 0,
+            "published": 0,
+        })
+
     return signbank_id
 
 def create_signbank_entry(data, signbank_user_id, prepared_video_path):

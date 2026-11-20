@@ -43,7 +43,8 @@ const fieldLabels = {
     functional_labels: "Functionele labels",
     internal_labels: "Interne labels",
     comments: "Opmerkingen",
-    etymology: "Etymologie",
+    etymology: "Etymologievideo",
+    etymology_text: "Etymologietekst",
     sources: "Bronnen",
 };
 
@@ -550,10 +551,31 @@ function CreateSignDialog({ mount, options, highContrast, onClose }) {
                                     <Box sx={{ gridColumn: "1 / -1" }}>
                                         {multiField("comments", "Opmerkingen Signbank")}
                                     </Box>
-                                    <TextField multiline minRows={1} size="small" label="Etymologie"
-                                               value={values.etymology ?? ""}
-                                               sx={{ gridColumn: "1 / -1" }}
-                                               onChange={(event) => setField("etymology", event.target.value)} />
+                                    <TextField
+                                        type="url"
+                                        size="small"
+                                        label="Etymologievideo"
+                                        placeholder="https://vimeo.com/…"
+                                        helperText="Link naar de etymologievideo."
+                                        value={values.etymology ?? ""}
+                                        sx={{ gridColumn: "1 / -1" }}
+                                        onChange={(event) =>
+                                            setField("etymology", event.target.value)
+                                        }
+                                    />
+
+                                    <TextField
+                                        multiline
+                                        minRows={4}
+                                        size="small"
+                                        label="Etymologietekst"
+                                        helperText="Uitgeschreven vertaling van de etymologievideo."
+                                        value={values.etymology_text ?? ""}
+                                        sx={{ gridColumn: "1 / -1" }}
+                                        onChange={(event) =>
+                                            setField("etymology_text", event.target.value)
+                                        }
+                                    />
                                     <Box sx={{ gridColumn: "1 / -1" }}>
                                         {multiField("sources", "Bronnen")}
                                     </Box>
