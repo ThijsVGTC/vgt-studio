@@ -101,6 +101,7 @@ def save_etymology_pair_view(request, signbank_id):
         "pair_number": data.get("pair_number"),
         "expected_revision": data.get("expected_revision") or None,
         "keep_video": data["source_type"] == "keep",
+        "published": data["published"],
     }
 
     try:

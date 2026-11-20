@@ -54,6 +54,8 @@ class EtymologyPairForm(forms.Form):
         min_value=0,
     )
 
+    published = forms.BooleanField(required=False)
+    
     expected_revision = forms.RegexField(
         regex=r"^[0-9a-f]{64}$",
         required=False,

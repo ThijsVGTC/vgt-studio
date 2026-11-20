@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { EtymologyCamera } from "./etymology-camera.jsx";
-import { Alert, Button, MenuItem, Stack, TextField } from "@mui/material";
+import { Alert, Button, MenuItem, Stack, TextField, Checkbox, FormControlLabel } from "@mui/material";
 import { EtymologyVideoField } from "./etymology-video-field.jsx";
 
 export function EtymologyPairForm({
@@ -15,6 +15,7 @@ export function EtymologyPairForm({
   const [file, setFile] = useState(null);
   const [error, setError] = useState("");
   const [previewUrl, setPreviewUrl] = useState("");
+  const [published, setPublished] = useState(pair?.published ?? false);
 
     useEffect(() => {
     if (!file) {
@@ -35,6 +36,7 @@ export function EtymologyPairForm({
 
     const payload = new FormData(event.currentTarget);
     payload.set("source_type", source);
+    payload.set("published", published ? "true" : "false");
     if (source === "upload" || source === "webcam") {
         if (!file) {
             setError("Kies eerst een videobestand.");
@@ -169,6 +171,22 @@ export function EtymologyPairForm({
         disabled={disabled}
       />
 
+      <FormControlLabel
+        label="Gepubliceerd op WDB"
+        control={
+            <Checkbox
+            checked={published}
+            onChange={(event) => setPublished(event.target.checked)}
+            disabled={disabled}
+            sx={{
+                color: "var(--heading-color, #303f6b)",
+                "&.Mui-checked": {
+                color: "var(--heading-color, #303f6b)",
+                },
+            }}
+            />
+        }
+        />
       <Stack direction="row" spacing={1} justifyContent="flex-end">
         <Button onClick={onCancel} disabled={disabled}>
           Annuleren
