@@ -222,6 +222,14 @@ SIGNBANK_ARCHIVE_ROOT = os.getenv(
     "/app/signbank-mov/glossvideo",
 )
 
+SIGNBANK_ETYMOLOGY_ARCHIVE_ROOT = os.getenv(
+    "SIGNBANK_ETYMOLOGY_ARCHIVE_ROOT",
+    os.path.join(
+        os.path.dirname(os.path.normpath(SIGNBANK_ARCHIVE_ROOT)),
+        "etymologyvideo",
+    ),
+)
+
 STUDIO_DELETE_API_TOKEN = os.getenv(
     "STUDIO_DELETE_API_TOKEN",
     "",

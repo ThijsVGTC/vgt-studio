@@ -45,11 +45,26 @@ def _checked_copy(source, directory):
         raise
 
 
-def replace_signbank_video(source_path, target_path):
+def replace_signbank_video(
+    source_path,
+    target_path,
+    *,
+    video_root=None,
+    archive_root=None,
+):
     source = Path(source_path).resolve()
     target = Path(target_path).resolve()
-    video_root = Path(settings.SIGNBANK_GLOSSVIDEO_ROOT).resolve()
-    archive_root = Path(settings.SIGNBANK_ARCHIVE_ROOT).resolve()
+    video_root = Path(
+        video_root
+        if video_root is not None
+        else settings.SIGNBANK_GLOSSVIDEO_ROOT
+    ).resolve()
+
+    archive_root = Path(
+        archive_root
+        if archive_root is not None
+        else settings.SIGNBANK_ARCHIVE_ROOT
+    ).resolve()
     relative = target.relative_to(video_root)
 
     if archive_root.is_relative_to(video_root) or video_root.is_relative_to(archive_root):
