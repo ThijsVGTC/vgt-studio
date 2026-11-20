@@ -352,6 +352,11 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
                             checked={selected.has(row.id)}
                             disabled={addingRecordings}
                             onChange={() => toggleSelection(row.id)}
+                            sx={{
+                                "&.Mui-checked": {
+                                    color: "#313f69",
+                                },
+                            }}
                             slotProps={{
                                 input: {
                                     "aria-label": `Selecteer ${row.gloss}`,
@@ -461,11 +466,22 @@ export function SignbankTable({ listUrl, addRecordingsUrl, csrfToken, }) {
                 </Button>
 
                 <Button
-                    size="small"
-                    variant="outlined"
+                    variant="contained"
                     disableElevation
                     disabled={!selectedIds.length || addingRecordings}
                     onClick={addToRecordings}
+                    sx={{
+                        bgcolor: "#313f69",
+                        color: "#FFF",
+                        textTransform: "none",
+                        "&:hover": {
+                            bgcolor: "#253153",
+                        },
+                        "&.Mui-disabled": {
+                            bgcolor: "action.disabledBackground",
+                            color: "action.disabled",
+                        },
+                    }}
                 >
                     {addingRecordings
                         ? "Bezig met toevoegen…"
