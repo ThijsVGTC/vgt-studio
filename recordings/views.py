@@ -25,6 +25,7 @@ from django.core.management import call_command
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotAllowed, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.templatetags.static import static
+from .services.signbank_video_archive import replace_signbank_video
 
 # Create your views here.
 logger = logging.getLogger(__name__)
@@ -757,35 +758,8 @@ def signbank_export_item(request, signbank_id):
         # Nieuwe video eerst volledig kopiëren naar een tijdelijk bestand.
         # Pas daarna de bestaande Signbank-video vervangen.
 
-        import os
-        import shutil
-        import tempfile
-
-        temp_path = None
-
-        try:
-            with tempfile.NamedTemporaryFile(
-                dir=target_dir,
-                prefix=f".{filename}.",
-                suffix=".tmp",
-                delete=False,
-            ) as temp_file:
-                temp_path = Path(temp_file.name)
-
-                with source_path.open("rb") as source_file:
-                    shutil.copyfileobj(source_file, temp_file)
-
-                temp_file.flush()
-                os.fsync(temp_file.fileno())
-
-            # Atomair vervangen op hetzelfde bestandssysteem.
-            os.replace(temp_path, target_path)
-            temp_path = None
-
-        finally:
-            if temp_path is not None:
-                temp_path.unlink(missing_ok=True)
-
+        replace_signbank_video(source_path, target_path)
+        
         thumbnail_success, thumbnail_message = (
             generate_thumbnail_for_item(
                 item,
@@ -923,34 +897,8 @@ def signbank_export_bulk(request):
                 exist_ok=True,
             )
 
-            import os
-            import tempfile
-
-            temp_path = None
-
-            try:
-                with tempfile.NamedTemporaryFile(
-                    dir=target_dir,
-                    prefix=f".{filename}.",
-                    suffix=".tmp",
-                    delete=False,
-                ) as temp_file:
-                    temp_path = Path(temp_file.name)
-
-                    with source_path.open("rb") as source_file:
-                        shutil.copyfileobj(source_file, temp_file)
-
-                    temp_file.flush()
-                    os.fsync(temp_file.fileno())
-
-                # Bestaande video pas vervangen als de kopie klaar is.
-                os.replace(temp_path, target_path)
-                temp_path = None
-
-            finally:
-                if temp_path is not None:
-                    temp_path.unlink(missing_ok=True)
-
+            replace_signbank_video(source_path, target_path)
+            
             thumbnail_success, _ = (
                 generate_thumbnail_for_item(
                     item,
