@@ -197,7 +197,7 @@ function EtymologyContent({ url }) {
   ));
 }
 
-export function SignbankInfoDialog({ info, onClose }) {
+export function SignbankInfoDialog({ info, onClose, style }) {
   const etymology = info.title === "Etymologie";
 
   return (
@@ -208,6 +208,7 @@ export function SignbankInfoDialog({ info, onClose }) {
       maxWidth={etymology ? "md" : "sm"}
       className="vgt-signbank-create-dialog"
       aria-labelledby="signbank-react-info-title"
+      style={style}
     >
       <DialogTitle
         id="signbank-react-info-title"
