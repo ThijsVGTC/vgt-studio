@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import {
     Box, Button, Checkbox, Chip, FormControlLabel, Paper,
-    Popover, Radio, Stack, TextField, Typography, MenuItem,
+    Popover, Radio, Stack, Switch, TextField, Typography, MenuItem,
 } from "@mui/material";
 
 const NO_LABEL = "__geen_label__";
@@ -142,6 +142,7 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
             : data.selectedInternalLabels
     );
     const [dictionary, setDictionary] = useState([data.inDictionary]);
+    const [hasEtymology, setHasEtymology] = useState(Boolean(data.hasEtymology));
 
     const labelText = (value) =>
         value === NO_LABEL ? "Geen label" : value.replaceAll("_", " ");
@@ -215,6 +216,9 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
             data.inDictionary,
             `In woordenboek: ${data.inDictionary === "yes" ? "Ja" : "Nee"}`,
         ]] : []),
+        ...(data.hasEtymology
+        ? [["has_etymology", "yes", "Heeft etymologie"]]
+        : []),
     ];
 
     function applyFilters(event) {
@@ -229,6 +233,7 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
 
         if (query.trim()) params.set("q", query.trim());
         if (dictionary[0]) params.set("in_dictionary", dictionary[0]);
+        if (hasEtymology) params.set("has_etymology", "yes");
 
         categories.forEach((value) => params.append("category", value));
         functional.forEach((value) => params.append("functional_label", value));
@@ -329,6 +334,18 @@ export function SignbankListControls({ data, listUrl, totalCount, highContrast }
                     <FilterMenu label="In woordenboek" options={dictionaryOptions}
                                 value={dictionary} count={data.inDictionary ? 1 : 0}
                                 onChange={setDictionary} single />
+                    
+                    <FormControlLabel
+                    label="Etymologie"
+                    sx={{ mx: 0 }}
+                    control={
+                        <Switch
+                        checked={hasEtymology}
+                        onChange={(event) => setHasEtymology(event.target.checked)}
+                        color="primary"
+                        />
+                    }
+                    />
 
                     <Button type="submit" variant="contained" disableElevation sx={primarySx}>
                         Filteren

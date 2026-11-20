@@ -2534,6 +2534,27 @@ def get_filtered_signbank_entries(request):
         entries = entries.filter(
             in_woordenboek=False
         )
+    if request.GET.get("has_etymology") == "yes":
+        text_only_ids = [
+            pk
+            for pk, notes in (
+                entries
+                .filter(etymologie=[])
+                .exclude(opmerkingen=[])
+                .values_list("pk", "opmerkingen")
+                .iterator()
+            )
+            if any(
+                (note.get("type") or "").strip().lower() == "etymology_text"
+                and (note.get("text") or "").strip()
+                for note in (notes or [])
+            )
+        ]
+
+        entries = entries.filter(
+            Q(etymologie__0__isnull=False)
+            | Q(pk__in=text_only_ids)
+        )
     return entries
 
 def serialize_signbank_row(entry):
@@ -2760,6 +2781,7 @@ def signbank_list(request):
                 "selectedFunctionalLabels": selected_functional_labels,
                 "selectedInternalLabels": selected_internal_labels,
                 "inDictionary": selected_in_dictionary,
+                "hasEtymology": request.GET.get("has_etymology") == "yes",
                 "defaultHiddenLabels": SIGNBANK_DEFAULT_HIDDEN_LABELS,
                 "filteredCount": page_obj.paginator.count,
                 "canCreate": request.user.is_staff,
