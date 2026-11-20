@@ -6,6 +6,7 @@ import {
 import CloseIcon from "@mui/icons-material/Close";
 import { SignbankDeleteEntry } from "./signbank-delete-entry.jsx";
 import { EtymologyVideoField } from "./etymology-video-field.jsx";
+import { EtymologyPairs } from "./etymology-pairs.jsx";
 
 const saveStyle = {
     bgcolor: "var(--create-heading)",
@@ -489,44 +490,9 @@ export function SignbankEditDialog({ row, onClose, page = false, listUrl }) {
                                         </Section>
                                     )}
 
-                                    <Section title="Etymologievideo" wide>
-                                        <TextItems
-                                            items={data.etymologyVideoItems ?? []}
-                                            addUrl={data.actions.addEtymologyVideo}
-                                            label="Etymologievideo"
-                                            name="text"
-                                            type="url"
-                                            videoPreview
-                                            vimeoPreviewUrl={
-                                                data.actions.vimeoPreview
-                                            }
-                                            maxLength={1000}
-                                            save={save}
-                                            disabled={
-                                                disabled ||
-                                                !data.canEditEtymology
-                                            }
-                                            confirmDelete={askDelete}
-                                        />
+                                    <Section title="Etymologie" wide>
+                                        <EtymologyPairs url={data.actions.etymologyPairs} />
                                     </Section>
-
-                                    <Section title="Etymologietekst" wide>
-                                        <TextItems
-                                            items={data.etymologyTextItems ?? []}
-                                            addUrl={data.actions.addEtymologyText}
-                                            label="Etymologietekst"
-                                            name="text"
-                                            multiline
-                                            minRows={1}
-                                            save={save}
-                                            disabled={
-                                                disabled ||
-                                                !data.canEditEtymology
-                                            }
-                                            confirmDelete={askDelete}
-                                        />
-                                    </Section>
-
                                     <Section title="Bronnen" wide>
                                         <TextItems items={data.sources} addUrl={data.actions.addSource}
                                                    label="Bron" name="new_text" save={save}
