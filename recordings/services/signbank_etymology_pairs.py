@@ -9,6 +9,14 @@ from .signbank_etymology import (
     update_last_author,
 )
 
+import logging
+
+from .etymology_video_storage import (
+    store_etymology_video,
+    discard_unused_etymology_video,
+)
+
+logger = logging.getLogger(__name__)
 
 def _read_notes(conn, signbank_id, pair_number=None):
     query = """
@@ -95,7 +103,6 @@ def get_etymology_pairs(signbank_id):
         for pair_number, notes in groups.items()
     ]
 
-
 def save_etymology_pair(
     signbank_id,
     video_url,
@@ -103,17 +110,14 @@ def save_etymology_pair(
     signbank_user_id,
     pair_number=None,
     expected_revision=None,
+    prepared_video_path=None,
+    keep_video=False,
 ):
-    video_url = video_url.strip()
+    video_url = (video_url or "").strip()
     text = text.strip()
-
-    if not video_url:
-        raise ValueError("Voeg een video of Vimeo-link toe.")
 
     if not text:
         raise ValueError("Vul de bijbehorende etymologietekst in.")
-
-    URLValidator(schemes=["http", "https"])(video_url)
 
     if pair_number is not None and (
         type(pair_number) is not int
@@ -121,112 +125,178 @@ def save_etymology_pair(
     ):
         raise ValueError("Ongeldig paarnummer.")
 
+    selected_sources = sum([
+        bool(video_url),
+        prepared_video_path is not None,
+        bool(keep_video),
+    ])
+
+    if selected_sources != 1:
+        raise ValueError("Kies precies één videobron.")
+
+    if keep_video and pair_number is None:
+        raise ValueError("Een nieuw paar heeft eerst een video nodig.")
+
+    if video_url:
+        URLValidator(schemes=["http", "https"])(video_url)
+
     service = SignbankService()
+    stored = None
 
-    with service.write_connection() as conn:
-        conn.execute("BEGIN IMMEDIATE")
+    try:
+        with service.write_connection() as conn:
+            conn.execute("BEGIN IMMEDIATE")
 
-        check_gloss_and_user(
-            conn,
-            signbank_id,
-            signbank_user_id,
-        )
-
-        if pair_number is None:
-            pair_number = conn.execute(
-                """
-                SELECT COALESCE(MAX(count), 0) + 1 AS next_number
-                FROM dictionary_definition
-                WHERE gloss_id = ?
-                  AND LOWER(role) IN ('ety', 'etymology_text')
-                """,
-                (signbank_id,),
-            ).fetchone()["next_number"]
-
-            existing = []
-
-        else:
-            existing = _read_notes(
+            check_gloss_and_user(
                 conn,
                 signbank_id,
-                pair_number,
+                signbank_user_id,
             )
 
-            if not existing:
-                raise ValueError(
-                    "Dit etymologiepaar bestaat niet meer. "
-                    "Laad de gegevens opnieuw."
-                )
-
-            pair = _pair_data(pair_number, existing)
-
-            if pair["ambiguous"]:
-                raise ValueError(
-                    "Deze index bevat meerdere video's of teksten. "
-                    "De bestaande notities moeten eerst gekoppeld worden."
-                )
-
-            if expected_revision != pair["revision"]:
-                raise ValueError(
-                    "Dit etymologiepaar is ondertussen gewijzigd. "
-                    "Laad de gegevens opnieuw voordat je opslaat."
-                )
-
-        existing_by_role = {
-            row["role"]: row
-            for row in existing
-        }
-
-        for role, value in (
-            ("ety", video_url),
-            ("etymology_text", text),
-        ):
-            previous = existing_by_role.get(role)
-
-            if previous is None:
-                conn.execute(
+            if pair_number is None:
+                pair_number = conn.execute(
                     """
-                    INSERT INTO dictionary_definition
-                        (gloss_id, role, text, count, published)
-                    VALUES (?, ?, ?, ?, ?)
+                    SELECT COALESCE(MAX(count), 0) + 1 AS next_number
+                    FROM dictionary_definition
+                    WHERE gloss_id = ?
+                      AND LOWER(role) IN ('ety', 'etymology_text')
                     """,
-                    (
-                        signbank_id,
-                        role,
-                        value,
-                        pair_number,
-                        0,
-                    ),
-                )
+                    (signbank_id,),
+                ).fetchone()["next_number"]
+
+                existing = []
 
             else:
-                conn.execute(
-                    """
-                    UPDATE dictionary_definition
-                    SET text = ?
-                    WHERE id = ?
-                      AND gloss_id = ?
-                      AND LOWER(role) = ?
-                      AND count = ?
-                    """,
-                    (
-                        value,
-                        previous["id"],
-                        signbank_id,
-                        role,
-                        pair_number,
-                    ),
+                existing = _read_notes(
+                    conn,
+                    signbank_id,
+                    pair_number,
                 )
 
-        update_last_author(
-            conn,
-            signbank_id,
-            signbank_user_id,
-        )
+                if not existing:
+                    raise ValueError(
+                        "Dit etymologiepaar bestaat niet meer. "
+                        "Laad de gegevens opnieuw."
+                    )
 
-        saved = _pair_data(
-            pair_number,
-            _read_notes(conn, signbank_id, pair_number),
-        )
+                pair = _pair_data(pair_number, existing)
 
-    return saved
+                if pair["ambiguous"]:
+                    raise ValueError(
+                        "Deze index bevat meerdere video's of teksten. "
+                        "Koppel de bestaande notities eerst."
+                    )
+
+                if expected_revision != pair["revision"]:
+                    raise ValueError(
+                        "Dit paar is ondertussen gewijzigd. "
+                        "Laad de gegevens opnieuw."
+                    )
+
+            existing_by_role = {
+                row["role"]: row
+                for row in existing
+            }
+
+            if keep_video:
+                previous_video = existing_by_role.get("ety")
+
+                if previous_video is None:
+                    raise ValueError(
+                        "Dit paar heeft nog geen video."
+                    )
+
+                video_url = (
+                    previous_video["text"] or ""
+                ).strip()
+
+                if not video_url:
+                    raise ValueError(
+                        "Voeg eerst een video of Vimeo-link toe."
+                    )
+
+            elif prepared_video_path is not None:
+                gloss_row = conn.execute(
+                    """
+                    SELECT annotation_idgloss
+                    FROM dictionary_gloss
+                    WHERE id = ?
+                    """,
+                    (signbank_id,),
+                ).fetchone()
+
+                stored = store_etymology_video(
+                    prepared_video_path=prepared_video_path,
+                    signbank_id=signbank_id,
+                    gloss=gloss_row["annotation_idgloss"] or "",
+                    pair_number=pair_number,
+                )
+
+                video_url = stored["url"]
+
+            for role, value in (
+                ("ety", video_url),
+                ("etymology_text", text),
+            ):
+                previous = existing_by_role.get(role)
+
+                if previous is None:
+                    conn.execute(
+                        """
+                        INSERT INTO dictionary_definition
+                            (gloss_id, role, text, count, published)
+                        VALUES (?, ?, ?, ?, ?)
+                        """,
+                        (
+                            signbank_id,
+                            role,
+                            value,
+                            pair_number,
+                            0,
+                        ),
+                    )
+
+                else:
+                    conn.execute(
+                        """
+                        UPDATE dictionary_definition
+                        SET text = ?
+                        WHERE id = ?
+                          AND gloss_id = ?
+                          AND LOWER(role) = ?
+                          AND count = ?
+                        """,
+                        (
+                            value,
+                            previous["id"],
+                            signbank_id,
+                            role,
+                            pair_number,
+                        ),
+                    )
+
+            update_last_author(
+                conn,
+                signbank_id,
+                signbank_user_id,
+            )
+
+            saved = _pair_data(
+                pair_number,
+                _read_notes(conn, signbank_id, pair_number),
+            )
+
+        return saved
+
+    except Exception:
+        if stored is not None:
+            try:
+                discard_unused_etymology_video(stored)
+            except Exception:
+                logger.exception(
+                    "Upload behouden omdat de opslaguitkomst "
+                    "niet gecontroleerd kon worden: %s",
+                    stored["url"],
+                )
+
+        raise
