@@ -202,6 +202,10 @@ SIGNBANK_GLOSSVIDEO_ROOT = os.getenv(
     "/app/signbank/writable/glossvideo",
 )
 
+SIGNBANK_ARCHIVE_ROOT = os.getenv(
+    "SIGNBANK_ARCHIVE_ROOT",
+    "/app/signbank-mov/glossvideo",
+)
 
 # Email
 # https://docs.djangoproject.com/en/6.1/topics/email/#topic-email-configuration
