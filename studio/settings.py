@@ -202,6 +202,16 @@ SIGNBANK_GLOSSVIDEO_ROOT = os.getenv(
     "/app/signbank/writable/glossvideo",
 )
 
+SIGNBANK_ETYMOLOGYVIDEO_ROOT = os.getenv(
+    "SIGNBANK_ETYMOLOGYVIDEO_ROOT",
+    os.path.join(
+        os.path.dirname(
+            os.path.normpath(SIGNBANK_GLOSSVIDEO_ROOT)
+        ),
+        "etymologyvideo",
+    ),
+)
+
 SIGNBANK_ARCHIVE_ROOT = os.getenv(
     "SIGNBANK_ARCHIVE_ROOT",
     "/app/signbank-mov/glossvideo",
