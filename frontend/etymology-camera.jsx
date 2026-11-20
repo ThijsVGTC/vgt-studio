@@ -239,6 +239,15 @@ export function EtymologyCamera({
                         variant="contained"
                         disabled={disabled}
                         onClick={startRecording}
+                        sx={{
+                        bgcolor: "primary.main",
+                        color: "primary.contrastText",
+                        textTransform: "none",
+                        fontWeight: 700,
+                        "&:hover": {
+                            bgcolor: "primary.dark",
+                        },
+                        }}
                     >
                         Opname starten
                     </Button>
