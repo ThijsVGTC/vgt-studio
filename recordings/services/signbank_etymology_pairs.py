@@ -135,7 +135,7 @@ def save_etymology_pair(
         if pair_number is None:
             pair_number = conn.execute(
                 """
-                SELECT COALESCE(MAX(count), -1) + 1 AS next_number
+                SELECT COALESCE(MAX(count), 0) + 1 AS next_number
                 FROM dictionary_definition
                 WHERE gloss_id = ?
                   AND LOWER(role) IN ('ety', 'etymology_text')

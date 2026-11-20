@@ -212,6 +212,11 @@ SIGNBANK_ETYMOLOGYVIDEO_ROOT = os.getenv(
     ),
 )
 
+SIGNBANK_ETYMOLOGYVIDEO_BASE_URL = (
+    "https://vlaamsegebarentaal.be/signbank/"
+    "dictionary/protected_media/etymologyvideo/"
+)
+
 SIGNBANK_ARCHIVE_ROOT = os.getenv(
     "SIGNBANK_ARCHIVE_ROOT",
     "/app/signbank-mov/glossvideo",
